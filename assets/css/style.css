@@ -1,0 +1,27 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f8f9fa;
+}
+header .navbar-brand {
+    letter-spacing: 0.05em;
+}
+.category-card {
+    min-height: 180px;
+}
+.product-thumb {
+    cursor: pointer;
+    transition: transform .2s;
+}
+.product-thumb:hover {
+    transform: scale(1.05);
+}
+.object-fit-cover {
+    object-fit: cover;
+}
+.card {
+    border: none;
+}
+.footer {
+    background: #111;
+    color: #ddd;
+}
