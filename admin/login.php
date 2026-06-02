@@ -26,23 +26,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { body: ['Inter', 'sans-serif'] }, colors: { brand: '#1d4ed8' } } } };
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
-<body class="bg-light">
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card shadow-sm p-4">
-                <h3 class="mb-4">Admin Login</h3>
-                <?php if ($error): ?><div class="alert alert-danger"><?= sanitize($error) ?></div><?php endif; ?>
-                <form method="post">
-                    <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label">Password</label><input type="password" name="password" class="form-control" required></div>
-                    <button class="btn btn-primary w-100">Login</button>
-                </form>
-            </div>
-        </div>
+<body class="flex min-h-screen items-center justify-center bg-slate-100 text-slate-900 font-body px-4">
+    <div class="w-full max-w-md rounded-[2rem] bg-white p-8 shadow-xl">
+        <h1 class="text-3xl font-semibold text-slate-900">Admin Login</h1>
+        <?php if ($error): ?><div class="mt-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
+        <form method="post" class="mt-8 space-y-5">
+            <div><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" name="email" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <div><label class="block text-sm font-medium text-slate-700">Password</label><input type="password" name="password" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Login</button>
+        </form>
     </div>
-</div>
 </body>
 </html>

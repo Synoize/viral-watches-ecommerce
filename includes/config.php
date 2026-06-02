@@ -1,4 +1,9 @@
 <?php
+
+// Set secure session cookie settings before starting the session
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+
 session_start();
 
 define('DB_HOST', '127.0.0.1');
@@ -10,7 +15,3 @@ define('BASE_URL', '/new');
 
 define('RAZORPAY_KEY_ID', 'YOUR_RAZORPAY_KEY_ID');
 define('RAZORPAY_KEY_SECRET', 'YOUR_RAZORPAY_SECRET');
-
-// Set secure session cookie settings
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);

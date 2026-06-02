@@ -8,25 +8,23 @@ $stmt->execute([$_SESSION['user_id']]);
 $orders = $stmt->fetchAll();
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
-<div class="container mt-5">
-    <h3>Order History</h3>
+<div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-semibold text-slate-900">Order History</h1>
     <?php if (!$orders): ?>
-        <div class="alert alert-info">You have no orders yet. <a href="<?= BASE_URL ?>/shop.php">Start shopping</a>.</div>
+        <div class="mt-8 rounded-[2rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">You have no orders yet. <a href="<?= BASE_URL ?>/shop.php" class="font-semibold text-brand hover:text-brand/80">Start shopping</a>.</div>
     <?php else: ?>
-        <div class="row g-4">
+        <div class="mt-8 space-y-5">
             <?php foreach ($orders as $order): ?>
-                <div class="col-12">
-                    <div class="card shadow-sm p-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5>Order #<?= $order['id'] ?></h5>
-                                <p class="mb-1 small text-muted">Placed on <?= date('j M Y, H:i', strtotime($order['created_at'])) ?></p>
-                                <p class="mb-0 small">Payment: <?= sanitize($order['payment_method']) ?> · Status: <?= sanitize($order['status']) ?></p>
-                            </div>
-                            <div class="text-end">
-                                <h4 class="mb-0">₹<?= number_format($order['total_amount'], 2) ?></h4>
-                                <span class="badge bg-secondary"><?= sanitize($order['payment_status']) ?></span>
-                            </div>
+                <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 class="text-xl font-semibold text-slate-900">Order #<?= $order['id'] ?></h2>
+                            <p class="mt-1 text-sm text-slate-500">Placed on <?= date('j M Y, H:i', strtotime($order['created_at'])) ?></p>
+                            <p class="mt-2 text-sm text-slate-600">Payment: <?= sanitize($order['payment_method']) ?> · Status: <?= sanitize($order['status']) ?></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-2xl font-semibold text-slate-900">₹<?= number_format($order['total_amount'], 2) ?></p>
+                            <span class="mt-2 inline-flex rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700"><?= sanitize($order['payment_status']) ?></span>
                         </div>
                     </div>
                 </div>

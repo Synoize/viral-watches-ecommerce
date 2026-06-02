@@ -10,60 +10,96 @@ $csrfToken = generateCsrfToken();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eCommerce Platform</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
+    <title>ShopMaster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        heading: ['Cormorant Garamond', 'serif'],
+                        body: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: '#1d4ed8',
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
-<body>
-<header class="sticky-top bg-white shadow-sm">
-    <div class="container-fluid">
-        <nav class="navbar navbar-expand-lg navbar-white">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold" href="<?= BASE_URL ?>/index.php">ShopMaster</a>
-                <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-mdb-toggle="dropdown">Categories</a>
-                            <ul class="dropdown-menu">
-                                <?php foreach ($categories as $category): ?>
-                                    <li><a class="dropdown-item" href="<?= BASE_URL ?>/shop.php?category=<?= $category['id'] ?>"><?= sanitize($category['name']) ?></a></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/shop.php">Shop</a></li>
-                        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/about.php">About</a></li>
-                        <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/contact.php">Help</a></li>
-                    </ul>
-                    <form class="d-flex input-group w-auto" action="<?= BASE_URL ?>/shop.php" method="get">
-                        <input type="search" class="form-control" name="search" placeholder="Search products" aria-label="Search">
-                        <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
-                    </form>
-                    <ul class="navbar-nav ms-3 align-items-center">
-                        <li class="nav-item me-3"><a class="nav-link position-relative" href="<?= BASE_URL ?>/cart.php"> <i class="fas fa-shopping-cart"></i> <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle"><?= $cartCount ?></span></a></li>
-                        <?php if ($user): ?>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" data-mdb-toggle="dropdown"><?= sanitize($user['name']) ?></a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="<?= BASE_URL ?>/user/profile.php">Profile</a></li>
-                                    <li><a class="dropdown-item" href="<?= BASE_URL ?>/user/orders.php">Orders</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?= BASE_URL ?>/logout.php">Logout</a></li>
-                                </ul>
-                            </li>
-                        <?php else: ?>
-                            <li class="nav-item"><a class="btn btn-outline-primary btn-sm" href="<?= BASE_URL ?>/login.php">Login</a></li>
-                            <li class="nav-item ms-2"><a class="btn btn-primary btn-sm" href="<?= BASE_URL ?>/register.php">Register</a></li>
-                        <?php endif; ?>
-                    </ul>
+<body class="font-body bg-slate-50 text-slate-900">
+<header class="sticky top-0 z-50 bg-white shadow-sm">
+    <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between gap-4">
+            <a href="<?= BASE_URL ?>/index.php" class="text-2xl font-semibold tracking-tight text-slate-900">ShopMaster</a>
+            <button id="mobile-menu-btn" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm md:hidden" aria-label="Open menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="hidden flex-1 items-center justify-between gap-6 md:flex">
+                <div class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <details class="relative">
+                        <summary class="flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-4 py-2 hover:bg-slate-200">Categories <i class="fas fa-chevron-down text-xs"></i></summary>
+                        <div class="absolute left-0 top-full z-20 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-3 shadow-lg">
+                            <?php foreach ($categories as $category): ?>
+                                <a class="block rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-slate-50" href="<?= BASE_URL ?>/shop.php?category=<?= $category['id'] ?>"><?= sanitize($category['name']) ?></a>
+                            <?php endforeach; ?>
+                        </div>
+                    </details>
+                    <a href="<?= BASE_URL ?>/shop.php" class="rounded-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Shop</a>
+                    <a href="<?= BASE_URL ?>/about.php" class="rounded-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">About</a>
+                    <a href="<?= BASE_URL ?>/contact.php" class="rounded-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Help</a>
+                </div>
+                <form class="flex w-full max-w-md items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3 py-2" action="<?= BASE_URL ?>/shop.php" method="get">
+                    <input type="search" name="search" placeholder="Search products" class="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-500" aria-label="Search products">
+                    <button type="submit" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white hover:bg-slate-800"><i class="fas fa-search"></i></button>
+                </form>
+                <div class="flex items-center gap-3">
+                    <a href="<?= BASE_URL ?>/cart.php" class="relative inline-flex items-center justify-center rounded-full border border-slate-200 bg-white p-3 text-slate-700 shadow-sm hover:bg-slate-50">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="absolute -right-2 -top-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[0.65rem] font-semibold text-white"><?= $cartCount ?></span>
+                    </a>
+                    <?php if ($user): ?>
+                        <details class="relative">
+                            <summary class="flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"><?= sanitize($user['name']) ?> <i class="fas fa-chevron-down text-xs"></i></summary>
+                            <div class="absolute right-0 top-full z-20 mt-2 w-44 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
+                                <a class="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" href="<?= BASE_URL ?>/user/profile.php">Profile</a>
+                                <a class="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" href="<?= BASE_URL ?>/user/orders.php">Orders</a>
+                                <div class="border-t border-slate-200"></div>
+                                <a class="block px-4 py-3 text-sm text-rose-600 hover:bg-slate-50" href="<?= BASE_URL ?>/logout.php">Logout</a>
+                            </div>
+                        </details>
+                    <?php else: ?>
+                        <a href="<?= BASE_URL ?>/login.php" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Login</a>
+                        <a href="<?= BASE_URL ?>/register.php" class="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">Register</a>
+                    <?php endif; ?>
                 </div>
             </div>
-        </nav>
+        </div>
+        <div id="mobile-menu" class="hidden flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:hidden">
+            <a class="block rounded-2xl px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" href="<?= BASE_URL ?>/shop.php">Shop</a>
+            <a class="block rounded-2xl px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" href="<?= BASE_URL ?>/about.php">About</a>
+            <a class="block rounded-2xl px-4 py-3 text-sm text-slate-700 hover:bg-slate-50" href="<?= BASE_URL ?>/contact.php">Help</a>
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <p class="mb-2 text-sm font-medium text-slate-700">Categories</p>
+                <div class="space-y-1">
+                    <?php foreach ($categories as $category): ?>
+                        <a class="block rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-slate-100" href="<?= BASE_URL ?>/shop.php?category=<?= $category['id'] ?>"><?= sanitize($category['name']) ?></a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <form class="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3 py-2" action="<?= BASE_URL ?>/shop.php" method="get">
+                <input type="search" name="search" placeholder="Search products" class="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-500">
+                <button type="submit" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white"><i class="fas fa-search"></i></button>
+            </form>
+            <?php if ($user): ?>
+                <a class="block rounded-full bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white" href="<?= BASE_URL ?>/user/profile.php">Profile</a>
+            <?php else: ?>
+                <a class="block rounded-full border border-slate-200 bg-white px-4 py-3 text-center text-sm font-medium text-slate-700" href="<?= BASE_URL ?>/login.php">Login</a>
+                <a class="block rounded-full bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white" href="<?= BASE_URL ?>/register.php">Register</a>
+            <?php endif; ?>
+        </div>
     </div>
 </header>
-<main class="py-4">
+<main class="py-6">

@@ -5,18 +5,30 @@ $totalOrders = $pdo->query('SELECT COUNT(*) FROM orders')->fetchColumn();
 $totalProducts = $pdo->query('SELECT COUNT(*) FROM products')->fetchColumn();
 $totalRevenue = $pdo->query('SELECT COALESCE(SUM(total_amount),0) FROM orders WHERE payment_status = "Paid"')->fetchColumn();
 ?>
-<div class="row g-4">
-    <div class="col-md-3"><div class="card p-4 shadow-sm"><h5>Users</h5><p class="display-6"><?= $totalUsers ?></p></div></div>
-    <div class="col-md-3"><div class="card p-4 shadow-sm"><h5>Products</h5><p class="display-6"><?= $totalProducts ?></p></div></div>
-    <div class="col-md-3"><div class="card p-4 shadow-sm"><h5>Orders</h5><p class="display-6"><?= $totalOrders ?></p></div></div>
-    <div class="col-md-3"><div class="card p-4 shadow-sm"><h5>Revenue</h5><p class="display-6">₹<?= number_format($totalRevenue, 2) ?></p></div></div>
+<div class="grid gap-6 xl:grid-cols-4">
+    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <p class="text-sm font-medium text-slate-500">Users</p>
+        <p class="mt-4 text-4xl font-semibold text-slate-900"><?= $totalUsers ?></p>
+    </div>
+    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <p class="text-sm font-medium text-slate-500">Products</p>
+        <p class="mt-4 text-4xl font-semibold text-slate-900"><?= $totalProducts ?></p>
+    </div>
+    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <p class="text-sm font-medium text-slate-500">Orders</p>
+        <p class="mt-4 text-4xl font-semibold text-slate-900"><?= $totalOrders ?></p>
+    </div>
+    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <p class="text-sm font-medium text-slate-500">Revenue</p>
+        <p class="mt-4 text-4xl font-semibold text-slate-900">₹<?= number_format($totalRevenue, 2) ?></p>
+    </div>
 </div>
-<div class="card mt-4 p-4 shadow-sm">
-    <h5>Quick Actions</h5>
-    <div class="row g-3 mt-3">
-        <div class="col-md-4"><a class="btn btn-primary w-100" href="<?= BASE_URL ?>/admin/products.php">Manage Products</a></div>
-        <div class="col-md-4"><a class="btn btn-secondary w-100" href="<?= BASE_URL ?>/admin/orders.php">Manage Orders</a></div>
-        <div class="col-md-4"><a class="btn btn-success w-100" href="<?= BASE_URL ?>/admin/coupons.php">Manage Coupons</a></div>
+<div class="mt-8 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="text-2xl font-semibold text-slate-900">Quick Actions</h2>
+    <div class="mt-6 grid gap-4 md:grid-cols-3">
+        <a href="<?= BASE_URL ?>/admin/products.php" class="rounded-3xl border border-slate-200 bg-slate-900 px-6 py-4 text-center text-sm font-semibold text-white hover:bg-slate-800">Manage Products</a>
+        <a href="<?= BASE_URL ?>/admin/orders.php" class="rounded-3xl border border-slate-200 bg-slate-100 px-6 py-4 text-center text-sm font-semibold text-slate-900 hover:bg-slate-50">Manage Orders</a>
+        <a href="<?= BASE_URL ?>/admin/coupons.php" class="rounded-3xl border border-slate-200 bg-slate-100 px-6 py-4 text-center text-sm font-semibold text-slate-900 hover:bg-slate-50">Manage Coupons</a>
     </div>
 </div>
 <?php require_once __DIR__ . '/_footer.php'; ?>

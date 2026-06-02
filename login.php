@@ -24,19 +24,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
-<div class="container mt-5"><div class="row justify-content-center"><div class="col-md-6">
-    <div class="card shadow-sm p-4">
-        <h3 class="mb-4">Login</h3>
-        <?php if ($error): ?><div class="alert alert-danger"><?= sanitize($error) ?></div><?php endif; ?>
-        <?php if ($message = flash('success')): ?><div class="alert alert-success"><?= sanitize($message) ?></div><?php endif; ?>
-        <form method="post">
-            <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" required></div>
-            <div class="mb-3"><label class="form-label">Password</label><input type="password" name="password" class="form-control" required></div>
-            <button class="btn btn-primary w-100">Login</button>
+<div class="mx-auto flex min-h-[calc(100vh-6rem)] items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm">
+        <h3 class="text-3xl font-semibold text-slate-900">Login</h3>
+        <?php if ($error): ?><div class="mt-4 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
+        <?php if ($message = flash('success')): ?><div class="mt-4 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($message) ?></div><?php endif; ?>
+        <form method="post" class="mt-8 space-y-5">
+            <div><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" name="email" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <div><label class="block text-sm font-medium text-slate-700">Password</label><input type="password" name="password" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Login</button>
         </form>
-        <div class="mt-3 text-center">
-            <a href="<?= BASE_URL ?>/register.php">Create Account</a>
-        </div>
+        <p class="mt-4 text-center text-sm text-slate-600"><a href="<?= BASE_URL ?>/forgot.php" class="font-medium text-brand underline">Forgot password?</a></p>
+        <p class="mt-6 text-center text-sm text-slate-600">Don't have an account? <a href="<?= BASE_URL ?>/register.php" class="font-medium text-slate-900 underline">Register</a></p>
     </div>
-</div></div></div>
+</div>
 <?php include __DIR__ . '/includes/footer.php'; ?>

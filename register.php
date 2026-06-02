@@ -30,21 +30,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
-<div class="container mt-5"><div class="row justify-content-center"><div class="col-md-6">
-    <div class="card shadow-sm p-4">
-        <h3 class="mb-4">Register</h3>
-        <?php if ($error): ?><div class="alert alert-danger"><?= sanitize($error) ?></div><?php endif; ?>
-        <form method="post">
-            <div class="mb-3"><label class="form-label">Name</label><input type="text" name="name" class="form-control" required></div>
-            <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" required></div>
-            <div class="mb-3"><label class="form-label">Phone</label><input type="text" name="phone" class="form-control" required pattern="\d{10}"></div>
-            <div class="mb-3"><label class="form-label">Password</label><input type="password" name="password" class="form-control" required></div>
-            <div class="mb-3"><label class="form-label">Confirm Password</label><input type="password" name="confirm_password" class="form-control" required></div>
-            <button class="btn btn-primary w-100">Register</button>
+<div class="mx-auto flex min-h-[calc(100vh-6rem)] items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm">
+        <h3 class="text-3xl font-semibold text-slate-900">Register</h3>
+        <?php if ($error): ?><div class="mt-4 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
+        <form method="post" class="mt-8 space-y-5">
+            <div><label class="block text-sm font-medium text-slate-700">Name</label><input name="name" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <div><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" name="email" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <div><label class="block text-sm font-medium text-slate-700">Phone</label><input type="text" name="phone" required pattern="\d{10}" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <div><label class="block text-sm font-medium text-slate-700">Password</label><input type="password" name="password" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <div><label class="block text-sm font-medium text-slate-700">Confirm Password</label><input type="password" name="confirm_password" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Register</button>
         </form>
-        <div class="mt-3 text-center">
-            <a href="<?= BASE_URL ?>/login.php">Already have an account?</a>
-        </div>
+        <p class="mt-6 text-center text-sm text-slate-600">Already have an account? <a href="<?= BASE_URL ?>/login.php" class="font-medium text-slate-900 underline">Login</a></p>
     </div>
-</div></div></div>
+</div>
 <?php include __DIR__ . '/includes/footer.php'; ?>

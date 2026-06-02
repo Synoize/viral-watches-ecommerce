@@ -11,28 +11,42 @@ $adminName = sanitize($_SESSION['user_id'] ? getCurrentUser()['name'] : 'Admin')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        body: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: '#1d4ed8',
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="<?= BASE_URL ?>/admin/dashboard.php">Admin Panel</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/dashboard.php">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/products.php">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/categories.php">Categories</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/orders.php">Orders</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/users.php">Users</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/coupons.php">Coupons</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/messages.php">Messages</a></li>
-            </ul>
-            <div class="text-white">Logged in as <?= $adminName ?> <a class="btn btn-sm btn-outline-light ms-2" href="<?= BASE_URL ?>/admin/logout.php">Logout</a></div>
+<body class="min-h-screen bg-slate-50 text-slate-900 font-body">
+<header class="bg-slate-900 text-slate-100 shadow-sm">
+    <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between gap-4">
+            <a href="<?= BASE_URL ?>/admin/dashboard.php" class="text-xl font-semibold">Admin Panel</a>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-slate-300">Logged in as <?= $adminName ?></span>
+                <a href="<?= BASE_URL ?>/admin/logout.php" class="rounded-full border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700">Logout</a>
+            </div>
         </div>
+        <nav class="flex flex-wrap gap-2 text-sm font-medium text-slate-300">
+            <a href="<?= BASE_URL ?>/admin/dashboard.php" class="rounded-full bg-slate-800 px-4 py-2 hover:bg-slate-700">Dashboard</a>
+            <a href="<?= BASE_URL ?>/admin/products.php" class="rounded-full px-4 py-2 hover:bg-slate-700">Products</a>
+            <a href="<?= BASE_URL ?>/admin/categories.php" class="rounded-full px-4 py-2 hover:bg-slate-700">Categories</a>
+            <a href="<?= BASE_URL ?>/admin/orders.php" class="rounded-full px-4 py-2 hover:bg-slate-700">Orders</a>
+            <a href="<?= BASE_URL ?>/admin/users.php" class="rounded-full px-4 py-2 hover:bg-slate-700">Users</a>
+            <a href="<?= BASE_URL ?>/admin/coupons.php" class="rounded-full px-4 py-2 hover:bg-slate-700">Coupons</a>
+            <a href="<?= BASE_URL ?>/admin/messages.php" class="rounded-full px-4 py-2 hover:bg-slate-700">Messages</a>
+        </nav>
     </div>
-</nav>
-<div class="container-fluid py-4">
+</header>
+<main class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">

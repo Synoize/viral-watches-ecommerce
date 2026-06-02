@@ -45,92 +45,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
-<div class="container mt-5">
-    <div class="row g-4">
-        <div class="col-lg-7">
-            <div class="card p-4 mb-4">
-                <h4>Shipping & Billing</h4>
-                <?php if ($error = flash('error')): ?><div class="alert alert-danger"><?= sanitize($error) ?></div><?php endif; ?>
-                <form method="post">
-                    <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Full Name</label>
-                            <input type="text" name="name" class="form-control" value="<?= sanitize($user['name'] ?? '') ?>" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Phone</label>
-                            <input type="text" name="phone" class="form-control" required pattern="\d{10}" placeholder="10-digit phone">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Address Line 1</label>
-                            <input type="text" name="address_line1" class="form-control" required>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Address Line 2</label>
-                            <input type="text" name="address_line2" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">City</label>
-                            <input type="text" name="city" class="form-control" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">State</label>
-                            <input type="text" name="state" class="form-control" required>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Pincode</label>
-                            <input type="text" name="zipcode" class="form-control" required pattern="\d{6}">
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <h5>Coupon</h5>
-                        <div class="input-group">
-                            <input type="text" name="coupon_code" class="form-control" placeholder="Enter coupon code">
-                            <button class="btn btn-outline-primary" type="submit">Apply</button>
-                        </div>
-                        <?php if ($couponResult && !empty($couponResult['discount'])): ?>
-                            <div class="mt-2 alert alert-success">Coupon applied! Discount ₹<?= number_format($couponResult['discount'], 2) ?>.</div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="mt-4">
-                        <h5>Payment</h5>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="razorpay" value="razorpay" checked>
-                            <label class="form-check-label" for="razorpay">Razorpay</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod">
-                            <label class="form-check-label" for="cod">Cash on Delivery (₹50 advance)</label>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary mt-4">Place Order</button>
-                </form>
-            </div>
-        </div>
-        <div class="col-lg-5">
-            <div class="card p-4 shadow-sm">
-                <h4>Order Summary</h4>
-                <ul class="list-group list-group-flush mb-3">
-                    <?php foreach ($items as $item): ?>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong><?= sanitize($item['name']) ?></strong>
-                                <div class="small text-muted">Qty <?= $item['quantity'] ?></div>
-                            </div>
-                            <span>₹<?= number_format($item['price'] * $item['quantity'], 2) ?></span>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-                <div class="border-top pt-3">
-                    <div class="d-flex justify-content-between mb-2"><span>Subtotal</span><strong>₹<?= number_format($subtotal, 2) ?></strong></div>
-                    <?php if ($couponResult && !empty($couponResult['discount'])): ?>
-                        <div class="d-flex justify-content-between mb-2"><span>Discount</span><strong>-₹<?= number_format($couponResult['discount'], 2) ?></strong></div>
-                    <?php endif; ?>
-                    <div class="d-flex justify-content-between fs-5"><span>Total</span><strong>₹<?= number_format($couponResult['total'] ?? $subtotal, 2) ?></strong></div>
+<div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+        <section class="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+            <h1 class="text-3xl font-semibold text-slate-900">Checkout</h1>
+            <?php if ($error = flash('error')): ?><div class="mt-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
+            <form method="post" class="mt-8 space-y-6">
+                <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <label class="space-y-2 text-sm font-medium text-slate-700">Full Name<input type="text" name="name" readonly value="<?= sanitize($user['name'] ?? '') ?>" class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none" /></label>
+                    <label class="space-y-2 text-sm font-medium text-slate-700">Phone<input type="text" name="phone" required pattern="\d{10}" placeholder="10-digit phone" class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none" /></label>
                 </div>
+                <div class="grid gap-6">
+                    <label class="space-y-2 text-sm font-medium text-slate-700">Address Line 1<input type="text" name="address_line1" required class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none" /></label>
+                    <label class="space-y-2 text-sm font-medium text-slate-700">Address Line 2<input type="text" name="address_line2" class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none" /></label>
+                    <div class="grid gap-6 sm:grid-cols-3">
+                        <label class="space-y-2 text-sm font-medium text-slate-700">City<input type="text" name="city" required class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none" /></label>
+                        <label class="space-y-2 text-sm font-medium text-slate-700">State<input type="text" name="state" required class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none" /></label>
+                        <label class="space-y-2 text-sm font-medium text-slate-700">Pincode<input type="text" name="zipcode" required pattern="\d{6}" class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none" /></label>
+                    </div>
+                </div>
+                <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
+                    <h2 class="text-lg font-semibold text-slate-900">Coupon</h2>
+                    <div class="mt-4 flex gap-3 flex-col sm:flex-row">
+                        <input name="coupon_code" type="text" placeholder="Enter coupon code" class="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-900" />
+                        <button class="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Apply</button>
+                    </div>
+                    <?php if ($couponResult && !empty($couponResult['discount'])): ?>
+                        <div class="mt-4 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">Coupon applied! Discount ₹<?= number_format($couponResult['discount'], 2) ?>.</div>
+                    <?php endif; ?>
+                </div>
+                <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
+                    <h2 class="text-lg font-semibold text-slate-900">Payment</h2>
+                    <div class="mt-4 space-y-3">
+                        <label class="flex items-center gap-3 rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900">
+                            <input type="radio" name="payment_method" value="razorpay" checked class="h-4 w-4 text-brand accent-brand" /> Razorpay
+                        </label>
+                        <label class="flex items-center gap-3 rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900">
+                            <input type="radio" name="payment_method" value="cod" class="h-4 w-4 text-brand accent-brand" /> Cash on Delivery (₹50 advance)
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="inline-flex w-full items-center justify-center rounded-3xl bg-brand px-6 py-4 text-sm font-semibold text-white hover:bg-slate-800">Place Order</button>
+            </form>
+        </section>
+        <aside class="space-y-6 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+            <h2 class="text-2xl font-semibold text-slate-900">Order Summary</h2>
+            <div class="space-y-4">
+                <?php foreach ($items as $item): ?>
+                    <div class="rounded-3xl bg-slate-50 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="font-semibold text-slate-900"><?= sanitize($item['name']) ?></p>
+                                <p class="mt-1 text-sm text-slate-500">Qty <?= $item['quantity'] ?></p>
+                            </div>
+                            <p class="text-slate-900">₹<?= number_format($item['price'] * $item['quantity'], 2) ?></p>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
-        </div>
+            <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6">
+                <div class="flex items-center justify-between text-sm text-slate-600"><span>Subtotal</span><span>₹<?= number_format($subtotal, 2) ?></span></div>
+                <?php if ($couponResult && !empty($couponResult['discount'])): ?>
+                    <div class="mt-3 flex items-center justify-between text-sm text-slate-600"><span>Discount</span><span>-₹<?= number_format($couponResult['discount'], 2) ?></span></div>
+                <?php endif; ?>
+                <div class="mt-5 flex items-center justify-between text-xl font-semibold text-slate-900"><span>Total</span><span>₹<?= number_format($couponResult['total'] ?? $subtotal, 2) ?></span></div>
+            </div>
+        </aside>
     </div>
 </div>
 <?php include __DIR__ . '/includes/footer.php'; ?>

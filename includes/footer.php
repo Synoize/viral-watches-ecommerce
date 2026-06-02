@@ -1,13 +1,10 @@
 </main>
-<footer class="bg-dark text-light py-4 mt-auto">
-    <div class="container text-center">
-        <p class="mb-1">&copy; <?= date('Y') ?> ShopMaster. Built with PHP, MySQL, and Bootstrap.</p>
-        <small>Secure authentication · Shopping cart · Admin dashboard · Razorpay integration</small>
+<footer class="bg-slate-900 text-slate-300">
+    <div class="mx-auto max-w-7xl px-4 py-8 text-center sm:px-6 lg:px-8">
+        <p class="text-sm">&copy; <?= date('Y') ?> ShopMaster. Built with PHP, MySQL, and Tailwind CSS.</p>
+        <p class="mt-2 text-xs text-slate-500">Secure authentication · Shopping cart · Admin dashboard · Razorpay integration</p>
     </div>
 </footer>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?= BASE_URL ?>/assets/js/app.js"></script>
 </body>
 </html>

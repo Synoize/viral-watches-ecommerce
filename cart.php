@@ -31,55 +31,52 @@ $items = getCartItems();
 $subtotal = calculateCartTotal();
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
-<div class="container mt-5">
-    <h2 class="h4 mb-4">Shopping Cart</h2>
-    <?php if ($message = flash('success')): ?><div class="alert alert-success"><?= $message ?></div><?php endif; ?>
+<div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-semibold text-slate-900">Shopping Cart</h1>
+    <?php if ($message = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= $message ?></div><?php endif; ?>
     <?php if ($items): ?>
-        <form method="post">
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Total</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($items as $item): $itemTotal = $item['price'] * $item['quantity']; ?>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <img src="<?= sanitize(json_decode($item['gallery'], true)[0] ?? $item['images']) ?>" width="80" class="rounded-3" alt="<?= sanitize($item['name']) ?>">
-                                        <div>
-                                            <a href="<?= BASE_URL ?>/product.php?id=<?= $item['id'] ?>" class="fw-semibold text-dark"><?= sanitize($item['name']) ?></a>
-                                            <p class="small text-muted mb-0">Stock: <?= (int)$item['stock'] ?></p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>₹<?= number_format($item['price'], 2) ?></td>
-                                <td><input type="number" name="quantities[<?= $item['id'] ?>]" value="<?= $item['quantity'] ?>" min="1" max="<?= $item['stock'] ?>" class="form-control w-50"></td>
-                                <td>₹<?= number_format($itemTotal, 2) ?></td>
-                                <td>
-                                    <button type="submit" name="remove" value="<?= $item['id'] ?>" class="btn btn-sm btn-outline-danger">Remove</button>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+        <form method="post" class="mt-8 space-y-6">
+            <div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+                <div class="grid gap-px bg-slate-200 text-sm sm:grid-cols-[3fr_1fr_1fr_1fr_100px]">
+                    <div class="bg-white px-6 py-4 text-slate-500">Product</div>
+                    <div class="bg-white px-6 py-4 text-slate-500">Price</div>
+                    <div class="bg-white px-6 py-4 text-slate-500">Quantity</div>
+                    <div class="bg-white px-6 py-4 text-slate-500">Total</div>
+                    <div class="bg-white px-6 py-4"></div>
+                </div>
+                <?php foreach ($items as $item): $itemTotal = $item['price'] * $item['quantity']; ?>
+                    <div class="grid gap-px bg-slate-200 text-sm sm:grid-cols-[3fr_1fr_1fr_1fr_100px]">
+                        <div class="bg-white px-6 py-5">
+                            <div class="flex items-center gap-4">
+                                <img src="<?= sanitize(json_decode($item['gallery'], true)[0] ?? $item['images']) ?>" alt="<?= sanitize($item['name']) ?>" class="h-20 w-20 rounded-3xl object-cover" />
+                                <div>
+                                    <a href="<?= BASE_URL ?>/product.php?id=<?= $item['id'] ?>" class="font-semibold text-slate-900 hover:text-brand"><?= sanitize($item['name']) ?></a>
+                                    <p class="mt-2 text-sm text-slate-500">Stock: <?= (int)$item['stock'] ?></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white px-6 py-5 text-slate-900">₹<?= number_format($item['price'], 2) ?></div>
+                        <div class="bg-white px-6 py-5">
+                            <input type="number" name="quantities[<?= $item['id'] ?>]" value="<?= $item['quantity'] ?>" min="1" max="<?= $item['stock'] ?>" class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" />
+                        </div>
+                        <div class="bg-white px-6 py-5 text-slate-900">₹<?= number_format($itemTotal, 2) ?></div>
+                        <div class="bg-white px-6 py-5">
+                            <button type="submit" name="remove" value="<?= $item['id'] ?>" class="inline-flex items-center justify-center rounded-3xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 hover:bg-rose-100">Remove</button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
-            <div class="d-flex justify-content-between align-items-center">
-                <button type="submit" class="btn btn-outline-primary">Update Cart</button>
-                <div class="text-end">
-                    <p class="mb-1">Subtotal: <strong>₹<?= number_format($subtotal, 2) ?></strong></p>
-                    <a href="<?= BASE_URL ?>/checkout.php" class="btn btn-primary">Proceed to Checkout</a>
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <button type="submit" class="inline-flex items-center justify-center rounded-3xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Update Cart</button>
+                <div class="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 text-right">
+                    <p class="text-sm text-slate-600">Subtotal</p>
+                    <p class="mt-2 text-3xl font-semibold text-slate-900">₹<?= number_format($subtotal, 2) ?></p>
+                    <a href="<?= BASE_URL ?>/checkout.php" class="mt-4 inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800 lg:w-auto">Proceed to Checkout</a>
                 </div>
             </div>
         </form>
     <?php else: ?>
-        <div class="alert alert-info">Your cart is empty. <a href="<?= BASE_URL ?>/shop.php">Browse products</a> to add items.</div>
+        <div class="mt-8 rounded-[2rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Your cart is empty. <a href="<?= BASE_URL ?>/shop.php" class="font-semibold text-brand hover:text-brand/80">Browse products</a> to add items.</div>
     <?php endif; ?>
 </div>
 <?php include __DIR__ . '/includes/footer.php'; ?>
