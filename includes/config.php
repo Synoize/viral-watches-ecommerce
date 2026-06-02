@@ -15,3 +15,4 @@ define('BASE_URL', '/new');
 
 define('RAZORPAY_KEY_ID', 'YOUR_RAZORPAY_KEY_ID');
 define('RAZORPAY_KEY_SECRET', 'YOUR_RAZORPAY_SECRET');
+
