@@ -76,7 +76,7 @@ $subtotal = calculateCartTotal();
             </div>
         </form>
     <?php else: ?>
-        <div class="mt-8 rounded-[2rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Your cart is empty. <a href="<?= BASE_URL ?>/shop.php" class="font-semibold text-brand hover:text-brand/80">Browse products</a> to add items.</div>
+        <div class="mt-8 rounded-[2rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Your cart is empty. <a href="<?= BASE_URL ?>/collection" class="font-semibold text-brand hover:text-brand/80">Browse products</a> to add items.</div>
     <?php endif; ?>
 </div>
 <?php include __DIR__ . '/includes/footer.php'; ?>

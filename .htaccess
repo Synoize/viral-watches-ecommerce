@@ -1,0 +1,29 @@
+# Enable pretty URLs
+RewriteEngine On
+RewriteBase /new/
+
+# If the requested resource is a real file or directory, serve it
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Pretty routes
+RewriteRule ^cart/?$ cart.php [L,QSA]
+RewriteRule ^collection/?$ collection.php [L,QSA]
+RewriteRule ^about/?$ about.php [L,QSA]
+RewriteRule ^contact/?$ contact.php [L,QSA]
+RewriteRule ^login/?$ login.php [L,QSA]
+RewriteRule ^register/?$ register.php [L,QSA]
+RewriteRule ^logout/?$ logout.php [L,QSA]
+
+# Redirect old /shop/* URLs to /collection/*
+RewriteRule ^shop/(.*)$ collection/$1 [R=301,L]
+
+# Collection by slug -> collection.php receives category_slug via /collection/<slug>
+RewriteRule ^collection/([^/]+)/?$ collection.php?category_slug=$1 [L,QSA]
+
+# User pages mapping (e.g. /user/profile -> /user/profile.php)
+RewriteRule ^user/([A-Za-z0-9_-]+)/?$ user/$1.php [L,QSA]
+
+# Fallback to index
+RewriteRule ^$ index.php [L,QSA]

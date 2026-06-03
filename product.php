@@ -5,7 +5,7 @@ $stmt = $pdo->prepare('SELECT p.*, c.name AS category_name FROM products p LEFT 
 $stmt->execute([$id]);
 $product = $stmt->fetch();
 if (!$product) {
-    redirect('/shop.php');
+    redirect('/collection');
 }
 $gallery = json_decode($product['gallery'], true) ?: [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quantity'])) {

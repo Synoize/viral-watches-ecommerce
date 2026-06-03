@@ -44,6 +44,18 @@ function getCategories() {
     return $stmt->fetchAll();
 }
 
+function getCategoryBySlug($slug) {
+    global $pdo;
+    $stmt = $pdo->query('SELECT id, name FROM categories ORDER BY name');
+    $categories = $stmt->fetchAll();
+    $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($slug)));
+    foreach ($categories as $cat) {
+        $catSlug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($cat['name'])));
+        if ($catSlug === $slug) return $cat;
+    }
+    return null;
+}
+
 function getCartCount() {
     if (empty($_SESSION['cart'])) return 0;
     return array_sum(array_column($_SESSION['cart'], 'quantity'));

@@ -11,7 +11,7 @@ $orders = $stmt->fetchAll();
 <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
     <h1 class="text-3xl font-semibold text-slate-900">Order History</h1>
     <?php if (!$orders): ?>
-        <div class="mt-8 rounded-[2rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">You have no orders yet. <a href="<?= BASE_URL ?>/shop.php" class="font-semibold text-brand hover:text-brand/80">Start shopping</a>.</div>
+        <div class="mt-8 rounded-[2rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">You have no orders yet. <a href="<?= BASE_URL ?>/collection" class="font-semibold text-brand hover:text-brand/80">Start shopping</a>.</div>
     <?php else: ?>
         <div class="mt-8 space-y-5">
             <?php foreach ($orders as $order): ?>

@@ -5,6 +5,98 @@ $stmt = $pdo->query('SELECT * FROM products WHERE stock > 0 ORDER BY id DESC LIM
 $trending = $stmt->fetchAll();
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
+
+<!-- HERO SECTION -->
+<section class="relative w-full overflow-hidden">
+    <!-- SLIDER -->
+    <div class="swiper heroSlider">
+        <div class="swiper-wrapper">
+            <!-- SLIDE 1 -->
+            <div class="swiper-slide relative">
+                <!-- BACKGROUND IMAGE -->
+
+                <picture>
+                    <!-- Mobile -->
+                    <source media="(max-width: 767px)"
+                        srcset="https://i.ibb.co/WpqS6MVp/Chat-GPT-Image-Jun-1-2026-03-47-29-PM.png" />
+
+                    <!-- Desktop -->
+                    <img src="https://i.ibb.co/fVV6MSGV/Untitled-design-36.png" alt="Banner"
+                        class="w-full h-[650px] md:h-[750px] lg:h-[550px] object-cover" />
+                </picture>
+                <!-- OVERLAY -->
+                <div class="absolute inset-0 bg-black/25"></div>
+
+                <!-- CONTENT -->
+
+                <!-- <div class="absolute inset-0 flex items-end md:items-center pb-12 md:pb-0">
+                    <div class="max-w-[1800px] mx-auto w-full px-5 md:px-10">
+                        <div class="flex justify-center lg:justify-end">
+                            <div class="max-w-[620px] text-white text-center lg:text-left">
+                                <p class="text-[18px] md:text-[22px] lg:text-[26px] font-light tracking-wide mb-2">
+                                    Pre-Summer Sale
+                                </p>
+
+                                <h1
+                                    class="text-[65px] md:text-[100px] lg:text-[140px] leading-[0.9] font-light">
+                                    Sparkle
+                                </h1>
+
+                                <div class="flex items-center gap-3 md:gap-4 mt-4 mb-5">
+                                    <div class="h-[1px] bg-white flex-1"></div>
+
+                                    <div class="flex items-center gap-1">
+                                        <div class="w-2 h-2 bg-white rotate-45"></div>
+                                        <div class="w-2 h-2 bg-white rotate-45"></div>
+                                    </div>
+
+                                    <div class="h-[1px] bg-white flex-1"></div>
+                                </div>
+
+                                <h2
+                                    class="text-[24px] md:text-[32px] lg:text-[38px] leading-tight font-light">
+                                    Flat
+                                    <span class="font-semibold"> 30% off </span>
+
+                                    on prepaid order
+                                </h2>
+
+                                <div class="mt-10 md:mt-12 lg:mt-14">
+                                    <a href="#"
+                                        class="inline-flex items-center justify-center border border-white px-8 md:px-10 lg:px-12 py-4 md:py-5 text-[16px] md:text-[20px] lg:text-[22px] tracking-wide hover:bg-white hover:text-black transition duration-300">
+                                        SHOP NOW
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+
+            <!-- SLIDE 2 -->
+            <div class="swiper-slide relative">
+                <picture>
+                    <!-- Mobile -->
+                    <source media="(max-width: 767px)" srcset="https://i.ibb.co/fdvH4XyM/pposter-2.webp" />
+
+                    <!-- Desktop -->
+                    <img src="https://i.ibb.co/4Z4P7hL4/Untitled-design-37.png" alt="Banner"
+                        class="w-full h-[650px] md:h-[750px] lg:h-[550px] object-cover" />
+                </picture>
+                <!-- OVERLAY -->
+                <div class="absolute inset-0 bg-black/20"></div>
+            </div>
+        </div>
+        <!-- LEFT ARROW -->
+        <div class="swiper-button-prev !text-black !w-[35px] !h-[35px] !bg-white rounded-full [&::after]:!text-[14px]">
+        </div>
+        <!-- RIGHT ARROW -->
+        <div class="swiper-button-next !text-black !w-[35px] !h-[35px] !bg-white rounded-full [&::after]:!text-[14px]">
+        </div>
+    </div>
+</section>
+
+
 <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
     <section class="grid gap-10 lg:grid-cols-[1.2fr,0.8fr] lg:items-center">
         <div class="space-y-6">
@@ -12,7 +104,7 @@ $trending = $stmt->fetchAll();
             <h1 class="text-5xl font-semibold tracking-tight text-slate-900">Shop the latest styles with ShopMaster.</h1>
             <p class="max-w-xl text-lg leading-8 text-slate-600">Premium products, fast shipping, and a secure checkout experience for modern online shopping.</p>
             <div class="flex flex-wrap gap-3">
-                <a href="<?= BASE_URL ?>/shop.php" class="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Shop Now</a>
+                <a href="<?= BASE_URL ?>/collection" class="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Shop Now</a>
                 <a href="<?= BASE_URL ?>/contact.php" class="inline-flex items-center justify-center rounded-3xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Contact Support</a>
             </div>
         </div>
@@ -26,11 +118,12 @@ $trending = $stmt->fetchAll();
     <section class="mt-16">
         <div class="flex items-center justify-between gap-4">
             <h2 class="text-2xl font-semibold text-slate-900">Featured Categories</h2>
-            <a href="<?= BASE_URL ?>/shop.php" class="text-sm font-medium text-brand hover:text-slate-900">View all</a>
+            <a href="<?= BASE_URL ?>/collection" class="text-sm font-medium text-brand hover:text-slate-900">View all</a>
         </div>
         <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <?php foreach ($featuredCategories as $category): ?>
-                <a href="<?= BASE_URL ?>/shop.php?category=<?= $category['id'] ?>" class="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-lg">
+                <?php $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($category['name']))); ?>
+                <a href="<?= BASE_URL ?>/collection/<?= $slug ?>" class="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-lg">
                     <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-brand transition group-hover:bg-brand group-hover:text-white">
                         <i class="fas fa-tag text-2xl"></i>
                     </div>
@@ -42,7 +135,7 @@ $trending = $stmt->fetchAll();
     <section class="mt-16">
         <div class="flex items-center justify-between gap-4">
             <h2 class="text-2xl font-semibold text-slate-900">Trending Products</h2>
-            <a href="<?= BASE_URL ?>/shop.php" class="text-sm font-medium text-brand hover:text-slate-900">See all products</a>
+            <a href="<?= BASE_URL ?>/collection" class="text-sm font-medium text-brand hover:text-slate-900">See all products</a>
         </div>
         <div class="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <?php foreach ($trending as $product): ?>

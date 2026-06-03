@@ -1,6 +1,16 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
-$categoryId = !empty($_GET['category']) ? (int)$_GET['category'] : null;
+// Accept category slug from rewrite or query
+$categorySlug = !empty($_GET['category_slug']) ? sanitize($_GET['category_slug']) : null;
+$categoryId = null;
+if ($categorySlug) {
+    $cat = getCategoryBySlug($categorySlug);
+    if ($cat) $categoryId = (int)$cat['id'];
+}
+// Backwards compatibility: allow ?category=id
+if (!$categoryId && !empty($_GET['category'])) {
+    $categoryId = (int)$_GET['category'];
+}
 $search = !empty($_GET['search']) ? sanitize($_GET['search']) : null;
 $orderBy = 'p.id DESC';
 if (!empty($_GET['sort']) && $_GET['sort'] === 'price_asc') {
@@ -39,9 +49,28 @@ $products = $stmt->fetchAll();
 $total = $pdo->query('SELECT FOUND_ROWS()')->fetchColumn();
 $totalPages = ceil($total / $pageSize);
 $categories = getCategories();
+$activeCategoryName = $categoryId ? ($cat['name'] ?? '') : '';
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <?php if (!$categoryId && empty($_GET['search']) && empty($_GET['min_price']) && empty($_GET['max_price']) && empty($_GET['sort']) && empty($_GET['page'])): ?>
+        <section>
+            <div class="flex items-center justify-between gap-4">
+                <h1 class="text-3xl font-semibold text-slate-900">Collections</h1>
+                <p class="text-sm text-slate-500">Browse by category</p>
+            </div>
+            <div class="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                <?php foreach ($categories as $catItem): $slugItem = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($catItem['name']))); ?>
+                    <a href="<?= BASE_URL ?>/collection/<?= $slugItem ?>" class="group overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-lg">
+                        <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-brand transition group-hover:bg-brand group-hover:text-white">
+                            <i class="fas fa-tag text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900"><?= sanitize($catItem['name']) ?></h3>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </section>
+    <?php else: ?>
     <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
         <aside class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
             <h2 class="text-lg font-semibold text-slate-900">Filters</h2>
@@ -50,8 +79,8 @@ $categories = getCategories();
                     <label class="block text-sm font-medium text-slate-700">Category</label>
                     <select name="category" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900">
                         <option value="">All categories</option>
-                        <?php foreach ($categories as $cat): ?>
-                            <option value="<?= $cat['id'] ?>" <?= $categoryId === (int)$cat['id'] ? 'selected' : '' ?>><?= sanitize($cat['name']) ?></option>
+                        <?php foreach ($categories as $catOption): ?>
+                            <option value="<?= $catOption['id'] ?>" <?= $categoryId === (int)$catOption['id'] ? 'selected' : '' ?>><?= sanitize($catOption['name']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -74,7 +103,7 @@ $categories = getCategories();
             </form>
             <div class="mt-8 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-4">
                 <h3 class="text-sm font-semibold text-slate-900">Quick Search</h3>
-                <form method="get" action="<?= BASE_URL ?>/shop.php" class="mt-4 flex items-center gap-2">
+                <form method="get" action="<?= BASE_URL ?>/collection/<?= $categorySlug ?? '' ?>" class="mt-4 flex items-center gap-2">
                     <input type="text" name="search" value="<?= $search ?>" placeholder="Keyword" class="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-900" />
                     <button class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-white hover:bg-slate-800"><i class="fas fa-search"></i></button>
                 </form>
@@ -83,7 +112,7 @@ $categories = getCategories();
         <section>
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 class="text-2xl font-semibold text-slate-900">Shop Products</h1>
+                    <h1 class="text-2xl font-semibold text-slate-900"><?= $activeCategoryName ? sanitize($activeCategoryName) : 'Products' ?></h1>
                     <p class="mt-1 text-sm text-slate-500"><?= $total ?> products found</p>
                 </div>
             </div>
@@ -110,11 +139,13 @@ $categories = getCategories();
             <?php if ($totalPages > 1): ?>
                 <nav class="mt-8 flex flex-wrap items-center gap-2">
                     <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                        <a href="<?= BASE_URL ?>/shop.php?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>" class="inline-flex items-center justify-center rounded-full border border-slate-200 px-4 py-2 text-sm <?= $i === $page ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 hover:bg-slate-50' ?>"><?= $i ?></a>
+                        <?php $queryParams = array_merge($_GET, ['page' => $i]); ?>
+                        <a href="<?= BASE_URL ?>/collection/<?= $categorySlug ? $categorySlug . '?' . http_build_query($queryParams) : '?' . http_build_query($queryParams) ?>" class="inline-flex items-center justify-center rounded-full border border-slate-200 px-4 py-2 text-sm <?= $i === $page ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 hover:bg-slate-50' ?>"><?= $i ?></a>
                     <?php endfor; ?>
                 </nav>
             <?php endif; ?>
         </section>
     </div>
 </div>
+<?php endif; ?>
 <?php include __DIR__ . '/includes/footer.php'; ?>

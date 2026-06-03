@@ -1,32 +1,73 @@
-alert("Welcome to our watch store! Explore our collection of premium timepieces and find the perfect watch for you. Enjoy shopping!");
+/* SEARCH OVERLAY */
+document.addEventListener("DOMContentLoaded", () => {
 
+  const openBtn = document.getElementById("openSearch");
+  const closeBtn = document.getElementById("closeSearch");
+  const overlay = document.getElementById("searchOverlay");
+  const panel = document.getElementById("searchPanel");
+  const input = panel.querySelector("input");
 
-document.addEventListener('DOMContentLoaded', function () {
-    const menuBtn = document.getElementById('mobile-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    if (menuBtn && mobileMenu) {
-        menuBtn.addEventListener('click', function () {
-            mobileMenu.classList.toggle('hidden');
-        });
+  // Open Search
+  openBtn?.addEventListener("click", () => {
+
+    overlay.classList.remove("invisible", "opacity-0");
+    overlay.classList.add("opacity-100");
+
+    setTimeout(() => {
+      panel.classList.remove("-translate-y-full");
+      panel.classList.add("translate-y-0");
+    }, 50);
+
+    document.body.style.overflow = "hidden";
+
+    setTimeout(() => {
+      input?.focus();
+    }, 500);
+  });
+
+  // Close Search
+  function closeSearch() {
+
+    panel.classList.remove("translate-y-0");
+    panel.classList.add("-translate-y-full");
+
+    setTimeout(() => {
+      overlay.classList.remove("opacity-100");
+      overlay.classList.add("opacity-0");
+
+      setTimeout(() => {
+        overlay.classList.add("invisible");
+      }, 300);
+
+    }, 200);
+
+    document.body.style.overflow = "";
+  }
+
+  // Close Button
+  closeBtn?.addEventListener("click", closeSearch);
+
+  // ESC Key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeSearch();
     }
-    document.querySelectorAll('.product-thumb').forEach(function (thumb) {
-        thumb.addEventListener('click', function () {
-            const src = this.dataset.src;
-            const mainImage = document.querySelector('.product-main-image');
-            if (mainImage && src) {
-                mainImage.src = src;
-            }
-        });
-    });
+  });
+
+  // Click Outside Panel
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      closeSearch();
+    }
+  });
+
 });
 
-// SUMMER SALE BAR
-
+/* SUMMER SALE COUNTDOWN TIMER */
 function updateCountdown() {
-
   const now = new Date();
 
-  // Next midnight
+  // Next Midnight
   const tomorrow = new Date();
   tomorrow.setDate(now.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
@@ -41,129 +82,205 @@ function updateCountdown() {
   const mm = String(minutes).padStart(2, "0");
   const ss = String(seconds).padStart(2, "0");
 
+  // Hours
   document.getElementById("h1").innerText = hh[0];
   document.getElementById("h2").innerText = hh[1];
 
+  // Minutes
   document.getElementById("m1").innerText = mm[0];
   document.getElementById("m2").innerText = mm[1];
 
+  // Seconds
   document.getElementById("s1").innerText = ss[0];
   document.getElementById("s2").innerText = ss[1];
 }
 
+// Start Countdown
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
-// top Bar
 
+/* TOP ANNOUNCEMENT BAR */
 const messages = [
   "Prepaid Orders Deliver Faster!",
   "Free Shipping on Orders Above ₹999",
   "Easy Returns Within 7 Days",
-  "Premium Quality Watches "
+  "Premium Quality Watches"
 ];
 
-let currentIndex = 0;
 const textElement = document.getElementById("announcementText");
+let currentIndex = 0;
 
+// Rotate Messages Every 3 Seconds
 setInterval(() => {
   currentIndex = (currentIndex + 1) % messages.length;
-  textElement.textContent = messages[currentIndex];
+
+  if (textElement) {
+    textElement.textContent = messages[currentIndex];
+  }
 }, 3000);
 
 
-// Header
-
+/* DESKTOP MENU */
 document.addEventListener("DOMContentLoaded", () => {
 
+  const details = document.getElementById("profileMenu");
+  const summary = details.querySelector("summary");
+  const dropdown = details.querySelector(".dropdown");
+
+  function openDropdown() {
+    details.open = true;
+
+    requestAnimationFrame(() => {
+      dropdown.classList.remove(
+        "max-h-0",
+        "opacity-0",
+        "-translate-y-3"
+      );
+
+      dropdown.classList.add(
+        "max-h-[400px]",
+        "opacity-100",
+        "translate-y-0"
+      );
+    });
+  }
+
+  function closeDropdown() {
+    dropdown.classList.remove(
+      "max-h-[400px]",
+      "opacity-100",
+      "translate-y-0"
+    );
+
+    dropdown.classList.add(
+      "max-h-0",
+      "opacity-0",
+      "-translate-y-3"
+    );
+
+    setTimeout(() => {
+      details.open = false;
+    }, 300);
+  }
+
+  summary.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (details.open) {
+      closeDropdown();
+    } else {
+      openDropdown();
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (details.open && !details.contains(e.target)) {
+      closeDropdown();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && details.open) {
+      closeDropdown();
+    }
+  });
+
+});
+
+
+/* MOBILE SIDEBAR MENU */
+document.addEventListener("DOMContentLoaded", () => {
   const menuBtn = document.getElementById("menuBtn");
   const closeMenu = document.getElementById("closeMenu");
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("overlay");
 
-  menuBtn.addEventListener("click", () => {
+  // Open Sidebar
+  menuBtn?.addEventListener("click", () => {
     sidebar.style.left = "0";
     overlay.classList.remove("hidden");
     document.body.style.overflow = "hidden";
   });
 
+  // Close Sidebar Function
   function closeSidebar() {
     sidebar.style.left = "-320px";
     overlay.classList.add("hidden");
     document.body.style.overflow = "";
   }
 
-  closeMenu.addEventListener("click", closeSidebar);
-  overlay.addEventListener("click", closeSidebar);
-
+  // Close Events
+  closeMenu?.addEventListener("click", closeSidebar);
+  overlay?.addEventListener("click", closeSidebar);
 });
 
 
-// hero slider
+/* HERO SLIDER */
+new Swiper(".heroSlider", {
+  loop: true,
 
-  new Swiper(".heroSlider", {
-    loop: true,
+  navigation: {
+    nextEl: ".swiper-button-next",
+    prevEl: ".swiper-button-prev",
+  },
 
-    navigation: {
-      nextEl: ".swiper-button-next",
-      prevEl: ".swiper-button-prev",
+  autoplay: {
+    delay: 4000,
+    disableOnInteraction: false,
+  },
+});
+
+
+/* BEST SELLER SLIDER */
+new Swiper(".bestSellerSlider", {
+  slidesPerView: "auto",
+  spaceBetween: 14,
+});
+
+
+/* CHAINS COLLECTION SLIDER */
+new Swiper(".chainsSlider", {
+  slidesPerView: 2.2,
+  spaceBetween: 16,
+
+  breakpoints: {
+    768: {
+      slidesPerView: 2,
     },
-
-    autoplay: {
-      delay: 4000,
-      disableOnInteraction: false,
+    1024: {
+      slidesPerView: 4,
     },
-  });
+  },
+});
 
-// best seller slider
 
-
-    new Swiper(".bestSellerSlider", {
-    slidesPerView: "auto",
-    spaceBetween: 14,
-  });
-
-  // chainslider
-    new Swiper(".chainsSlider", {
-    slidesPerView: 2.2,
-    spaceBetween: 16,
-
-    breakpoints: {
-      768: {
-        slidesPerView: 2,
-      },
-
-      1024: {
-        slidesPerView: 4,
-      }
-    }
-  });
-
-  // CUSTOMER REVIEWS 
-  const slider = document.getElementById("reviewSlider");
-
+/* CUSTOMER REVIEWS AUTO SLIDER */
+const reviewSlider = document.getElementById("reviewSlider");
 let scrollAmount = 0;
 
-function autoSlide() {
+function autoSlideReviews() {
+  if (!reviewSlider) return;
 
-  const cardWidth =
-    slider.querySelector("div").offsetWidth + 32;
+  const firstCard = reviewSlider.querySelector("div");
+  if (!firstCard) return;
+
+  const cardWidth = firstCard.offsetWidth + 32;
 
   scrollAmount += cardWidth;
 
   if (
     scrollAmount >=
-    slider.scrollWidth - slider.clientWidth
+    reviewSlider.scrollWidth - reviewSlider.clientWidth
   ) {
     scrollAmount = 0;
   }
 
-  slider.scrollTo({
+  reviewSlider.scrollTo({
     left: scrollAmount,
     behavior: "smooth",
   });
 }
 
-setInterval(autoSlide, 2000);
-    
-
+// Auto Scroll Reviews Every 2 Seconds
+setInterval(autoSlideReviews, 2000);
