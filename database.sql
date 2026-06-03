@@ -93,9 +93,13 @@ CREATE TABLE IF NOT EXISTS order_items (
     product_id INT NOT NULL,
     quantity INT NOT NULL,
     price DECIMAL(10,2) NOT NULL,
+    box_option_id INT UNSIGNED DEFAULT NULL,
+    box_quantity INT UNSIGNED NOT NULL DEFAULT 0,
+    box_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
 
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (box_option_id) REFERENCES box_options(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- COUPONS
@@ -179,6 +183,21 @@ VALUES
 'coffee-maker.jpg',
 '["coffee-maker.jpg","coffee-maker2.jpg"]'
 );
+
+-- BOX OPTIONS
+INSERT INTO box_options
+(name, image, price, is_active)
+VALUES
+(
+'Cartier Box',
+'assets/images/cartier-box.svg',
+350.00,
+1
+)
+ON DUPLICATE KEY UPDATE
+image = VALUES(image),
+price = VALUES(price),
+is_active = VALUES(is_active);
 
 -- COUPONS
 INSERT INTO coupons

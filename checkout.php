@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-slate-700">Phone</label>
                         <div class="flex gap-2">
-                            <select name="country_code" class="rounded-3xl border border-slate-200 bg-slate-50 px-3 py-3 text-slate-900 outline-none focus:border-slate-900 w-24">
+                            <select name="country_code" class="w-24 rounded-3xl border border-slate-200 bg-slate-50 px-3 py-3 text-slate-900 outline-none focus:border-slate-900">
                                 <?php $selected = isset($_POST['country_code']) ? $_POST['country_code'] : '91'; ?>
                                 <?php foreach (getCountryCodes() as $code => $label): ?>
                                     <option value="<?= $code ?>" <?= $selected == $code ? 'selected' : '' ?>><?= $code ?></option>
@@ -85,12 +85,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
                     <h2 class="text-lg font-semibold text-slate-900">Coupon</h2>
-                    <div class="mt-4 flex gap-3 flex-col sm:flex-row">
+                    <div class="mt-4 flex flex-col gap-3 sm:flex-row">
                         <input name="coupon_code" type="text" placeholder="Enter coupon code" class="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-900" />
                         <button class="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Apply</button>
                     </div>
                     <?php if ($couponResult && !empty($couponResult['discount'])): ?>
-                        <div class="mt-4 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">Coupon applied! Discount ₹<?= number_format($couponResult['discount'], 2) ?>.</div>
+                        <div class="mt-4 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">Coupon applied! Discount &#8377;<?= number_format($couponResult['discount'], 2) ?>.</div>
                     <?php endif; ?>
                 </div>
                 <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="radio" name="payment_method" value="razorpay" checked class="h-4 w-4 text-brand accent-brand" /> Razorpay
                         </label>
                         <label class="flex items-center gap-3 rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900">
-                            <input type="radio" name="payment_method" value="cod" class="h-4 w-4 text-brand accent-brand" /> Cash on Delivery (₹50 advance)
+                            <input type="radio" name="payment_method" value="cod" class="h-4 w-4 text-brand accent-brand" /> Cash on Delivery (&#8377;50 advance)
                         </label>
                     </div>
                 </div>
@@ -112,22 +112,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="space-y-4">
                 <?php foreach ($items as $item): ?>
                     <div class="rounded-3xl bg-slate-50 p-4">
-                        <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-start justify-between gap-3">
                             <div>
                                 <p class="font-semibold text-slate-900"><?= sanitize($item['name']) ?></p>
-                                <p class="mt-1 text-sm text-slate-500">Qty <?= $item['quantity'] ?></p>
+                                <p class="mt-1 text-sm text-slate-500">Qty <?= (int)$item['quantity'] ?></p>
+                                <?php if (!empty($item['box_id'])): ?>
+                                    <div class="mt-3 flex items-center gap-3 rounded-2xl bg-white p-3">
+                                        <img src="<?= sanitize(resolveAssetUrl($item['box_image'] ?: 'assets/images/cartier-box.svg')) ?>" alt="<?= sanitize($item['box_name']) ?>" class="h-12 w-12 object-contain">
+                                        <div>
+                                            <p class="text-sm font-medium text-slate-900"><?= sanitize($item['box_name']) ?></p>
+                                            <p class="text-xs text-slate-500">Box qty <?= (int)$item['box_quantity'] ?> x &#8377;<?= number_format($item['box_price'], 2) ?></p>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                            <p class="text-slate-900">₹<?= number_format($item['price'] * $item['quantity'], 2) ?></p>
+                            <p class="text-slate-900">&#8377;<?= number_format($item['line_total'], 2) ?></p>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
             <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6">
-                <div class="flex items-center justify-between text-sm text-slate-600"><span>Subtotal</span><span>₹<?= number_format($subtotal, 2) ?></span></div>
+                <div class="flex items-center justify-between text-sm text-slate-600"><span>Subtotal</span><span>&#8377;<?= number_format($subtotal, 2) ?></span></div>
                 <?php if ($couponResult && !empty($couponResult['discount'])): ?>
-                    <div class="mt-3 flex items-center justify-between text-sm text-slate-600"><span>Discount</span><span>-₹<?= number_format($couponResult['discount'], 2) ?></span></div>
+                    <div class="mt-3 flex items-center justify-between text-sm text-slate-600"><span>Discount</span><span>-&#8377;<?= number_format($couponResult['discount'], 2) ?></span></div>
                 <?php endif; ?>
-                <div class="mt-5 flex items-center justify-between text-xl font-semibold text-slate-900"><span>Total</span><span>₹<?= number_format($couponResult['total'] ?? $subtotal, 2) ?></span></div>
+                <div class="mt-5 flex items-center justify-between text-xl font-semibold text-slate-900"><span>Total</span><span>&#8377;<?= number_format($couponResult['total'] ?? $subtotal, 2) ?></span></div>
             </div>
         </aside>
     </div>

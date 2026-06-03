@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-labelledby="title desc">
+  <title id="title">Watch gift box</title>
+  <desc id="desc">A black presentation box with a watch inside.</desc>
+  <rect width="420" height="420" fill="#fff"/>
+  <path d="M120 132 244 94l58 26-123 40z" fill="#2d3035"/>
+  <path d="M179 160 302 120v150l-123 56z" fill="#111317"/>
+  <path d="M120 132v148l59 46V160z" fill="#050608"/>
+  <path d="M140 150 237 121l36 15-96 32z" fill="#e9e7e3"/>
+  <path d="M177 168 273 136v84l-96 35z" fill="#f5f3ee"/>
+  <path d="M140 150v82l37 23v-87z" fill="#cfcac3"/>
+  <path d="M111 281 178 241l137 51-95 58z" fill="#17191e"/>
+  <path d="M111 281v31l109 68v-30z" fill="#06070a"/>
+  <path d="M220 350 315 292v30l-95 58z" fill="#23262c"/>
+  <ellipse cx="223" cy="276" rx="54" ry="21" fill="#0d1117" opacity=".35"/>
+  <path d="M185 257c15-20 55-28 83-13 14 8 20 19 14 30-14 21-54 29-83 14-15-8-21-20-14-31z" fill="#d7a13b"/>
+  <path d="M199 261c10-13 37-19 57-9 10 5 14 13 10 21-10 14-37 20-57 10-10-5-14-14-10-22z" fill="#1f456d"/>
+  <path d="M214 251c14-6 33-5 45 2l-20 25c-14 4-30 2-40-5z" fill="#2d6ea3"/>
+  <path d="M232 259v16l15-11" stroke="#f8f5ec" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M177 268c-20 12-31 23-34 35l18 6c4-10 14-19 29-27z" fill="#111317"/>
+  <path d="M286 256c19-4 36-1 49 7l-10 15c-11-6-24-8-39-4z" fill="#111317"/>
+</svg>

@@ -5,6 +5,15 @@ function sanitize($value) {
     return htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8');
 }
 
+function resolveAssetUrl($path) {
+    $path = trim((string)$path);
+    if ($path === '') return '';
+    if (preg_match('/^(https?:)?\/\//i', $path) || strpos($path, '/') === 0) {
+        return $path;
+    }
+    return rtrim(BASE_URL, '/') . '/' . ltrim($path, '/');
+}
+
 function redirect($path) {
     header('Location: ' . BASE_URL . $path);
     exit;
@@ -61,17 +70,68 @@ function getCartCount() {
     return array_sum(array_column($_SESSION['cart'], 'quantity'));
 }
 
+function ensureBoxOptionsTableExists() {
+    global $pdo;
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS box_options (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(150) NOT NULL,
+            image VARCHAR(255) DEFAULT NULL,
+            price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uq_box_options_name (name),
+            CONSTRAINT chk_box_options_price_non_negative CHECK (price >= 0)
+        ) ENGINE=InnoDB"
+    );
+}
+
+function getActiveBoxOptions() {
+    global $pdo;
+    ensureBoxOptionsTableExists();
+
+    $stmt = $pdo->query('SELECT id, name, image, price FROM box_options WHERE is_active = 1 ORDER BY name');
+    return $stmt->fetchAll();
+}
+
 function getCartItems() {
     if (empty($_SESSION['cart'])) return [];
     global $pdo;
-    $ids = array_keys($_SESSION['cart']);
+    $ids = array_values(array_unique(array_map('intval', array_keys($_SESSION['cart']))));
     if (!$ids) return [];
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
     $stmt = $pdo->prepare("SELECT * FROM products WHERE id IN ($placeholders)");
     $stmt->execute($ids);
     $products = $stmt->fetchAll();
+    $boxIds = [];
+    foreach ($_SESSION['cart'] as $entry) {
+        if (!empty($entry['box_id'])) {
+            $boxIds[] = (int)$entry['box_id'];
+        }
+    }
+    $boxesById = [];
+    if ($boxIds) {
+        ensureBoxOptionsTableExists();
+        $boxIds = array_values(array_unique($boxIds));
+        $boxPlaceholders = implode(',', array_fill(0, count($boxIds), '?'));
+        $boxStmt = $pdo->prepare("SELECT id, name, image, price FROM box_options WHERE id IN ($boxPlaceholders)");
+        $boxStmt->execute($boxIds);
+        foreach ($boxStmt->fetchAll() as $box) {
+            $boxesById[(int)$box['id']] = $box;
+        }
+    }
     foreach ($products as &$product) {
-        $product['quantity'] = $_SESSION['cart'][$product['id']]['quantity'];
+        $entry = $_SESSION['cart'][(int)$product['id']] ?? [];
+        $product['quantity'] = max(1, (int)($entry['quantity'] ?? 1));
+        $boxId = !empty($entry['box_id']) ? (int)$entry['box_id'] : null;
+        $box = $boxId && isset($boxesById[$boxId]) ? $boxesById[$boxId] : null;
+        $product['box_id'] = $box ? (int)$box['id'] : null;
+        $product['box_name'] = $box['name'] ?? null;
+        $product['box_image'] = $box['image'] ?? null;
+        $product['box_price'] = $box ? (float)$box['price'] : 0;
+        $product['box_quantity'] = $box ? max(1, min(10, (int)($entry['box_quantity'] ?? 1))) : 0;
+        $product['box_total'] = $product['box_price'] * $product['box_quantity'];
+        $product['line_total'] = ($product['price'] * $product['quantity']) + $product['box_total'];
     }
     return $products;
 }
@@ -80,9 +140,36 @@ function calculateCartTotal() {
     $items = getCartItems();
     $total = 0;
     foreach ($items as $item) {
-        $total += $item['price'] * $item['quantity'];
+        $total += $item['line_total'];
     }
     return $total;
+}
+
+function orderItemsSupportBoxColumns() {
+    global $pdo;
+    static $supports = null;
+    if ($supports !== null) return $supports;
+
+    try {
+        $columns = $pdo->query('SHOW COLUMNS FROM order_items')->fetchAll(PDO::FETCH_COLUMN);
+        $needed = ['box_option_id', 'box_quantity', 'box_price'];
+        foreach ($needed as $column) {
+            if (in_array($column, $columns, true)) continue;
+            if ($column === 'box_option_id') {
+                $pdo->exec('ALTER TABLE order_items ADD COLUMN box_option_id INT UNSIGNED DEFAULT NULL');
+            } elseif ($column === 'box_quantity') {
+                $pdo->exec('ALTER TABLE order_items ADD COLUMN box_quantity INT UNSIGNED NOT NULL DEFAULT 0');
+            } elseif ($column === 'box_price') {
+                $pdo->exec('ALTER TABLE order_items ADD COLUMN box_price DECIMAL(10,2) NOT NULL DEFAULT 0.00');
+            }
+        }
+        $columns = $pdo->query('SHOW COLUMNS FROM order_items')->fetchAll(PDO::FETCH_COLUMN);
+        $supports = count(array_intersect($needed, $columns)) === count($needed);
+    } catch (Throwable $e) {
+        $supports = false;
+    }
+
+    return $supports;
 }
 
 function applyCoupon($code) {
@@ -124,9 +211,15 @@ function createOrder($userId, $address, $billing, $paymentMethod, $paymentStatus
     $stmt = $pdo->prepare('INSERT INTO orders (user_id, total_amount, status, payment_method, payment_status, address_line1, address_line2, city, state, zipcode, phone, created_at, coupon_code, discount_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)');
     $stmt->execute([$userId, $totalAmount, 'Pending', $paymentMethod, $paymentStatus, sanitize($address['line1']), sanitize($address['line2']), sanitize($address['city']), sanitize($address['state']), sanitize($address['zipcode']), sanitize($address['phone']), $couponCode, $discount]);
     $orderId = $pdo->lastInsertId();
+    $supportsBoxColumns = orderItemsSupportBoxColumns();
     foreach ($cartItems as $item) {
-        $stmtItem = $pdo->prepare('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)');
-        $stmtItem->execute([$orderId, $item['id'], $item['quantity'], $item['price']]);
+        if ($supportsBoxColumns) {
+            $stmtItem = $pdo->prepare('INSERT INTO order_items (order_id, product_id, quantity, price, box_option_id, box_quantity, box_price) VALUES (?, ?, ?, ?, ?, ?, ?)');
+            $stmtItem->execute([$orderId, $item['id'], $item['quantity'], $item['price'], $item['box_id'], $item['box_quantity'], $item['box_price']]);
+        } else {
+            $stmtItem = $pdo->prepare('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)');
+            $stmtItem->execute([$orderId, $item['id'], $item['quantity'], $item['price']]);
+        }
         $updateStock = $pdo->prepare('UPDATE products SET stock = GREATEST(stock - ?, 0) WHERE id = ?');
         $updateStock->execute([$item['quantity'], $item['id']]);
     }

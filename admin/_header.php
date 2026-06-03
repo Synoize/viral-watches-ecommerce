@@ -41,6 +41,7 @@ $adminName = sanitize($_SESSION['user_id'] ? getCurrentUser()['name'] : 'Admin')
         <nav class="flex flex-wrap gap-2 text-sm font-medium text-slate-300">
             <a href="<?= BASE_URL ?>/admin/dashboard.php" class="rounded-full bg-slate-800 px-4 py-2 hover:bg-slate-700">Dashboard</a>
             <a href="<?= BASE_URL ?>/admin/products.php" class="rounded-full px-4 py-2 hover:bg-slate-700">Products</a>
+            <a href="<?= BASE_URL ?>/admin/box-options.php" class="rounded-full px-4 py-2 hover:bg-slate-700">Box Options</a>
             <a href="<?= BASE_URL ?>/admin/categories.php" class="rounded-full px-4 py-2 hover:bg-slate-700">Categories</a>
             <a href="<?= BASE_URL ?>/admin/orders.php" class="rounded-full px-4 py-2 hover:bg-slate-700">Orders</a>
             <a href="<?= BASE_URL ?>/admin/users.php" class="rounded-full px-4 py-2 hover:bg-slate-700">Users</a>
