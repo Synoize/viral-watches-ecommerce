@@ -5,7 +5,22 @@ $stmt = $pdo->prepare('SELECT p.*, c.name AS category_name FROM products p LEFT 
 $stmt->execute([$id]);
 $product = $stmt->fetch();
 if (!$product) {
-    redirect('/collection');
+    $pageMetaOverrides = [
+        'title' => 'Products not found | ShopMaster',
+        'description' => 'The requested product is not available.',
+    ];
+    include __DIR__ . '/includes/header.php';
+    ?>
+    <div class="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8">
+        <div class="rounded-[2rem] border border-slate-200 bg-white p-10 shadow-sm">
+            <h1 class="text-3xl font-semibold text-slate-900">Products not found.</h1>
+            <p class="mt-3 text-slate-600">This product is not available right now.</p>
+            <a href="<?= BASE_URL ?>/collection" class="mt-6 inline-flex items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Browse Products</a>
+        </div>
+    </div>
+    <?php
+    include __DIR__ . '/includes/footer.php';
+    exit;
 }
 
 $gallery = json_decode($product['gallery'], true) ?: [];
@@ -64,6 +79,13 @@ $boxOptionsForJs = array_map(function ($box) {
         'price' => (float)$box['price'],
     ];
 }, $boxOptions);
+$pageMetaOverrides = [
+    'tokens' => [
+        'product_name' => $product['name'],
+        'product_price' => 'Rs. ' . number_format($product['price'], 2),
+        'category_name' => $product['category_name'] ?? 'General',
+    ],
+];
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -187,7 +209,7 @@ $boxOptionsForJs = array_map(function ($box) {
             $relStmt = $pdo->prepare('SELECT id, name, price, images, gallery FROM products WHERE category = ? AND id != ? LIMIT 4');
             $relStmt->execute([$product['category'], $product['id']]);
             $related = $relStmt->fetchAll();
-            foreach ($related as $item): $itemGallery = json_decode($item['gallery'] ?? '[]', true) ?: []; ?>
+            if ($related): foreach ($related as $item): $itemGallery = json_decode($item['gallery'] ?? '[]', true) ?: []; ?>
                 <a href="<?= BASE_URL ?>/product.php?id=<?= $item['id'] ?>" class="group overflow-hidden rounded-xl border border-slate-200 bg-slate-50 transition hover:-translate-y-0.5 hover:shadow-sm">
                     <img src="<?= sanitize(resolveAssetUrl($itemGallery[0] ?? $item['images'])) ?>" alt="<?= sanitize($item['name']) ?>" class="h-40 w-full object-cover" />
                     <div class="p-4">
@@ -195,7 +217,9 @@ $boxOptionsForJs = array_map(function ($box) {
                         <p class="mt-2 text-sm text-slate-700">&#8377;<?= number_format($item['price'], 2) ?></p>
                     </div>
                 </a>
-            <?php endforeach; ?>
+            <?php endforeach; else: ?>
+                <div class="col-span-full rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6 text-center text-slate-600">Related products not found.</div>
+            <?php endif; ?>
         </div>
     </section>
 </div>

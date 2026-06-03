@@ -121,7 +121,7 @@ $trending = $stmt->fetchAll();
             <a href="<?= BASE_URL ?>/collection" class="text-sm font-medium text-brand hover:text-slate-900">View all</a>
         </div>
         <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <?php foreach ($featuredCategories as $category): ?>
+            <?php if ($featuredCategories): foreach ($featuredCategories as $category): ?>
                 <?php $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($category['name']))); ?>
                 <a href="<?= BASE_URL ?>/collection/<?= $slug ?>" class="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-lg">
                     <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-brand transition group-hover:bg-brand group-hover:text-white">
@@ -129,7 +129,9 @@ $trending = $stmt->fetchAll();
                     </div>
                     <h3 class="text-lg font-semibold text-slate-900"><?= sanitize($category['name']) ?></h3>
                 </a>
-            <?php endforeach; ?>
+            <?php endforeach; else: ?>
+                <div class="col-span-full rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Categories not found.</div>
+            <?php endif; ?>
         </div>
     </section>
     <section class="mt-16">
@@ -138,7 +140,7 @@ $trending = $stmt->fetchAll();
             <a href="<?= BASE_URL ?>/collection" class="text-sm font-medium text-brand hover:text-slate-900">See all products</a>
         </div>
         <div class="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            <?php foreach ($trending as $product): ?>
+            <?php if ($trending): foreach ($trending as $product): ?>
                 <?php $gallery = json_decode($product['gallery'], true) ?: []; ?>
                 <article class="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
                     <img src="<?= sanitize($gallery[0] ?? $product['images']) ?>" alt="<?= sanitize($product['name']) ?>" class="h-52 w-full object-cover" />
@@ -154,7 +156,9 @@ $trending = $stmt->fetchAll();
                         </div>
                     </div>
                 </article>
-            <?php endforeach; ?>
+            <?php endforeach; else: ?>
+                <div class="col-span-full rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Products not found.</div>
+            <?php endif; ?>
         </div>
     </section>
     <section class="mt-16 rounded-[2rem] bg-white p-8 shadow-sm lg:p-10">

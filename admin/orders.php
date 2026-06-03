@@ -39,6 +39,9 @@ $orders = $pdo->query('SELECT o.*, u.name AS user_name FROM orders o LEFT JOIN u
                         </td>
                     </tr>
                 <?php endforeach; ?>
+                <?php if (!$orders): ?>
+                    <tr class="bg-white"><td colspan="7" class="px-6 py-8 text-center text-slate-500">Orders not found.</td></tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>

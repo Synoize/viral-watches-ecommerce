@@ -71,6 +71,9 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
                             </td>
                         </tr>
                     <?php endforeach; ?>
+                    <?php if (!$products): ?>
+                        <tr class="bg-white"><td colspan="5" class="px-6 py-8 text-center text-slate-500">Products not found.</td></tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -87,6 +90,9 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
                 <?php foreach ($categories as $cat): ?>
                     <option value="<?= $cat['id'] ?>" <?= isset($product['category']) && $product['category'] == $cat['id'] ? 'selected' : '' ?>><?= sanitize($cat['name']) ?></option>
                 <?php endforeach; ?>
+                <?php if (!$categories): ?>
+                    <option value="0" disabled>Categories not found</option>
+                <?php endif; ?>
             </select></label>
             <label class="block text-sm font-medium text-slate-700">Price<input type="number" step="0.01" name="price" value="<?= sanitize($product['price'] ?? '') ?>" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
             <label class="block text-sm font-medium text-slate-700">Stock<input type="number" name="stock" value="<?= sanitize($product['stock'] ?? '0') ?>" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>

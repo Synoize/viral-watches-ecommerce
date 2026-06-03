@@ -14,6 +14,107 @@ function resolveAssetUrl($path) {
     return rtrim(BASE_URL, '/') . '/' . ltrim($path, '/');
 }
 
+function ensurePageMetaTableExists() {
+    global $pdo;
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS page_meta (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            page_key VARCHAR(80) NOT NULL,
+            page_name VARCHAR(150) NOT NULL,
+            path VARCHAR(180) NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            description TEXT DEFAULT NULL,
+            keywords VARCHAR(255) DEFAULT NULL,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY uq_page_meta_key (page_key),
+            UNIQUE KEY uq_page_meta_path (path)
+        ) ENGINE=InnoDB"
+    );
+}
+
+function seedDefaultPageMeta() {
+    global $pdo;
+    ensurePageMetaTableExists();
+
+    $defaults = [
+        ['home', 'Home', '/', 'ShopMaster | Premium Watches and Accessories', 'Shop premium watches, accessories, gift boxes, and secure online deals at ShopMaster.', 'watches, accessories, online shopping'],
+        ['collection', 'Collections', '/collection', 'Collections | ShopMaster', 'Browse ShopMaster collections by category, price, and latest available products.', 'collections, products, watches'],
+        ['about', 'About', '/about', 'About ShopMaster', 'Learn about ShopMaster, our ecommerce experience, product quality, and customer support.', 'about shopmaster, ecommerce'],
+        ['contact', 'Contact', '/contact', 'Contact ShopMaster Support', 'Contact ShopMaster for order help, product questions, payments, returns, and support.', 'contact, support, help'],
+        ['cart', 'Cart', '/cart', 'Shopping Cart | ShopMaster', 'Review your selected products, box options, quantities, and order subtotal.', 'cart, checkout'],
+        ['checkout', 'Checkout', '/checkout', 'Checkout | ShopMaster', 'Complete your ShopMaster order with secure payment and delivery details.', 'checkout, payment'],
+        ['login', 'Login', '/login', 'Login | ShopMaster', 'Log in to your ShopMaster account to manage orders and checkout faster.', 'login, account'],
+        ['register', 'Register', '/register', 'Create Account | ShopMaster', 'Create a ShopMaster account for faster checkout and order management.', 'register, account'],
+        ['product', 'Product Detail', '/product', '{product_name} | ShopMaster', 'Buy {product_name} online for {product_price}. Choose gift box options and checkout securely.', 'product, watch, box'],
+    ];
+
+    $stmt = $pdo->prepare(
+        'INSERT INTO page_meta (page_key, page_name, path, title, description, keywords, is_active)
+         VALUES (?, ?, ?, ?, ?, ?, 1)
+         ON DUPLICATE KEY UPDATE
+            page_name = VALUES(page_name),
+            path = VALUES(path)'
+    );
+    foreach ($defaults as $meta) {
+        $stmt->execute($meta);
+    }
+}
+
+function normalizePageMetaPath($path) {
+    $path = parse_url($path, PHP_URL_PATH) ?: '/';
+    $basePrefix = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
+    if ($basePrefix !== '' && strpos($path, $basePrefix) === 0) {
+        $path = substr($path, strlen($basePrefix));
+    }
+    $path = '/' . trim($path, '/');
+    if ($path === '/index.php' || $path === '/index' || $path === '') return '/';
+    if (substr($path, -4) === '.php') {
+        $path = substr($path, 0, -4);
+    }
+    if (strpos($path, '/collection/') === 0) return '/collection';
+    if ($path === '/product') return '/product';
+    return rtrim($path, '/') ?: '/';
+}
+
+function applyPageMetaTokens($value, $tokens = []) {
+    $value = (string)$value;
+    foreach ($tokens as $key => $tokenValue) {
+        $value = str_replace('{' . $key . '}', (string)$tokenValue, $value);
+    }
+    return $value;
+}
+
+function getPageMeta($path = null, $overrides = []) {
+    global $pdo;
+    ensurePageMetaTableExists();
+
+    $normalizedPath = normalizePageMetaPath($path ?: ($_SERVER['REQUEST_URI'] ?? '/'));
+    $stmt = $pdo->prepare('SELECT * FROM page_meta WHERE path = ? AND is_active = 1 LIMIT 1');
+    $stmt->execute([$normalizedPath]);
+    $meta = $stmt->fetch();
+
+    if (!$meta) {
+        $meta = [
+            'title' => 'ShopMaster',
+            'description' => 'Shop products securely at ShopMaster.',
+            'keywords' => '',
+        ];
+    }
+
+    $tokens = $overrides['tokens'] ?? [];
+    $title = $overrides['title'] ?? applyPageMetaTokens($meta['title'] ?? 'ShopMaster', $tokens);
+    $description = $overrides['description'] ?? applyPageMetaTokens($meta['description'] ?? '', $tokens);
+    $keywords = $overrides['keywords'] ?? applyPageMetaTokens($meta['keywords'] ?? '', $tokens);
+
+    return [
+        'title' => trim($title) ?: 'ShopMaster',
+        'description' => trim($description) ?: 'Shop products securely at ShopMaster.',
+        'keywords' => trim($keywords),
+    ];
+}
+
 function redirect($path) {
     header('Location: ' . BASE_URL . $path);
     exit;

@@ -246,7 +246,13 @@ Security:
 
 ## 4.1 DATABASE STRUCTURE
 
-Database: ecommerce_db
+Database: new_db
+
+SQL files:
+
+* `database.sql` or `sql/schema.sql` - database and table structure only
+* `sql/seed.sql` - default admin and page meta only
+* `sql/import_all.sql` - MySQL CLI helper that imports schema and seed together
 
 Tables:
 
@@ -442,6 +448,9 @@ Flow:
 index.php
 checkout.php
 database.sql
+/sql/schema.sql
+/sql/seed.sql
+/sql/import_all.sql
 
 
 9. VALIDATIONS & SECURITY

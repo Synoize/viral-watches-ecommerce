@@ -17,6 +17,9 @@ $users = $pdo->query('SELECT id, name, email, phone, role FROM users ORDER BY id
                         <td class="px-6 py-4"><?= sanitize($user['role']) ?></td>
                     </tr>
                 <?php endforeach; ?>
+                <?php if (!$users): ?>
+                    <tr class="bg-white"><td colspan="5" class="px-6 py-8 text-center text-slate-500">Users not found.</td></tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>

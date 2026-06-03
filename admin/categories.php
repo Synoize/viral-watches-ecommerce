@@ -50,6 +50,9 @@ $categories = $pdo->query('SELECT * FROM categories ORDER BY name')->fetchAll();
                             </td>
                         </tr>
                     <?php endforeach; ?>
+                    <?php if (!$categories): ?>
+                        <tr class="bg-white"><td colspan="3" class="px-6 py-8 text-center text-slate-500">Categories not found.</td></tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>

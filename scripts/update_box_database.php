@@ -35,14 +35,4 @@ if (!in_array('box_price', $columns, true)) {
     $pdo->exec('ALTER TABLE order_items ADD COLUMN box_price DECIMAL(10,2) NOT NULL DEFAULT 0.00');
 }
 
-$stmt = $pdo->prepare(
-    'INSERT INTO box_options (name, image, price, is_active)
-     VALUES (?, ?, ?, 1)
-     ON DUPLICATE KEY UPDATE
-        image = VALUES(image),
-        price = VALUES(price),
-        is_active = VALUES(is_active)'
-);
-$stmt->execute(['Cartier Box', 'assets/images/cartier-box.svg', 350.00]);
-
-echo "Box database updated.\n";
+echo "Box database schema updated.\n";

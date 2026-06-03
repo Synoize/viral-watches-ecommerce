@@ -50,6 +50,20 @@ $total = $pdo->query('SELECT FOUND_ROWS()')->fetchColumn();
 $totalPages = ceil($total / $pageSize);
 $categories = getCategories();
 $activeCategoryName = $categoryId ? ($cat['name'] ?? '') : '';
+$pageMetaOverrides = [];
+if ($activeCategoryName) {
+    $pageMetaOverrides = [
+        'title' => $activeCategoryName . ' | ShopMaster Collections',
+        'description' => 'Browse ' . $activeCategoryName . ' products at ShopMaster with latest prices and secure checkout.',
+        'keywords' => strtolower($activeCategoryName) . ', collection, shopmaster',
+    ];
+} elseif ($search) {
+    $pageMetaOverrides = [
+        'title' => 'Search results for ' . $search . ' | ShopMaster',
+        'description' => 'Search ShopMaster products for ' . $search . ' and compare available items.',
+        'keywords' => $search . ', search, products',
+    ];
+}
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -60,14 +74,16 @@ $activeCategoryName = $categoryId ? ($cat['name'] ?? '') : '';
                 <p class="text-sm text-slate-500">Browse by category</p>
             </div>
             <div class="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                <?php foreach ($categories as $catItem): $slugItem = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($catItem['name']))); ?>
+                <?php if ($categories): foreach ($categories as $catItem): $slugItem = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($catItem['name']))); ?>
                     <a href="<?= BASE_URL ?>/collection/<?= $slugItem ?>" class="group overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-lg">
                         <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-brand transition group-hover:bg-brand group-hover:text-white">
                             <i class="fas fa-tag text-2xl"></i>
                         </div>
                         <h3 class="text-lg font-semibold text-slate-900"><?= sanitize($catItem['name']) ?></h3>
                     </a>
-                <?php endforeach; ?>
+                <?php endforeach; else: ?>
+                    <div class="col-span-full rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Categories not found.</div>
+                <?php endif; ?>
             </div>
         </section>
     <?php else: ?>
@@ -133,7 +149,7 @@ $activeCategoryName = $categoryId ? ($cat['name'] ?? '') : '';
                         </div>
                     </article>
                 <?php endforeach; else: ?>
-                    <div class="col-span-full rounded-[1.75rem] border border-rose-200 bg-rose-50 p-6 text-rose-700">No products match your filters.</div>
+                    <div class="col-span-full rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Products not found.</div>
                 <?php endif; ?>
             </div>
             <?php if ($totalPages > 1): ?>

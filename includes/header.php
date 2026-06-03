@@ -4,6 +4,7 @@ $categories = getCategories();
 $cartCount = getCartCount();
 $user = getCurrentUser();
 $csrfToken = generateCsrfToken();
+$pageMeta = getPageMeta($_SERVER['REQUEST_URI'] ?? '/', $pageMetaOverrides ?? []);
 // Determine normalized current path (remove BASE_URL prefix)
 $currentRequestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $basePrefix = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
@@ -55,7 +56,13 @@ function is_active($match)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopMaster</title>
+    <title><?= sanitize($pageMeta['title']) ?></title>
+    <meta name="description" content="<?= sanitize($pageMeta['description']) ?>">
+    <?php if (!empty($pageMeta['keywords'])): ?>
+        <meta name="keywords" content="<?= sanitize($pageMeta['keywords']) ?>">
+    <?php endif; ?>
+    <meta property="og:title" content="<?= sanitize($pageMeta['title']) ?>">
+    <meta property="og:description" content="<?= sanitize($pageMeta['description']) ?>">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 

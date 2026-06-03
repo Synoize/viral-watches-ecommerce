@@ -46,6 +46,9 @@ $coupons = $pdo->query('SELECT * FROM coupons ORDER BY id DESC')->fetchAll();
                             </td>
                         </tr>
                     <?php endforeach; ?>
+                    <?php if (!$coupons): ?>
+                        <tr class="bg-white"><td colspan="6" class="px-6 py-8 text-center text-slate-500">Coupons not found.</td></tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>

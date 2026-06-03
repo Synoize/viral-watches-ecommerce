@@ -17,6 +17,9 @@ $messages = $pdo->query('SELECT * FROM contact_messages ORDER BY created_at DESC
                         <td class="px-6 py-4"><?= date('j M Y', strtotime($message['created_at'])) ?></td>
                     </tr>
                 <?php endforeach; ?>
+                <?php if (!$messages): ?>
+                    <tr class="bg-white"><td colspan="5" class="px-6 py-8 text-center text-slate-500">Messages not found.</td></tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
