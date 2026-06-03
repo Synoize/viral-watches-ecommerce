@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $paymentStatus = $paymentMethod === 'COD' ? 'Pending' : 'Processing';
     $couponCode = !empty($_POST['coupon_code']) ? strtoupper(sanitize($_POST['coupon_code'])) : null;
     if ($couponCode) {
-        $couponResult = applyCoupon($couponCode);
+        $couponResult = applyCoupon($couponCode, $_SESSION['user_id']);
         if (!empty($couponResult['error'])) {
             flash('error', $couponResult['error']);
             redirect('/checkout.php');

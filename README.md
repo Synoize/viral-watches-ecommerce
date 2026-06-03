@@ -250,9 +250,8 @@ Database: new_db
 
 SQL files:
 
-* `database.sql` or `sql/schema.sql` - database and table structure only
-* `sql/seed.sql` - default admin and page meta only
-* `sql/import_all.sql` - MySQL CLI helper that imports schema and seed together
+* `database.sql` - database and table structure only
+* `seed_data.sql` - default admin and page meta only
 
 Tables:
 
@@ -448,9 +447,7 @@ Flow:
 index.php
 checkout.php
 database.sql
-/sql/schema.sql
-/sql/seed.sql
-/sql/import_all.sql
+seed_data.sql
 
 
 9. VALIDATIONS & SECURITY

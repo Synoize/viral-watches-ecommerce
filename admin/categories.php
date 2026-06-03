@@ -9,9 +9,16 @@ if (!empty($_GET['edit'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = sanitize($_POST['name'] ?? '');
     $image = sanitize($_POST['category_image'] ?? '');
-    if (empty($name)) {
+    $upload = saveAdminImageUpload($_FILES['category_image_file'] ?? [], 'categories', 'category');
+    if (!empty($upload['error'])) {
+        $error = $upload['error'];
+    } elseif (!empty($upload['path'])) {
+        $image = $upload['path'];
+    }
+
+    if (empty($error) && empty($name)) {
         $error = 'Category name is required.';
-    } else {
+    } elseif (empty($error)) {
         if (!empty($_POST['category_id'])) {
             $stmt = $pdo->prepare('UPDATE categories SET name = ?, category_image = ? WHERE id = ?');
             $stmt->execute([$name, $image, (int)$_POST['category_id']]);
@@ -60,10 +67,17 @@ $categories = $pdo->query('SELECT * FROM categories ORDER BY name')->fetchAll();
     <aside class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
         <h2 class="text-2xl font-semibold text-slate-900"><?= $category ? 'Edit Category' : 'Add Category' ?></h2>
         <?php if (!empty($error)): ?><div class="mt-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
-        <form method="post" class="mt-6 space-y-4">
+        <form method="post" enctype="multipart/form-data" class="mt-6 space-y-4">
             <input type="hidden" name="category_id" value="<?= sanitize($category['id'] ?? '') ?>">
             <label class="block text-sm font-medium text-slate-700">Name<input name="name" value="<?= sanitize($category['name'] ?? '') ?>" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
-            <label class="block text-sm font-medium text-slate-700">Image URL<input name="category_image" value="<?= sanitize($category['category_image'] ?? '') ?>" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
+            <label class="block text-sm font-medium text-slate-700">Image URL or Path<input name="category_image" value="<?= sanitize($category['category_image'] ?? '') ?>" placeholder="assets/images/categories/example.jpg or https://..." class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
+            <label class="block text-sm font-medium text-slate-700">Upload Image<input type="file" name="category_image_file" accept="image/png,image/jpeg,image/webp" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-900" /></label>
+            <?php if (!empty($category['category_image'])): ?>
+                <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-sm font-medium text-slate-700">Current image</p>
+                    <img src="<?= sanitize(resolveAssetUrl($category['category_image'])) ?>" alt="<?= sanitize($category['name'] ?? 'Category image') ?>" class="mt-3 h-28 w-full object-contain">
+                </div>
+            <?php endif; ?>
             <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Save Category</button>
         </form>
     </aside>

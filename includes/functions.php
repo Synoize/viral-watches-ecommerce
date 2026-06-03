@@ -14,6 +14,55 @@ function resolveAssetUrl($path) {
     return rtrim(BASE_URL, '/') . '/' . ltrim($path, '/');
 }
 
+function saveAdminImageUpload($file, $folder, $prefix = 'image') {
+    if (empty($file['name']) || empty($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+        return null;
+    }
+
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return ['error' => 'Image upload failed.'];
+    }
+
+    $allowed = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ];
+    $mime = mime_content_type($file['tmp_name']);
+    if (!isset($allowed[$mime])) {
+        return ['error' => 'Upload a JPG, PNG, or WEBP image.'];
+    }
+
+    $folder = trim(preg_replace('/[^a-z0-9_-]+/i', '-', $folder), '-');
+    $uploadDir = __DIR__ . '/../assets/images/' . $folder;
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0775, true);
+    }
+
+    $filename = trim(preg_replace('/[^a-z0-9_-]+/i', '-', $prefix), '-') . '-' . date('YmdHis') . '-' . bin2hex(random_bytes(4)) . '.' . $allowed[$mime];
+    $target = $uploadDir . DIRECTORY_SEPARATOR . $filename;
+    if (!move_uploaded_file($file['tmp_name'], $target)) {
+        return ['error' => 'Could not save uploaded image.'];
+    }
+
+    return ['path' => 'assets/images/' . $folder . '/' . $filename];
+}
+
+function normalizeMultipleUploads($files) {
+    if (empty($files['name']) || !is_array($files['name'])) return [];
+    $uploads = [];
+    foreach ($files['name'] as $index => $name) {
+        $uploads[] = [
+            'name' => $name,
+            'type' => $files['type'][$index] ?? '',
+            'tmp_name' => $files['tmp_name'][$index] ?? '',
+            'error' => $files['error'][$index] ?? UPLOAD_ERR_NO_FILE,
+            'size' => $files['size'][$index] ?? 0,
+        ];
+    }
+    return $uploads;
+}
+
 function ensurePageMetaTableExists() {
     global $pdo;
     $pdo->exec(
@@ -273,7 +322,7 @@ function orderItemsSupportBoxColumns() {
     return $supports;
 }
 
-function applyCoupon($code) {
+function applyCouponLegacy($code) {
     global $pdo;
     $code = strtoupper(sanitize($code));
     $stmt = $pdo->prepare('SELECT * FROM coupons WHERE code = ? AND status = 1 AND expiry_date >= CURDATE() AND used_count < usage_limit');
@@ -296,16 +345,142 @@ function applyCoupon($code) {
     return ['coupon' => $coupon, 'discount' => $discount, 'subtotal' => $subtotal, 'total' => max(0, $subtotal - $discount)];
 }
 
+function ensureCouponRuleTablesExist() {
+    global $pdo;
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS coupon_users (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            coupon_id INT NOT NULL,
+            user_id INT NOT NULL,
+            is_allowed TINYINT(1) NOT NULL DEFAULT 0,
+            used_count INT UNSIGNED NOT NULL DEFAULT 0,
+            last_order_id INT DEFAULT NULL,
+            last_used_at TIMESTAMP NULL DEFAULT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY uq_coupon_user (coupon_id, user_id),
+            KEY idx_coupon_users_allowed (coupon_id, is_allowed),
+            FOREIGN KEY (coupon_id) REFERENCES coupons(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (last_order_id) REFERENCES orders(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB"
+    );
+
+    try {
+        $columns = $pdo->query('SHOW COLUMNS FROM coupons')->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('starts_at', $columns, true)) {
+            $pdo->exec('ALTER TABLE coupons ADD COLUMN starts_at DATE DEFAULT NULL AFTER max_discount');
+        }
+        if (!in_array('per_user_limit', $columns, true)) {
+            $pdo->exec('ALTER TABLE coupons ADD COLUMN per_user_limit INT UNSIGNED DEFAULT NULL AFTER usage_limit');
+        }
+        if (in_array('expiry_date', $columns, true)) {
+            $pdo->exec('ALTER TABLE coupons MODIFY expiry_date DATE DEFAULT NULL');
+        }
+        if (in_array('usage_limit', $columns, true)) {
+            $pdo->exec('ALTER TABLE coupons MODIFY usage_limit INT UNSIGNED DEFAULT NULL');
+        }
+    } catch (Throwable $e) {
+        return false;
+    }
+
+    return true;
+}
+
+function getCouponAllowedUserIds($couponId) {
+    global $pdo;
+    ensureCouponRuleTablesExist();
+    $stmt = $pdo->prepare('SELECT user_id FROM coupon_users WHERE coupon_id = ? AND is_allowed = 1 ORDER BY user_id');
+    $stmt->execute([(int)$couponId]);
+    return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+}
+
+function syncCouponAllowedUsers($couponId, $userIds) {
+    global $pdo;
+    ensureCouponRuleTablesExist();
+    $couponId = (int)$couponId;
+    $userIds = array_values(array_unique(array_filter(array_map('intval', $userIds))));
+
+    $pdo->prepare('UPDATE coupon_users SET is_allowed = 0 WHERE coupon_id = ?')->execute([$couponId]);
+    if (!$userIds) return;
+
+    $stmt = $pdo->prepare(
+        'INSERT INTO coupon_users (coupon_id, user_id, is_allowed)
+         VALUES (?, ?, 1)
+         ON DUPLICATE KEY UPDATE is_allowed = 1'
+    );
+    foreach ($userIds as $userId) {
+        $stmt->execute([$couponId, $userId]);
+    }
+}
+
+function calculateCouponDiscount($coupon, $subtotal) {
+    if ($coupon['type'] === 'percent') {
+        $discount = round($subtotal * ((float)$coupon['value'] / 100));
+    } else {
+        $discount = (float)$coupon['value'];
+    }
+    if ((float)$coupon['max_discount'] > 0) {
+        $discount = min($discount, (float)$coupon['max_discount']);
+    }
+    return min($discount, $subtotal);
+}
+
+function applyCoupon($code, $userId = null) {
+    global $pdo;
+    ensureCouponRuleTablesExist();
+    $code = strtoupper(sanitize($code));
+    $stmt = $pdo->prepare('SELECT * FROM coupons WHERE code = ? AND status = 1');
+    $stmt->execute([$code]);
+    $coupon = $stmt->fetch();
+    if (!$coupon) return ['error' => 'Invalid coupon.'];
+
+    if (!empty($coupon['starts_at']) && $coupon['starts_at'] > date('Y-m-d')) {
+        return ['error' => 'This coupon is not active yet.'];
+    }
+    if (!empty($coupon['expiry_date']) && $coupon['expiry_date'] < date('Y-m-d')) {
+        return ['error' => 'This coupon has expired.'];
+    }
+    if (!empty($coupon['usage_limit']) && (int)$coupon['used_count'] >= (int)$coupon['usage_limit']) {
+        return ['error' => 'This coupon usage limit has been reached.'];
+    }
+
+    if ($userId) {
+        $allowedIds = getCouponAllowedUserIds($coupon['id']);
+        if ($allowedIds && !in_array((int)$userId, $allowedIds, true)) {
+            return ['error' => 'This coupon is not available for your account.'];
+        }
+
+        if (!empty($coupon['per_user_limit'])) {
+            $stmtUsed = $pdo->prepare('SELECT COALESCE(used_count, 0) FROM coupon_users WHERE coupon_id = ? AND user_id = ?');
+            $stmtUsed->execute([(int)$coupon['id'], (int)$userId]);
+            if ((int)$stmtUsed->fetchColumn() >= (int)$coupon['per_user_limit']) {
+                return ['error' => 'You have already used this coupon.'];
+            }
+        }
+    }
+
+    $subtotal = calculateCartTotal();
+    if ($subtotal < $coupon['min_order']) {
+        return ['error' => 'Order must be at least Rs. ' . number_format($coupon['min_order'], 2) . ' for this coupon.'];
+    }
+    $discount = calculateCouponDiscount($coupon, $subtotal);
+    return ['coupon' => $coupon, 'discount' => $discount, 'subtotal' => $subtotal, 'total' => max(0, $subtotal - $discount)];
+}
+
 function createOrder($userId, $address, $billing, $paymentMethod, $paymentStatus, $couponCode = null) {
     global $pdo;
     $cartItems = getCartItems();
     if (!$cartItems) return false;
     $subtotal = calculateCartTotal();
     $discount = 0;
+    $coupon = null;
     if ($couponCode) {
-        $result = applyCoupon($couponCode);
+        $result = applyCoupon($couponCode, $userId);
         if (empty($result['error'])) {
             $discount = $result['discount'];
+            $coupon = $result['coupon'];
         }
     }
     $totalAmount = $subtotal - $discount;
@@ -327,6 +502,18 @@ function createOrder($userId, $address, $billing, $paymentMethod, $paymentStatus
     if ($couponCode) {
         $updateCoupon = $pdo->prepare('UPDATE coupons SET used_count = used_count + 1 WHERE code = ?');
         $updateCoupon->execute([$couponCode]);
+        if ($coupon) {
+            ensureCouponRuleTablesExist();
+            $stmtRedemption = $pdo->prepare(
+                'INSERT INTO coupon_users (coupon_id, user_id, used_count, last_order_id, last_used_at)
+                 VALUES (?, ?, 1, ?, NOW())
+                 ON DUPLICATE KEY UPDATE
+                    used_count = used_count + 1,
+                    last_order_id = VALUES(last_order_id),
+                    last_used_at = VALUES(last_used_at)'
+            );
+            $stmtRedemption->execute([(int)$coupon['id'], (int)$userId, (int)$orderId]);
+        }
     }
     unset($_SESSION['cart']);
     unset($_SESSION['coupon']);

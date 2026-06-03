@@ -16,10 +16,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stock = (int)($_POST['stock'] ?? 0);
     $images = sanitize($_POST['images'] ?? '');
     $gallery = array_filter(array_map('trim', explode(',', $_POST['gallery'] ?? '')));
+    $mainUpload = saveAdminImageUpload($_FILES['main_image_file'] ?? [], 'products', 'product-main');
+    if (!empty($mainUpload['error'])) {
+        $error = $mainUpload['error'];
+    } elseif (!empty($mainUpload['path'])) {
+        $images = $mainUpload['path'];
+    }
+
+    foreach (normalizeMultipleUploads($_FILES['gallery_files'] ?? []) as $uploadFile) {
+        $galleryUpload = saveAdminImageUpload($uploadFile, 'products', 'product-gallery');
+        if (!empty($galleryUpload['error'])) {
+            $error = $galleryUpload['error'];
+            break;
+        }
+        if (!empty($galleryUpload['path'])) {
+            $gallery[] = $galleryUpload['path'];
+        }
+    }
     $galleryJson = json_encode($gallery);
-    if (empty($name) || $price <= 0) {
+    if (empty($error) && (empty($name) || $price <= 0)) {
         $error = 'Product must have a name and positive price.';
-    } else {
+    } elseif (empty($error)) {
         if (!empty($_POST['product_id'])) {
             $stmt = $pdo->prepare('UPDATE products SET name = ?, description = ?, category = ?, price = ?, stock = ?, images = ?, gallery = ? WHERE id = ?');
             $stmt->execute([$name, $description, $category, $price, $stock, $images, $galleryJson, (int)$_POST['product_id']]);
@@ -81,7 +98,7 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
     <aside class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
         <h2 class="text-2xl font-semibold text-slate-900"><?= $product ? 'Edit Product' : 'Add Product' ?></h2>
         <?php if (!empty($error)): ?><div class="mt-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
-        <form method="post" class="mt-6 space-y-4">
+        <form method="post" enctype="multipart/form-data" class="mt-6 space-y-4">
             <input type="hidden" name="product_id" value="<?= sanitize($product['id'] ?? '') ?>">
             <label class="block text-sm font-medium text-slate-700">Name<input name="name" value="<?= sanitize($product['name'] ?? '') ?>" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
             <label class="block text-sm font-medium text-slate-700">Description<textarea name="description" rows="3" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900"><?= sanitize($product['description'] ?? '') ?></textarea></label>
@@ -96,8 +113,16 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
             </select></label>
             <label class="block text-sm font-medium text-slate-700">Price<input type="number" step="0.01" name="price" value="<?= sanitize($product['price'] ?? '') ?>" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
             <label class="block text-sm font-medium text-slate-700">Stock<input type="number" name="stock" value="<?= sanitize($product['stock'] ?? '0') ?>" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
-            <label class="block text-sm font-medium text-slate-700">Main Image URL<input name="images" value="<?= sanitize($product['images'] ?? '') ?>" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
-            <label class="block text-sm font-medium text-slate-700">Gallery URLs (comma separated)<textarea name="gallery" rows="2" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900"><?= sanitize(implode(', ', json_decode($product['gallery'] ?? '[]', true) ?: [])) ?></textarea></label>
+            <label class="block text-sm font-medium text-slate-700">Main Image URL or Path<input name="images" value="<?= sanitize($product['images'] ?? '') ?>" placeholder="assets/images/products/example.jpg or https://..." class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
+            <label class="block text-sm font-medium text-slate-700">Upload Main Image<input type="file" name="main_image_file" accept="image/png,image/jpeg,image/webp" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-900" /></label>
+            <label class="block text-sm font-medium text-slate-700">Gallery URLs or Paths (comma separated)<textarea name="gallery" rows="2" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900"><?= sanitize(implode(', ', json_decode($product['gallery'] ?? '[]', true) ?: [])) ?></textarea></label>
+            <label class="block text-sm font-medium text-slate-700">Upload Gallery Images<input type="file" name="gallery_files[]" accept="image/png,image/jpeg,image/webp" multiple class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-900" /></label>
+            <?php if (!empty($product['images'])): ?>
+                <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-sm font-medium text-slate-700">Current main image</p>
+                    <img src="<?= sanitize(resolveAssetUrl($product['images'])) ?>" alt="<?= sanitize($product['name'] ?? 'Product image') ?>" class="mt-3 h-28 w-full object-contain">
+                </div>
+            <?php endif; ?>
             <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Save Product</button>
         </form>
     </aside>

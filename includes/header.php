@@ -64,6 +64,8 @@ function is_active($match)
     <meta property="og:title" content="<?= sanitize($pageMeta['title']) ?>">
     <meta property="og:description" content="<?= sanitize($pageMeta['description']) ?>">
 
+    <link rel="stylesheet" href="<?= (defined('BASE_URL') ? BASE_URL : '') ?>/assets/css/style.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
     <!-- Fonts -->
@@ -232,7 +234,7 @@ function is_active($match)
 
     <!-- HEADER -->
     <header class="sticky top-0 z-50 bg-white">
-        <div class="max-w-[1850px] mx-auto px-4 lg:px-10 py-5">
+        <div class="max-w-[1920px] mx-auto px-4 lg:px-10 py-5">
             <div class="flex items-center justify-between">
                 <!-- LEFT -->
                 <div class="flex items-center">
@@ -242,7 +244,7 @@ function is_active($match)
                     </button>
 
                     <!-- DESKTOP MENU -->
-                    <nav class="hidden lg:flex items-center gap-8 text-sm text-slate-700 ">
+                    <nav class="hidden lg:flex items-center gap-6 text-sm text-slate-700 ">
                         <a href="<?= BASE_URL ?>" class="hover:underline hover:decoration-[1.5px] hover:underline-offset-8 <?= is_active('/') ?>"> Home </a>
                         <a href="<?= BASE_URL ?>/collection" class="hover:underline hover:decoration-[1.5px] hover:underline-offset-8 <?= is_active('/collection') ?>"> Collections </a>
 
@@ -260,7 +262,7 @@ function is_active($match)
                 <!-- LOGO -->
                 <a href="<?= BASE_URL ?>" class="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0">
                     <img src="https://i.ibb.co/4RXtqcgX/Untitled-design-35.png" alt="Logo"
-                        class="h-[40px] lg:h-[52px] lg:mr-[310px]  object-contain" />
+                        class="h-[40px] lg:h-[52px] lg:mr-[400px] object-contain" />
                 </a>
 
                 <!-- RIGHT -->
@@ -565,5 +567,6 @@ function is_active($match)
         </div>
 
     </div>
+
     <!-- MAIN CONTENT -->
     <main>

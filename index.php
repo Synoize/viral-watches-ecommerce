@@ -96,25 +96,69 @@ $trending = $stmt->fetchAll();
     </div>
 </section>
 
+<!-- BEST SELLER SECTION -->
+<section class="w-full py-10 md:py-14 overflow-hidden ">
+    <div class="max-w-[1920px] mx-auto px-4 md:px-10">
+        <!-- HEADING -->
+        <div class="text-center mb-10 md:mb-16 px-4">
+            <h2 class="text-[42px] md:text-[56px] leading-none font-serif text-black animate-slide-bottom">
+                Best seller
+            </h2>
+        </div>
+        <!-- SLIDER -->
+        <div
+            class="flex gap-3 md:gap-6 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:-mt-[25px] scroll-animate-bottom">
+            <!-- CARD -->
+            <div class="group flex-shrink-0 w-[145px] md:flex-1 snap-start">
+                <div class="relative bg-white rounded-md overflow-hidden">
+                    <!-- MAIN IMG -->
+                    <img src="https://i.ibb.co/KzXc2YPT/The-Best-Dad-Friendly-Gifts-for-Father-s-Day.jpg" alt=""
+                        class="w-full md:w-[400px] h-[180px] md:h-[440px] p-5 md:p-5 transition-all duration-500 group-hover:opacity-0" />
+
+                    <!-- HOVER IMG -->
+                    <img src="https://i.ibb.co/Dfs3XRKB/Chat-GPT-Image-Jun-2-2026-03-10-26-PM.png" alt=""
+                        class="absolute inset-0 w-full h-full opacity-0 transition-all duration-500 group-hover:opacity-100" />
+
+                    <!-- BADGE -->
+                    <span
+                        class="absolute left-2 md:left-5 bottom-2 md:bottom-5 bg-black text-white text-[12px] md:text-[18px] px-3 md:px-4 py-1 md:py-1.5 rounded-full z-10">
+                        Sale
+                    </span>
+                </div>
+
+                <!-- CONTENT -->
+                <div class="pt-3 md:pt-5">
+                    <h3 class="text-[17px] md:text-[18px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
+                        Matte Leaf Men's Kada
+                    </h3>
+
+                    <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
+                        <span class="text-[14px] md:text-[16px] text-[#666] line-through">
+                            Rs. 4,999.00
+                        </span>
+
+                        <span class="text-[16px] md:text-[18px] font-medium text-black">
+                            Rs. 2,799.00
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BUTTON -->
+        <div class="flex justify-center mt-12 md:mt-10">
+            <a href="<?= BASE_URL ?>/collection"
+                class="bg-[#D3D3D3] text-black px-10 md:px-12 py-4 text-[18px] font-serif hover:bg-[#A9A9A9] transition duration-300">
+                View all
+            </a>
+        </div>
+    </div>
+</section>
+
 
 <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-    <section class="grid gap-10 lg:grid-cols-[1.2fr,0.8fr] lg:items-center">
-        <div class="space-y-6">
-            <p class="text-sm font-semibold uppercase tracking-[0.24em] text-brand">New arrivals</p>
-            <h1 class="text-5xl font-semibold tracking-tight text-slate-900">Shop the latest styles with ShopMaster.</h1>
-            <p class="max-w-xl text-lg leading-8 text-slate-600">Premium products, fast shipping, and a secure checkout experience for modern online shopping.</p>
-            <div class="flex flex-wrap gap-3">
-                <a href="<?= BASE_URL ?>/collection" class="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Shop Now</a>
-                <a href="<?= BASE_URL ?>/contact.php" class="inline-flex items-center justify-center rounded-3xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Contact Support</a>
-            </div>
-        </div>
-        <div class="relative overflow-hidden rounded-[2rem] bg-slate-900 p-8 text-white shadow-xl">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent_45%)]"></div>
-            <div class="relative h-[420px] overflow-hidden rounded-[2rem]">
-                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1400&q=80" alt="Hero" class="h-full w-full object-cover" />
-            </div>
-        </div>
-    </section>
+
     <section class="mt-16">
         <div class="flex items-center justify-between gap-4">
             <h2 class="text-2xl font-semibold text-slate-900">Featured Categories</h2>
@@ -122,14 +166,15 @@ $trending = $stmt->fetchAll();
         </div>
         <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <?php if ($featuredCategories): foreach ($featuredCategories as $category): ?>
-                <?php $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($category['name']))); ?>
-                <a href="<?= BASE_URL ?>/collection/<?= $slug ?>" class="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-lg">
-                    <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-brand transition group-hover:bg-brand group-hover:text-white">
-                        <i class="fas fa-tag text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-slate-900"><?= sanitize($category['name']) ?></h3>
-                </a>
-            <?php endforeach; else: ?>
+                    <?php $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($category['name']))); ?>
+                    <a href="<?= BASE_URL ?>/collection/<?= $slug ?>" class="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-lg">
+                        <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-brand transition group-hover:bg-brand group-hover:text-white">
+                            <i class="fas fa-tag text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900"><?= sanitize($category['name']) ?></h3>
+                    </a>
+                <?php endforeach;
+            else: ?>
                 <div class="col-span-full rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Categories not found.</div>
             <?php endif; ?>
         </div>
@@ -141,22 +186,23 @@ $trending = $stmt->fetchAll();
         </div>
         <div class="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <?php if ($trending): foreach ($trending as $product): ?>
-                <?php $gallery = json_decode($product['gallery'], true) ?: []; ?>
-                <article class="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                    <img src="<?= sanitize($gallery[0] ?? $product['images']) ?>" alt="<?= sanitize($product['name']) ?>" class="h-52 w-full object-cover" />
-                    <div class="space-y-3 p-5">
-                        <div class="space-y-1">
-                            <h3 class="text-lg font-semibold text-slate-900"><?= sanitize($product['name']) ?></h3>
-                            <p class="text-brand text-lg font-semibold">₹<?= number_format($product['price'], 2) ?></p>
+                    <?php $gallery = json_decode($product['gallery'], true) ?: []; ?>
+                    <article class="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                        <img src="<?= sanitize($gallery[0] ?? $product['images']) ?>" alt="<?= sanitize($product['name']) ?>" class="h-52 w-full object-cover" />
+                        <div class="space-y-3 p-5">
+                            <div class="space-y-1">
+                                <h3 class="text-lg font-semibold text-slate-900"><?= sanitize($product['name']) ?></h3>
+                                <p class="text-brand text-lg font-semibold">₹<?= number_format($product['price'], 2) ?></p>
+                            </div>
+                            <p class="text-sm leading-6 text-slate-500"><?= substr(sanitize($product['description']), 0, 80) ?>...</p>
+                            <div class="flex gap-3">
+                                <a href="<?= BASE_URL ?>/product.php?id=<?= $product['id'] ?>" class="inline-flex flex-1 items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">View</a>
+                                <a href="<?= BASE_URL ?>/cart.php?action=add&id=<?= $product['id'] ?>" class="inline-flex flex-1 items-center justify-center rounded-3xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800">Add</a>
+                            </div>
                         </div>
-                        <p class="text-sm leading-6 text-slate-500"><?= substr(sanitize($product['description']), 0, 80) ?>...</p>
-                        <div class="flex gap-3">
-                            <a href="<?= BASE_URL ?>/product.php?id=<?= $product['id'] ?>" class="inline-flex flex-1 items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">View</a>
-                            <a href="<?= BASE_URL ?>/cart.php?action=add&id=<?= $product['id'] ?>" class="inline-flex flex-1 items-center justify-center rounded-3xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800">Add</a>
-                        </div>
-                    </div>
-                </article>
-            <?php endforeach; else: ?>
+                    </article>
+                <?php endforeach;
+            else: ?>
                 <div class="col-span-full rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Products not found.</div>
             <?php endif; ?>
         </div>

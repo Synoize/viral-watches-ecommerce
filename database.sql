@@ -121,11 +121,31 @@ CREATE TABLE IF NOT EXISTS coupons (
     value DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     min_order DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     max_discount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    expiry_date DATE NOT NULL,
-    usage_limit INT NOT NULL DEFAULT 1,
+    starts_at DATE DEFAULT NULL,
+    expiry_date DATE DEFAULT NULL,
+    usage_limit INT UNSIGNED DEFAULT NULL,
+    per_user_limit INT UNSIGNED DEFAULT NULL,
     used_count INT NOT NULL DEFAULT 0,
     status TINYINT(1) NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- COUPON USERS
+CREATE TABLE IF NOT EXISTS coupon_users (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    coupon_id INT NOT NULL,
+    user_id INT NOT NULL,
+    is_allowed TINYINT(1) NOT NULL DEFAULT 0,
+    used_count INT UNSIGNED NOT NULL DEFAULT 0,
+    last_order_id INT DEFAULT NULL,
+    last_used_at TIMESTAMP NULL DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_coupon_user (coupon_id, user_id),
+    KEY idx_coupon_users_allowed (coupon_id, is_allowed),
+    FOREIGN KEY (coupon_id) REFERENCES coupons(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (last_order_id) REFERENCES orders(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- CONTACT MESSAGES
