@@ -15,13 +15,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash('error', 'Invalid request.');
         redirect('/checkout.php');
     }
+    $countryCode = $_POST['country_code'] ?? '91';
+    $phoneInput = $_POST['phone'] ?? '';
+    $phoneValidation = validateInternationalPhone($countryCode, $phoneInput);
+    if (!empty($phoneValidation['error'])) {
+        flash('error', $phoneValidation['error']);
+        redirect('/checkout.php');
+    }
     $address = [
         'line1' => $_POST['address_line1'] ?? '',
         'line2' => $_POST['address_line2'] ?? '',
         'city' => $_POST['city'] ?? '',
         'state' => $_POST['state'] ?? '',
         'zipcode' => $_POST['zipcode'] ?? '',
-        'phone' => $_POST['phone'] ?? '',
+        'phone' => $phoneValidation['formatted'],
     ];
     $paymentMethod = $_POST['payment_method'] === 'cod' ? 'COD' : 'Razorpay';
     $paymentStatus = $paymentMethod === 'COD' ? 'Pending' : 'Processing';
@@ -54,7 +61,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                 <div class="grid gap-6 sm:grid-cols-2">
                     <label class="space-y-2 text-sm font-medium text-slate-700">Full Name<input type="text" name="name" readonly value="<?= sanitize($user['name'] ?? '') ?>" class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none" /></label>
-                    <label class="space-y-2 text-sm font-medium text-slate-700">Phone<input type="text" name="phone" required pattern="\d{10}" placeholder="10-digit phone" class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none" /></label>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-slate-700">Phone</label>
+                        <div class="flex gap-2">
+                            <select name="country_code" class="rounded-3xl border border-slate-200 bg-slate-50 px-3 py-3 text-slate-900 outline-none focus:border-slate-900 w-24">
+                                <?php $selected = isset($_POST['country_code']) ? $_POST['country_code'] : '91'; ?>
+                                <?php foreach (getCountryCodes() as $code => $label): ?>
+                                    <option value="<?= $code ?>" <?= $selected == $code ? 'selected' : '' ?>><?= $code ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <input type="text" name="phone" required placeholder="Phone number" value="<?= sanitize($_POST['phone'] ?? '') ?>" class="flex-1 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" />
+                        </div>
+                    </div>
                 </div>
                 <div class="grid gap-6">
                     <label class="space-y-2 text-sm font-medium text-slate-700">Address Line 1<input type="text" name="address_line1" required class="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none" /></label>

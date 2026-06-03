@@ -7,7 +7,7 @@ ini_set('session.use_only_cookies', 1);
 session_start();
 
 define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'ecommerce_db');
+define('DB_NAME', 'new_db');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 

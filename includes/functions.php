@@ -154,7 +154,7 @@ function createRazorpayOrder($amount, $currency = 'INR') {
     $error = curl_error($ch);
     curl_close($ch);
 
-    if ($response === false || $status !== 200 && $status !== 201) {
+    if ($response === false || ($status !== 200 && $status !== 201)) {
         return ['error' => 'Unable to create Razorpay order. ' . ($error ?: 'Please check your Razorpay credentials.')];
     }
 
@@ -169,6 +169,8 @@ function generateCsrfToken() {
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
+    return $_SESSION['csrf_token'];
+}
 
 function ensurePasswordResetTableExists() {
     global $pdo;
@@ -255,5 +257,40 @@ function resetPasswordWithToken($token, $password) {
     $stmt->execute([$token]);
     return ['success' => true];
 }
-    return $_SESSION['csrf_token'];
+
+function formatInternationalPhone($countryCode, $phone) {
+    $phone = preg_replace('/\D/', '', $phone);
+    if (empty($phone)) return null;
+    $countryCode = ltrim($countryCode, '+');
+    return '+' . $countryCode . $phone;
+}
+
+function validateInternationalPhone($countryCode, $phone) {
+    $countryCode = ltrim($countryCode, '+');
+    $phone = preg_replace('/\D/', '', $phone);
+    if (empty($countryCode) || empty($phone)) {
+        return ['error' => 'Country code and phone number are required.'];
+    }
+    if (strlen($countryCode) < 1 || strlen($countryCode) > 3) {
+        return ['error' => 'Invalid country code.'];
+    }
+    if (strlen($phone) < 7 || strlen($phone) > 15) {
+        return ['error' => 'Phone number must be between 7 and 15 digits.'];
+    }
+    return ['valid' => true, 'formatted' => '+' . $countryCode . $phone];
+}
+
+function getCountryCodes() {
+    return [
+        '91' => 'India (+91)',
+        '1' => 'USA (+1)',
+        '44' => 'UK (+44)',
+        '61' => 'Australia (+61)',
+        '81' => 'Japan (+81)',
+        '86' => 'China (+86)',
+        '33' => 'France (+33)',
+        '49' => 'Germany (+49)',
+        '39' => 'Italy (+39)',
+        '34' => 'Spain (+34)',
+    ];
 }
