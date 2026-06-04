@@ -2,10 +2,38 @@
 require_once __DIR__ . '/includes/functions.php';
 ensureProductBestSellerColumn();
 $featuredCategories = getCategories();
+$makeSlug = function ($value) {
+    return strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($value)));
+};
 $stmt = $pdo->query('SELECT * FROM products WHERE stock > 0 AND is_best_seller = 1 ORDER BY id DESC LIMIT 8');
 $bestSellers = $stmt->fetchAll();
 $stmt = $pdo->query('SELECT * FROM products WHERE stock > 0 ORDER BY id DESC LIMIT 8');
 $trending = $stmt->fetchAll();
+$categoryProductSections = [];
+if ($featuredCategories) {
+    $categoryIds = array_map('intval', array_column($featuredCategories, 'id'));
+    $placeholders = implode(',', array_fill(0, count($categoryIds), '?'));
+    $stmt = $pdo->prepare("SELECT * FROM products WHERE stock > 0 AND category IN ($placeholders) ORDER BY category ASC, id DESC");
+    $stmt->execute($categoryIds);
+    $productsByCategory = [];
+    foreach ($stmt->fetchAll() as $product) {
+        $categoryId = (int)$product['category'];
+        if (!isset($productsByCategory[$categoryId])) {
+            $productsByCategory[$categoryId] = [];
+        }
+        if (count($productsByCategory[$categoryId]) < 4) {
+            $productsByCategory[$categoryId][] = $product;
+        }
+    }
+    foreach ($featuredCategories as $category) {
+        $categoryId = (int)$category['id'];
+        $categoryProductSections[] = [
+            'category' => $category,
+            'products' => $productsByCategory[$categoryId] ?? [],
+            'slug' => $makeSlug($category['name']),
+        ];
+    }
+}
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 
@@ -188,94 +216,104 @@ $trending = $stmt->fetchAll();
     </div>
 </section>
 
-<!-- G-Shock SECTION -->
-<section class="w-full py-10 md:py-14 overflow-hidden ">
-    <div class="max-w-[1920px] mx-auto px-4 md:px-10">
-        <!-- HEADING -->
-        <div class="text-center mb-10 md:mb-16 px-4">
-            <h2 class="text-[42px] md:text-[56px] leading-none font-serif text-black animate-slide-bottom">
-                G-Shock
-            </h2>
-        </div>
-        <?php if ($bestSellers): ?>
-            <!-- SLIDER -->
-            <div
-                class="flex gap-3 md:gap-6 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:-mt-[25px] scroll-animate-bottom">
-                <?php foreach (array_slice($bestSellers, 0, 4) as $product): ?>
-                    <?php
-                    $gallery = json_decode($product['gallery'] ?? '[]', true) ?: [];
-                    $mainImage = resolveAssetUrl($product['images'] ?: ($gallery[0] ?? ''));
-                    $hoverImage = resolveAssetUrl($gallery[1] ?? ($gallery[0] ?? $product['images']));
-                    $hasOffer = (float)$product['offer_price'] > 0 && (float)$product['offer_price'] < (float)$product['price'];
-                    $displayPrice = $hasOffer ? (float)$product['offer_price'] : (float)$product['price'];
-                    $stock = (int)$product['stock'];
+<!-- CATEGORY PRODUCTS SECTIONS -->
+<?php if ($categoryProductSections): ?>
+    <?php foreach ($categoryProductSections as $section): ?>
+        <section class="w-full pb-10 md:pb-14 overflow-hidden ">
+            <div class="max-w-[1920px] mx-auto px-4 md:px-10">
+                <!-- HEADING -->
+                <div class="text-center mb-10 md:mb-16 px-4">
+                    <h2 class="text-[42px] md:text-[56px] leading-none font-serif text-black animate-slide-bottom">
+                        <?= sanitize($section['category']['name']) ?>
+                    </h2>
+                </div>
+                <?php if ($section['products']): ?>
+                    <!-- SLIDER -->
+                    <div
+                        class="flex gap-3 md:gap-6 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:-mt-[25px] scroll-animate-bottom">
+                        <?php foreach ($section['products'] as $product): ?>
+                            <?php
+                            $gallery = json_decode($product['gallery'] ?? '[]', true) ?: [];
+                            $mainImage = resolveAssetUrl($product['images'] ?: ($gallery[0] ?? ''));
+                            $hoverImage = resolveAssetUrl($gallery[1] ?? ($gallery[0] ?? $product['images']));
+                            $hasOffer = (float)$product['offer_price'] > 0 && (float)$product['offer_price'] < (float)$product['price'];
+                            $displayPrice = $hasOffer ? (float)$product['offer_price'] : (float)$product['price'];
+                            $stock = (int)$product['stock'];
 
-                    if ($stock <= 0) {
-                        $badgeText = 'Out of Stock';
-                        $badgeClass = 'bg-red-600 text-white';
-                    } elseif ($stock < 10) {
-                        $badgeText = $stock . ' Only Left';
-                        $badgeClass = 'bg-orange-500 text-white';
-                    } else {
-                        $badgeText = 'Sale';
-                        $badgeClass = 'bg-black text-white';
-                    }
-                    ?>
-                    <!-- CARD -->
-                    <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="group flex-shrink-0 w-[145px] md:flex-1 snap-start">
-                        <div class="relative bg-white rounded-md overflow-hidden">
-                            <?php if ($mainImage): ?>
-                                <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
-                                    class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-5 transition-all duration-500 group-hover:opacity-0" />
-                            <?php else: ?>
-                                <div class="flex h-[180px] w-full items-center justify-center bg-slate-100 p-5 text-center text-sm text-slate-500 md:h-[440px] md:w-[400px]">Image not found</div>
-                            <?php endif; ?>
+                            if ($stock <= 0) {
+                                $badgeText = 'Out of Stock';
+                                $badgeClass = 'bg-red-600 text-white';
+                            } elseif ($stock < 10) {
+                                $badgeText = $stock . ' Only Left';
+                                $badgeClass = 'bg-orange-500 text-white';
+                            } else {
+                                $badgeText = $hasOffer ? 'Sale' : 'In Stock';
+                                $badgeClass = 'bg-black text-white';
+                            }
+                            ?>
+                            <!-- CARD -->
+                            <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="group flex-shrink-0 w-[145px] md:flex-1 snap-start">
+                                <div class="relative bg-white rounded-md overflow-hidden">
+                                    <?php if ($mainImage): ?>
+                                        <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
+                                            class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-5 transition-all duration-500 group-hover:opacity-0" />
+                                    <?php else: ?>
+                                        <div class="flex h-[180px] w-full items-center justify-center bg-slate-100 p-5 text-center text-sm text-slate-500 md:h-[440px] md:w-[400px]">Image not found</div>
+                                    <?php endif; ?>
 
-                            <?php if ($hoverImage): ?>
-                                <img src="<?= sanitize($hoverImage) ?>" alt="<?= sanitize($product['name']) ?>"
-                                    class="absolute inset-0 h-full w-full object-contain opacity-0 transition-all duration-500 group-hover:opacity-100" />
-                            <?php endif; ?>
+                                    <?php if ($hoverImage): ?>
+                                        <img src="<?= sanitize($hoverImage) ?>" alt="<?= sanitize($product['name']) ?>"
+                                            class="absolute inset-0 h-full w-full object-contain opacity-0 transition-all duration-500 group-hover:opacity-100" />
+                                    <?php endif; ?>
 
-                            <span
-                                class="absolute left-2 md:left-5 bottom-2 md:bottom-5 text-[12px] px-3 md:px-4 py-1 md:py-1.5 rounded-full z-10 <?= $badgeClass ?>">
-                                <?= htmlspecialchars($badgeText) ?>
-                            </span>
-                        </div>
-
-                        <!-- CONTENT -->
-                        <div class="pt-3 md:pt-5">
-                            <h3 class="text-[17px] md:text-[18px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
-                                <?= sanitize($product['name']) ?>
-                            </h3>
-
-                            <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
-                                <?php if ($hasOffer): ?>
-                                    <span class="text-[14px] md:text-[16px] text-[#666] line-through">
-                                        Rs. <?= number_format((float)$product['price'], 2) ?>
+                                    <span
+                                        class="absolute left-2 md:left-5 bottom-2 md:bottom-5 text-[12px] px-3 md:px-4 py-1 md:py-1.5 rounded-full z-10 <?= $badgeClass ?>">
+                                        <?= sanitize($badgeText) ?>
                                     </span>
-                                <?php endif; ?>
+                                </div>
 
-                                <span class="text-[16px] md:text-[18px] font-medium text-black">
-                                    Rs. <?= number_format($displayPrice, 2) ?>
-                                </span>
-                            </div>
-                        </div>
+                                <!-- CONTENT -->
+                                <div class="pt-3 md:pt-5">
+                                    <h3 class="text-[17px] md:text-[18px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
+                                        <?= sanitize($product['name']) ?>
+                                    </h3>
+
+                                    <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
+                                        <?php if ($hasOffer): ?>
+                                            <span class="text-[14px] md:text-[16px] text-[#666] line-through">
+                                                Rs. <?= number_format((float)$product['price'], 2) ?>
+                                            </span>
+                                        <?php endif; ?>
+
+                                        <span class="text-[16px] md:text-[18px] font-medium text-black">
+                                            Rs. <?= number_format($displayPrice, 2) ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Products not found.</div>
+                <?php endif; ?>
+
+                <!-- BUTTON -->
+                <div class="flex justify-center mt-12 md:mt-10">
+                    <a href="<?= BASE_URL ?>/collection/<?= sanitize($section['slug']) ?>"
+                        class="bg-[#D3D3D3] text-black px-10 md:px-12 py-4 text-[18px] font-serif hover:bg-[#A9A9A9] transition duration-300">
+                        View all
                     </a>
-                <?php endforeach; ?>
+                </div>
             </div>
-        <?php else: ?>
-            <div class="rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Best seller products not found.</div>
-        <?php endif; ?>
-
-        <!-- BUTTON -->
-        <div class="flex justify-center mt-12 md:mt-10">
-            <a href="<?= BASE_URL ?>/collection"
-                class="bg-[#D3D3D3] text-black px-10 md:px-12 py-4 text-[18px] font-serif hover:bg-[#A9A9A9] transition duration-300">
-                View all
-            </a>
+        </section>
+    <?php endforeach; ?>
+<?php else: ?>
+    <section class="w-full py-10 md:py-14 overflow-hidden">
+        <div class="max-w-[1920px] mx-auto px-4 md:px-10">
+            <div class="rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Categories not found.</div>
         </div>
-    </div>
-</section>
+    </section>
+<?php endif; ?>
 
 
 <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
