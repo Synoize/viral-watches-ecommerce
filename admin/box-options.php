@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $boxes = $pdo->query('SELECT * FROM box_options ORDER BY is_active DESC, name')->fetchAll();
 ?>
 <div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
-    <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <div>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 class="text-2xl font-semibold text-slate-900">Box Options</h2>
             <a href="<?= BASE_URL ?>/product.php?id=1" target="_blank" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50">Preview Product Page</a>
@@ -143,7 +143,7 @@ $boxes = $pdo->query('SELECT * FROM box_options ORDER BY is_active DESC, name')-
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-slate-600"><?= date('j M Y', strtotime($item['created_at'])) ?></td>
-                            <td class="px-6 py-4 space-x-2">
+                            <td class="px-6 py-4 space-x-2 flex">
                                 <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= BASE_URL ?>/admin/box-options.php?edit=<?= $item['id'] ?>">Edit</a>
                                 <form class="inline" method="post" onsubmit="return confirm('Delete this box option?');">
                                     <input type="hidden" name="delete_id" value="<?= $item['id'] ?>">

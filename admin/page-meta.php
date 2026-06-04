@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $items = $pdo->query('SELECT * FROM page_meta ORDER BY path')->fetchAll();
 ?>
 <div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
-    <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <div>
         <h2 class="text-2xl font-semibold text-slate-900">Page Titles & Descriptions</h2>
         <?php if ($msg = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($msg) ?></div><?php endif; ?>
         <div class="mt-6 overflow-hidden rounded-[2rem] border border-slate-200">
@@ -78,7 +78,7 @@ $items = $pdo->query('SELECT * FROM page_meta ORDER BY path')->fetchAll();
                                     <?= $item['is_active'] ? 'Active' : 'Inactive' ?>
                                 </span>
                             </td>
-                            <td class="px-6 py-4 space-x-2">
+                            <td class="px-6 py-4 space-x-2 flex">
                                 <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= BASE_URL ?>/admin/page-meta.php?edit=<?= $item['id'] ?>">Edit</a>
                                 <form class="inline" method="post" onsubmit="return confirm('Disable this page metadata?');">
                                     <input type="hidden" name="delete_id" value="<?= $item['id'] ?>">

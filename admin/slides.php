@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $slides = $pdo->query("SELECT * FROM slides WHERE type = 'hero' ORDER BY sort_order ASC, id ASC")->fetchAll();
 ?>
 <div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
-    <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <div>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 class="text-2xl font-semibold text-slate-900">Hero Slides</h2>
             <a href="<?= BASE_URL ?>/" target="_blank" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50">Preview Home</a>
@@ -106,7 +106,7 @@ $slides = $pdo->query("SELECT * FROM slides WHERE type = 'hero' ORDER BY sort_or
                                     <?= $item['is_active'] ? 'Active' : 'Inactive' ?>
                                 </span>
                             </td>
-                            <td class="px-6 py-4 space-x-2">
+                            <td class="px-6 py-4 space-x-2 flex">
                                 <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= BASE_URL ?>/admin/slides.php?edit=<?= $item['id'] ?>">Edit</a>
                                 <form class="inline" method="post" onsubmit="return confirm('Delete this slide?');">
                                     <input type="hidden" name="delete_id" value="<?= $item['id'] ?>">

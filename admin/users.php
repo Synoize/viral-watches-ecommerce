@@ -2,7 +2,7 @@
 require_once __DIR__ . '/_header.php';
 $users = $pdo->query('SELECT id, name, email, phone, role FROM users ORDER BY id DESC')->fetchAll();
 ?>
-<div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+<div>
     <h2 class="text-2xl font-semibold text-slate-900">Users</h2>
     <div class="mt-6 overflow-hidden rounded-[2rem] border border-slate-200">
         <table class="w-full border-separate border-spacing-0 text-left text-sm">

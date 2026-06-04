@@ -71,7 +71,7 @@ $coupons = $pdo->query(
 )->fetchAll();
 ?>
 <div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
-    <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <div>
         <h2 class="text-2xl font-semibold text-slate-900">Coupons</h2>
         <?php if ($msg = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($msg) ?></div><?php endif; ?>
         <div class="mt-6 overflow-hidden rounded-[2rem] border border-slate-200">
@@ -109,7 +109,7 @@ $coupons = $pdo->query(
                                 <p class="mt-1">End: <?= $item['expiry_date'] ? sanitize($item['expiry_date']) : 'All time' ?></p>
                             </td>
                             <td class="px-6 py-4"><?= $item['status'] ? 'Active' : 'Disabled' ?></td>
-                            <td class="px-6 py-4 space-x-2">
+                            <td class="px-6 py-4 space-x-2 flex ">
                                 <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= BASE_URL ?>/admin/coupons.php?edit=<?= $item['id'] ?>">Edit</a>
                                 <form class="inline" method="post" onsubmit="return confirm('Delete coupon?');"><input type="hidden" name="delete_id" value="<?= $item['id'] ?>"><button class="inline-flex rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">Delete</button></form>
                             </td>
