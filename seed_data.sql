@@ -30,7 +30,7 @@ ON DUPLICATE KEY UPDATE
 
 -- PRODUCTS
 INSERT INTO products
-(id, name, description, category, price, offer_price, stock, demo_image, images, gallery)
+(id, name, description, category, price, offer_price, stock, is_best_seller, demo_image, images, gallery)
 VALUES
 (
     1,
@@ -40,6 +40,7 @@ VALUES
     120000.00,
     110000.00,
     15,
+    1,
     'rolex-demo.jpg',
     'rolex-main.jpg',
     '["rolex-1.jpg","rolex-2.jpg","rolex-3.jpg"]'
@@ -52,6 +53,7 @@ VALUES
     95000.00,
     90000.00,
     20,
+    0,
     'omega-demo.jpg',
     'omega-main.jpg',
     '["omega-1.jpg","omega-2.jpg","omega-3.jpg"]'
@@ -64,6 +66,7 @@ VALUES
     85000.00,
     79999.00,
     30,
+    1,
     'apple-demo.jpg',
     'apple-main.jpg',
     '["apple-1.jpg","apple-2.jpg","apple-3.jpg"]'
@@ -76,6 +79,7 @@ VALUES
     35000.00,
     31999.00,
     40,
+    0,
     'samsung-demo.jpg',
     'samsung-main.jpg',
     '["samsung-1.jpg","samsung-2.jpg","samsung-3.jpg"]'
@@ -88,6 +92,7 @@ VALUES
     15000.00,
     12999.00,
     50,
+    1,
     'gshock-demo.jpg',
     'gshock-main.jpg',
     '["gshock-1.jpg","gshock-2.jpg","gshock-3.jpg"]'
@@ -100,6 +105,7 @@ VALUES
     12000.00,
     10999.00,
     40,
+    1,
     'titan-demo.jpg',
     'titan-main.jpg',
     '["titan-1.jpg","titan-2.jpg","titan-3.jpg"]'
@@ -111,6 +117,7 @@ ON DUPLICATE KEY UPDATE
     price = VALUES(price),
     offer_price = VALUES(offer_price),
     stock = VALUES(stock),
+    is_best_seller = VALUES(is_best_seller),
     demo_image = VALUES(demo_image),
     images = VALUES(images),
     gallery = VALUES(gallery);

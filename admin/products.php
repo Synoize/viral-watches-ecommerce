@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/_header.php';
+ensureProductBestSellerColumn();
 $action = $_GET['action'] ?? '';
 $product = null;
 $categories = $pdo->query('SELECT id, name FROM categories')->fetchAll();
@@ -14,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $category = (int)($_POST['category'] ?? 0);
     $price = (float)($_POST['price'] ?? 0);
     $stock = (int)($_POST['stock'] ?? 0);
+    $isBestSeller = isset($_POST['is_best_seller']) ? 1 : 0;
     $images = sanitize($_POST['images'] ?? '');
     $gallery = array_filter(array_map('trim', explode(',', $_POST['gallery'] ?? '')));
     $mainUpload = saveAdminImageUpload($_FILES['main_image_file'] ?? [], 'products', 'product-main');
@@ -38,12 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Product must have a name and positive price.';
     } elseif (empty($error)) {
         if (!empty($_POST['product_id'])) {
-            $stmt = $pdo->prepare('UPDATE products SET name = ?, description = ?, category = ?, price = ?, stock = ?, images = ?, gallery = ? WHERE id = ?');
-            $stmt->execute([$name, $description, $category, $price, $stock, $images, $galleryJson, (int)$_POST['product_id']]);
+            $stmt = $pdo->prepare('UPDATE products SET name = ?, description = ?, category = ?, price = ?, stock = ?, is_best_seller = ?, images = ?, gallery = ? WHERE id = ?');
+            $stmt->execute([$name, $description, $category, $price, $stock, $isBestSeller, $images, $galleryJson, (int)$_POST['product_id']]);
             flash('success', 'Product updated.');
         } else {
-            $stmt = $pdo->prepare('INSERT INTO products (name, description, category, price, stock, images, gallery) VALUES (?, ?, ?, ?, ?, ?, ?)');
-            $stmt->execute([$name, $description, $category, $price, $stock, $images, $galleryJson]);
+            $stmt = $pdo->prepare('INSERT INTO products (name, description, category, price, stock, is_best_seller, images, gallery) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+            $stmt->execute([$name, $description, $category, $price, $stock, $isBestSeller, $images, $galleryJson]);
             flash('success', 'Product added.');
         }
         redirect('/admin/products.php');
@@ -69,6 +71,7 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
                         <th class="px-6 py-4">Category</th>
                         <th class="px-6 py-4">Price</th>
                         <th class="px-6 py-4">Stock</th>
+                        <th class="px-6 py-4">Best Seller</th>
                         <th class="px-6 py-4">Actions</th>
                     </tr>
                 </thead>
@@ -79,6 +82,13 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
                             <td class="px-6 py-4 text-slate-700"><?= sanitize($item['category_name'] ?? 'Uncategorized') ?></td>
                             <td class="px-6 py-4 text-slate-900">₹<?= number_format($item['price'], 2) ?></td>
                             <td class="px-6 py-4 text-slate-700"><?= (int)$item['stock'] ?></td>
+                            <td class="px-6 py-4">
+                                <?php if (!empty($item['is_best_seller'])): ?>
+                                    <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Yes</span>
+                                <?php else: ?>
+                                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">No</span>
+                                <?php endif; ?>
+                            </td>
                             <td class="px-6 py-4 space-x-2">
                                 <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= BASE_URL ?>/admin/products.php?action=edit&id=<?= $item['id'] ?>">Edit</a>
                                 <form class="inline" method="post" onsubmit="return confirm('Delete this product?');">
@@ -89,7 +99,7 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
                         </tr>
                     <?php endforeach; ?>
                     <?php if (!$products): ?>
-                        <tr class="bg-white"><td colspan="5" class="px-6 py-8 text-center text-slate-500">Products not found.</td></tr>
+                        <tr class="bg-white"><td colspan="6" class="px-6 py-8 text-center text-slate-500">Products not found.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -113,6 +123,10 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
             </select></label>
             <label class="block text-sm font-medium text-slate-700">Price<input type="number" step="0.01" name="price" value="<?= sanitize($product['price'] ?? '') ?>" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
             <label class="block text-sm font-medium text-slate-700">Stock<input type="number" name="stock" value="<?= sanitize($product['stock'] ?? '0') ?>" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
+            <label class="flex items-center gap-3 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700">
+                <input type="checkbox" name="is_best_seller" value="1" <?= !empty($product['is_best_seller']) ? 'checked' : '' ?> class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900">
+                Add to Best seller section
+            </label>
             <label class="block text-sm font-medium text-slate-700">Main Image URL or Path<input name="images" value="<?= sanitize($product['images'] ?? '') ?>" placeholder="assets/images/products/example.jpg or https://..." class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
             <label class="block text-sm font-medium text-slate-700">Upload Main Image<input type="file" name="main_image_file" accept="image/png,image/jpeg,image/webp" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-900" /></label>
             <label class="block text-sm font-medium text-slate-700">Gallery URLs or Paths (comma separated)<textarea name="gallery" rows="2" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900"><?= sanitize(implode(', ', json_decode($product['gallery'] ?? '[]', true) ?: [])) ?></textarea></label>

@@ -203,6 +203,23 @@ function getCategories() {
     return $stmt->fetchAll();
 }
 
+function ensureProductBestSellerColumn() {
+    global $pdo;
+    static $checked = false;
+    if ($checked) return true;
+
+    try {
+        $columns = $pdo->query('SHOW COLUMNS FROM products')->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('is_best_seller', $columns, true)) {
+            $pdo->exec('ALTER TABLE products ADD COLUMN is_best_seller TINYINT(1) NOT NULL DEFAULT 0 AFTER stock');
+        }
+        $checked = true;
+        return true;
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
 function getCategoryBySlug($slug) {
     global $pdo;
     $stmt = $pdo->query('SELECT id, name FROM categories ORDER BY name');

@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
+ensureProductBestSellerColumn();
 $featuredCategories = getCategories();
+$stmt = $pdo->query('SELECT * FROM products WHERE stock > 0 AND is_best_seller = 1 ORDER BY id DESC LIMIT 8');
+$bestSellers = $stmt->fetchAll();
 $stmt = $pdo->query('SELECT * FROM products WHERE stock > 0 ORDER BY id DESC LIMIT 8');
 $trending = $stmt->fetchAll();
 ?>
@@ -105,46 +108,164 @@ $trending = $stmt->fetchAll();
                 Best seller
             </h2>
         </div>
-        <!-- SLIDER -->
-        <div
-            class="flex gap-3 md:gap-6 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:-mt-[25px] scroll-animate-bottom">
-            <!-- CARD -->
-            <div class="group flex-shrink-0 w-[145px] md:flex-1 snap-start">
-                <div class="relative bg-white rounded-md overflow-hidden">
-                    <!-- MAIN IMG -->
-                    <img src="https://i.ibb.co/KzXc2YPT/The-Best-Dad-Friendly-Gifts-for-Father-s-Day.jpg" alt=""
-                        class="w-full md:w-[400px] h-[180px] md:h-[440px] p-5 md:p-5 transition-all duration-500 group-hover:opacity-0" />
+        <?php if ($bestSellers): ?>
+            <!-- SLIDER -->
+            <div
+                class="flex gap-3 md:gap-6 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:-mt-[25px] scroll-animate-bottom">
+                <?php foreach (array_slice($bestSellers, 0, 4) as $product): ?>
+                    <?php
+                    $gallery = json_decode($product['gallery'] ?? '[]', true) ?: [];
+                    $mainImage = resolveAssetUrl($product['images'] ?: ($gallery[0] ?? ''));
+                    $hoverImage = resolveAssetUrl($gallery[1] ?? ($gallery[0] ?? $product['images']));
+                    $hasOffer = (float)$product['offer_price'] > 0 && (float)$product['offer_price'] < (float)$product['price'];
+                    $displayPrice = $hasOffer ? (float)$product['offer_price'] : (float)$product['price'];
+                    $stock = (int)$product['stock'];
 
-                    <!-- HOVER IMG -->
-                    <img src="https://i.ibb.co/Dfs3XRKB/Chat-GPT-Image-Jun-2-2026-03-10-26-PM.png" alt=""
-                        class="absolute inset-0 w-full h-full opacity-0 transition-all duration-500 group-hover:opacity-100" />
+                    if ($stock <= 0) {
+                        $badgeText = 'Out of Stock';
+                        $badgeClass = 'bg-red-600 text-white';
+                    } elseif ($stock < 10) {
+                        $badgeText = $stock . ' Only Left';
+                        $badgeClass = 'bg-orange-500 text-white';
+                    } else {
+                        $badgeText = 'Sale';
+                        $badgeClass = 'bg-black text-white';
+                    }
+                    ?>
+                    <!-- CARD -->
+                    <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="group flex-shrink-0 w-[145px] md:flex-1 snap-start">
+                        <div class="relative bg-white rounded-md overflow-hidden">
+                            <?php if ($mainImage): ?>
+                                <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
+                                    class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-5 transition-all duration-500 group-hover:opacity-0" />
+                            <?php else: ?>
+                                <div class="flex h-[180px] w-full items-center justify-center bg-slate-100 p-5 text-center text-sm text-slate-500 md:h-[440px] md:w-[400px]">Image not found</div>
+                            <?php endif; ?>
 
-                    <!-- BADGE -->
-                    <span
-                        class="absolute left-2 md:left-5 bottom-2 md:bottom-5 bg-black text-white text-[12px] md:text-[18px] px-3 md:px-4 py-1 md:py-1.5 rounded-full z-10">
-                        Sale
-                    </span>
-                </div>
+                            <?php if ($hoverImage): ?>
+                                <img src="<?= sanitize($hoverImage) ?>" alt="<?= sanitize($product['name']) ?>"
+                                    class="absolute inset-0 h-full w-full object-contain opacity-0 transition-all duration-500 group-hover:opacity-100" />
+                            <?php endif; ?>
 
-                <!-- CONTENT -->
-                <div class="pt-3 md:pt-5">
-                    <h3 class="text-[17px] md:text-[18px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
-                        Matte Leaf Men's Kada
-                    </h3>
+                            <span
+                                class="absolute left-2 md:left-5 bottom-2 md:bottom-5 text-[12px] px-3 md:px-4 py-1 md:py-1.5 rounded-full z-10 <?= $badgeClass ?>">
+                                <?= htmlspecialchars($badgeText) ?>
+                            </span>
+                        </div>
 
-                    <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
-                        <span class="text-[14px] md:text-[16px] text-[#666] line-through">
-                            Rs. 4,999.00
-                        </span>
+                        <!-- CONTENT -->
+                        <div class="pt-3 md:pt-5">
+                            <h3 class="text-[17px] md:text-[18px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
+                                <?= sanitize($product['name']) ?>
+                            </h3>
 
-                        <span class="text-[16px] md:text-[18px] font-medium text-black">
-                            Rs. 2,799.00
-                        </span>
-                    </div>
-                </div>
+                            <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
+                                <?php if ($hasOffer): ?>
+                                    <span class="text-[14px] md:text-[16px] text-[#666] line-through">
+                                        Rs. <?= number_format((float)$product['price'], 2) ?>
+                                    </span>
+                                <?php endif; ?>
+
+                                <span class="text-[16px] md:text-[18px] font-medium text-black">
+                                    Rs. <?= number_format($displayPrice, 2) ?>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
             </div>
+        <?php else: ?>
+            <div class="rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Best seller products not found.</div>
+        <?php endif; ?>
 
+        <!-- BUTTON -->
+        <div class="flex justify-center mt-12 md:mt-10">
+            <a href="<?= BASE_URL ?>/collection"
+                class="bg-[#D3D3D3] text-black px-10 md:px-12 py-4 text-[18px] font-serif hover:bg-[#A9A9A9] transition duration-300">
+                View all
+            </a>
         </div>
+    </div>
+</section>
+
+<!-- G-Shock SECTION -->
+<section class="w-full py-10 md:py-14 overflow-hidden ">
+    <div class="max-w-[1920px] mx-auto px-4 md:px-10">
+        <!-- HEADING -->
+        <div class="text-center mb-10 md:mb-16 px-4">
+            <h2 class="text-[42px] md:text-[56px] leading-none font-serif text-black animate-slide-bottom">
+                G-Shock
+            </h2>
+        </div>
+        <?php if ($bestSellers): ?>
+            <!-- SLIDER -->
+            <div
+                class="flex gap-3 md:gap-6 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:-mt-[25px] scroll-animate-bottom">
+                <?php foreach (array_slice($bestSellers, 0, 4) as $product): ?>
+                    <?php
+                    $gallery = json_decode($product['gallery'] ?? '[]', true) ?: [];
+                    $mainImage = resolveAssetUrl($product['images'] ?: ($gallery[0] ?? ''));
+                    $hoverImage = resolveAssetUrl($gallery[1] ?? ($gallery[0] ?? $product['images']));
+                    $hasOffer = (float)$product['offer_price'] > 0 && (float)$product['offer_price'] < (float)$product['price'];
+                    $displayPrice = $hasOffer ? (float)$product['offer_price'] : (float)$product['price'];
+                    $stock = (int)$product['stock'];
+
+                    if ($stock <= 0) {
+                        $badgeText = 'Out of Stock';
+                        $badgeClass = 'bg-red-600 text-white';
+                    } elseif ($stock < 10) {
+                        $badgeText = $stock . ' Only Left';
+                        $badgeClass = 'bg-orange-500 text-white';
+                    } else {
+                        $badgeText = 'Sale';
+                        $badgeClass = 'bg-black text-white';
+                    }
+                    ?>
+                    <!-- CARD -->
+                    <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="group flex-shrink-0 w-[145px] md:flex-1 snap-start">
+                        <div class="relative bg-white rounded-md overflow-hidden">
+                            <?php if ($mainImage): ?>
+                                <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
+                                    class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-5 transition-all duration-500 group-hover:opacity-0" />
+                            <?php else: ?>
+                                <div class="flex h-[180px] w-full items-center justify-center bg-slate-100 p-5 text-center text-sm text-slate-500 md:h-[440px] md:w-[400px]">Image not found</div>
+                            <?php endif; ?>
+
+                            <?php if ($hoverImage): ?>
+                                <img src="<?= sanitize($hoverImage) ?>" alt="<?= sanitize($product['name']) ?>"
+                                    class="absolute inset-0 h-full w-full object-contain opacity-0 transition-all duration-500 group-hover:opacity-100" />
+                            <?php endif; ?>
+
+                            <span
+                                class="absolute left-2 md:left-5 bottom-2 md:bottom-5 text-[12px] px-3 md:px-4 py-1 md:py-1.5 rounded-full z-10 <?= $badgeClass ?>">
+                                <?= htmlspecialchars($badgeText) ?>
+                            </span>
+                        </div>
+
+                        <!-- CONTENT -->
+                        <div class="pt-3 md:pt-5">
+                            <h3 class="text-[17px] md:text-[18px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
+                                <?= sanitize($product['name']) ?>
+                            </h3>
+
+                            <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
+                                <?php if ($hasOffer): ?>
+                                    <span class="text-[14px] md:text-[16px] text-[#666] line-through">
+                                        Rs. <?= number_format((float)$product['price'], 2) ?>
+                                    </span>
+                                <?php endif; ?>
+
+                                <span class="text-[16px] md:text-[18px] font-medium text-black">
+                                    Rs. <?= number_format($displayPrice, 2) ?>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <div class="rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Best seller products not found.</div>
+        <?php endif; ?>
 
         <!-- BUTTON -->
         <div class="flex justify-center mt-12 md:mt-10">
