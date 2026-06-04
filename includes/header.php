@@ -98,6 +98,19 @@ function is_active($match)
                         primary: '#fff',
                         secondary: '#f5f5f3',
                     },
+                    keyframes: {
+                        marquee: {
+                            '0%': {
+                                transform: 'translateX(0)'
+                            },
+                            '100%': {
+                                transform: 'translateX(-50%)'
+                            },
+                        }
+                    },
+                    animation: {
+                        marquee: 'marquee 20s linear infinite',
+                    }
                 },
             },
         }

@@ -165,14 +165,14 @@ if ($featuredCategories) {
                         <div class="relative bg-white rounded-md overflow-hidden">
                             <?php if ($mainImage): ?>
                                 <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
-                                    class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-5 transition-all duration-500 group-hover:opacity-0" />
+                                    class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-8 transition-all duration-500 group-hover:opacity-0" />
                             <?php else: ?>
                                 <div class="flex h-[180px] w-full items-center justify-center bg-slate-100 p-5 text-center text-sm text-slate-500 md:h-[440px] md:w-[400px]">Image not found</div>
                             <?php endif; ?>
 
                             <?php if ($hoverImage): ?>
                                 <img src="<?= sanitize($hoverImage) ?>" alt="<?= sanitize($product['name']) ?>"
-                                    class="absolute inset-0 h-full w-full object-contain opacity-0 transition-all duration-500 group-hover:opacity-100" />
+                                    class="absolute inset-0 h-full w-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100" />
                             <?php endif; ?>
 
                             <span
@@ -256,14 +256,14 @@ if ($featuredCategories) {
                                 <div class="relative bg-white rounded-md overflow-hidden">
                                     <?php if ($mainImage): ?>
                                         <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
-                                            class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-5 transition-all duration-500 group-hover:opacity-0" />
+                                            class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-8 transition-all duration-500 group-hover:opacity-0" />
                                     <?php else: ?>
                                         <div class="flex h-[180px] w-full items-center justify-center bg-slate-100 p-5 text-center text-sm text-slate-500 md:h-[440px] md:w-[400px]">Image not found</div>
                                     <?php endif; ?>
 
                                     <?php if ($hoverImage): ?>
                                         <img src="<?= sanitize($hoverImage) ?>" alt="<?= sanitize($product['name']) ?>"
-                                            class="absolute inset-0 h-full w-full object-contain opacity-0 transition-all duration-500 group-hover:opacity-100" />
+                                            class="absolute inset-0 h-full w-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100" />
                                     <?php endif; ?>
 
                                     <span
