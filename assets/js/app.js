@@ -231,56 +231,105 @@ new Swiper(".heroSlider", {
   },
 });
 
+/* WATCH & BUY SECTION */
+const cards = Array.from(document.querySelectorAll(".watch-card"));
+const modal = document.getElementById("watchModal");
+const mainVideo = document.getElementById("mainVideo");
+const prevVideo = document.getElementById("prevVideo");
+const nextVideo = document.getElementById("nextVideo");
+const productThumb = document.getElementById("productThumb");
+const modalTitleTop = document.getElementById("modalTitleTop");
+const modalTitle = document.getElementById("modalTitle");
+const modalPrice = document.getElementById("modalPrice");
+const modalOldPrice = document.getElementById("modalOldPrice");
+let activeIndex = 0;
 
-/* BEST SELLER SLIDER */
-new Swiper(".bestSellerSlider", {
-  slidesPerView: "auto",
-  spaceBetween: 14,
-});
+function cardData(index) {
+  const card = cards[(index + cards.length) % cards.length];
+  const video = card.querySelector("video");
+  const title = card.querySelector("h2");
+  const prices = card.querySelectorAll("span");
 
+  return {
+    src: video ? video.currentSrc || video.getAttribute("src") : "",
+    title: title ? title.innerText.trim() : "",
+    price: prices[0] ? prices[0].innerText.trim() : "",
+    oldPrice: prices[1] ? prices[1].innerText.trim() : "",
+  };
+}
 
-/* CHAINS COLLECTION SLIDER */
-new Swiper(".chainsSlider", {
-  slidesPerView: 2.2,
-  spaceBetween: 16,
-
-  breakpoints: {
-    768: {
-      slidesPerView: 2,
-    },
-    1024: {
-      slidesPerView: 4,
-    },
-  },
-});
-
-
-/* CUSTOMER REVIEWS AUTO SLIDER */
-const reviewSlider = document.getElementById("reviewSlider");
-let scrollAmount = 0;
-
-function autoSlideReviews() {
-  if (!reviewSlider) return;
-
-  const firstCard = reviewSlider.querySelector("div");
-  if (!firstCard) return;
-
-  const cardWidth = firstCard.offsetWidth + 32;
-
-  scrollAmount += cardWidth;
-
-  if (
-    scrollAmount >=
-    reviewSlider.scrollWidth - reviewSlider.clientWidth
-  ) {
-    scrollAmount = 0;
+function setVideo(video, src, shouldPlay) {
+  if (!video) return;
+  if (video.getAttribute("src") !== src) {
+    video.src = src;
   }
+  video.muted = true;
+  video.currentTime = 0;
+  if (shouldPlay) {
+    video.play().catch(() => { });
+  } else {
+    video.pause();
+  }
+}
 
-  reviewSlider.scrollTo({
-    left: scrollAmount,
-    behavior: "smooth",
+function renderModal() {
+  const current = cardData(activeIndex);
+  const previous = cardData(activeIndex - 1);
+  const next = cardData(activeIndex + 1);
+
+  setVideo(mainVideo, current.src, true);
+  productThumb.src =
+    "https://i.ibb.co/jvmWzcf0/Invicta-Men-s-Pro-Diver-Collection-Coin-Edge-Automatic-Watch.jpg";
+  setVideo(prevVideo, previous.src, true);
+  setVideo(nextVideo, next.src, true);
+
+  modalTitleTop.innerText = current.title;
+  modalTitle.innerText = current.title;
+  modalPrice.innerText = current.price;
+  modalOldPrice.innerText = current.oldPrice;
+}
+
+function openModal(index) {
+  activeIndex = index;
+  modal.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+  renderModal();
+}
+
+function closeModal() {
+  modal.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
+  [mainVideo, prevVideo, nextVideo].forEach((video) => {
+    if (video) {
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+    }
   });
 }
 
-// Auto Scroll Reviews Every 2 Seconds
-setInterval(autoSlideReviews, 2000);
+cards.forEach((card, index) => {
+  card.addEventListener("click", () => openModal(index));
+});
+
+document
+  .getElementById("closeModal")
+  .addEventListener("click", closeModal);
+document.getElementById("prevModal").addEventListener("click", () => {
+  activeIndex = (activeIndex - 1 + cards.length) % cards.length;
+  renderModal();
+});
+document.getElementById("nextModal").addEventListener("click", () => {
+  activeIndex = (activeIndex + 1) % cards.length;
+  renderModal();
+});
+
+modal.addEventListener("click", (event) => {
+  if (event.target === modal) closeModal();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !modal.classList.contains("hidden")) {
+    closeModal();
+  }
+});

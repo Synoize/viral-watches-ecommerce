@@ -2,7 +2,7 @@
 
 <!-- Footer -->
 <footer class="w-full bg-white pt-10 md:pt-16">
-    <div class="max-w-[1850px] mx-auto px-4 md:px-8">
+    <div class="max-w-[1920px] mx-auto px-4 md:px-8">
         <!-- TOP -->
         <div class="flex flex-col md:flex-row md:justify-between gap-12">
             <!-- LEFT -->
@@ -135,9 +135,9 @@
             </div>
         </div>
     </div>
-    <div class="mx-auto max-w-7xl px-4 py-8 text-center sm:px-6 lg:px-8 mt-8 border-t border-slate-200">
-        <p class="text-sm">&copy; <?= date('Y') ?> ShopMaster.</p>
-        <p class="mt-2 text-xs text-slate-500">Secure authentication</p>
+    <div class="mx-auto max-w-[1920px] px-4 py-6 text-center mt-8 border-t">
+        <p class="text-sm">&copy; <?= date('Y') ?> VIRALWATCHES. All Rights Reserved.</p>
+        <p class="mt-1 text-xs text-slate-500">Designed by Websolvit.</p>
     </div>
 </footer>
 

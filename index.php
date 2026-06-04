@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/functions.php';
 ensureProductBestSellerColumn();
 $featuredCategories = getCategories();
+$heroSlides = getActiveHeroSlides();
 $makeSlug = function ($value) {
     return strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($value)));
 };
@@ -42,81 +43,30 @@ if ($featuredCategories) {
     <!-- SLIDER -->
     <div class="swiper heroSlider">
         <div class="swiper-wrapper">
-            <!-- SLIDE 1 -->
-            <div class="swiper-slide relative">
-                <!-- BACKGROUND IMAGE -->
-
-                <picture>
-                    <!-- Mobile -->
-                    <source media="(max-width: 767px)"
-                        srcset="https://i.ibb.co/WpqS6MVp/Chat-GPT-Image-Jun-1-2026-03-47-29-PM.png" />
-
-                    <!-- Desktop -->
-                    <img src="https://i.ibb.co/fVV6MSGV/Untitled-design-36.png" alt="Banner"
-                        class="w-full h-[650px] md:h-[750px] lg:h-[550px] object-cover" />
-                </picture>
-                <!-- OVERLAY -->
-                <div class="absolute inset-0 bg-black/25"></div>
-
-                <!-- CONTENT -->
-
-                <!-- <div class="absolute inset-0 flex items-end md:items-center pb-12 md:pb-0">
-                    <div class="max-w-[1800px] mx-auto w-full px-5 md:px-10">
-                        <div class="flex justify-center lg:justify-end">
-                            <div class="max-w-[620px] text-white text-center lg:text-left">
-                                <p class="text-[18px] md:text-[22px] lg:text-[26px] font-light tracking-wide mb-2">
-                                    Pre-Summer Sale
-                                </p>
-
-                                <h1
-                                    class="text-[65px] md:text-[100px] lg:text-[140px] leading-[0.9] font-light">
-                                    Sparkle
-                                </h1>
-
-                                <div class="flex items-center gap-3 md:gap-4 mt-4 mb-5">
-                                    <div class="h-[1px] bg-white flex-1"></div>
-
-                                    <div class="flex items-center gap-1">
-                                        <div class="w-2 h-2 bg-white rotate-45"></div>
-                                        <div class="w-2 h-2 bg-white rotate-45"></div>
-                                    </div>
-
-                                    <div class="h-[1px] bg-white flex-1"></div>
-                                </div>
-
-                                <h2
-                                    class="text-[24px] md:text-[32px] lg:text-[38px] leading-tight font-light">
-                                    Flat
-                                    <span class="font-semibold"> 30% off </span>
-
-                                    on prepaid order
-                                </h2>
-
-                                <div class="mt-10 md:mt-12 lg:mt-14">
-                                    <a href="#"
-                                        class="inline-flex items-center justify-center border border-white px-8 md:px-10 lg:px-12 py-4 md:py-5 text-[16px] md:text-[20px] lg:text-[22px] tracking-wide hover:bg-white hover:text-black transition duration-300">
-                                        SHOP NOW
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+            <?php if ($heroSlides): ?>
+                <?php foreach ($heroSlides as $slide): ?>
+                    <?php
+                    $desktopImage = resolveAssetUrl($slide['file_path'] ?? '');
+                    $mobileImage = resolveAssetUrl($slide['mobile_file_path'] ?: ($slide['file_path'] ?? ''));
+                    ?>
+                    <div class="swiper-slide relative">
+                        <picture>
+                            <?php if ($mobileImage): ?>
+                                <source media="(max-width: 767px)" srcset="<?= sanitize($mobileImage) ?>" />
+                            <?php endif; ?>
+                            <img src="<?= sanitize($desktopImage) ?>" alt="Hero banner"
+                                class="w-full h-[650px] md:h-[750px] lg:h-[550px] object-cover" />
+                        </picture>
+                        <div class="absolute inset-0 bg-black/20"></div>
                     </div>
-                </div> -->
-            </div>
-
-            <!-- SLIDE 2 -->
-            <div class="swiper-slide relative">
-                <picture>
-                    <!-- Mobile -->
-                    <source media="(max-width: 767px)" srcset="https://i.ibb.co/fdvH4XyM/pposter-2.webp" />
-
-                    <!-- Desktop -->
-                    <img src="https://i.ibb.co/4Z4P7hL4/Untitled-design-37.png" alt="Banner"
-                        class="w-full h-[650px] md:h-[750px] lg:h-[550px] object-cover" />
-                </picture>
-                <!-- OVERLAY -->
-                <div class="absolute inset-0 bg-black/20"></div>
-            </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="swiper-slide relative">
+                    <div class="flex h-[650px] w-full items-center justify-center bg-slate-100 px-4 text-center text-slate-600 md:h-[750px] lg:h-[550px]">
+                        Slides not found.
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
         <!-- LEFT ARROW -->
         <div class="swiper-button-prev !text-black !w-[35px] !h-[35px] !bg-white rounded-full [&::after]:!text-[14px]">
@@ -132,8 +82,8 @@ if ($featuredCategories) {
     <div class="max-w-[1920px] mx-auto px-4 md:px-10">
         <!-- HEADING -->
         <div class="text-center mb-10 md:mb-16 px-4">
-            <h2 class="text-[42px] md:text-[56px] leading-none font-serif text-black animate-slide-bottom">
-                Best seller
+            <h2 class="text-[42px] leading-none font-serif text-[#303030] animate-slide-bottom">
+                Best Seller
             </h2>
         </div>
         <?php if ($bestSellers): ?>
@@ -223,7 +173,7 @@ if ($featuredCategories) {
             <div class="max-w-[1920px] mx-auto px-4 md:px-10">
                 <!-- HEADING -->
                 <div class="text-center mb-10 md:mb-16 px-4">
-                    <h2 class="text-[42px] md:text-[56px] leading-none font-serif text-black animate-slide-bottom">
+                    <h2 class="text-[42px] leading-none font-serif text-[#303030] animate-slide-bottom">
                         <?= sanitize($section['category']['name']) ?>
                     </h2>
                 </div>
@@ -315,102 +265,427 @@ if ($featuredCategories) {
     </section>
 <?php endif; ?>
 
+<!-- Banner Section -->
+<section class="w-full">
+    <a href="<?= BASE_URL ?>/collection" class="block overflow-hidden">
+        <img src="<?= BASE_URL ?>/assets/images/public/banner.png" alt="Banner" class="w-full md:h-[580px] object-cover" />
+    </a>
+</section>
 
-<div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+<!-- WATCH & BUY SECTION -->
+<section class="overflow-hidden bg-white py-10 md:py-14">
+    <div class="mx-auto max-w-[1400px] px-4">
+        <h1 class="mb-9 text-center font-serif text-[30px] leading-none text-[#303030] md:text-[35px]">
+            Watch and Buy
+        </h1>
 
-    <section class="mt-16">
-        <div class="flex items-center justify-between gap-4">
-            <h2 class="text-2xl font-semibold text-slate-900">Featured Categories</h2>
-            <a href="<?= BASE_URL ?>/collection" class="text-sm font-medium text-brand hover:text-slate-900">View all</a>
-        </div>
-        <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <?php if ($featuredCategories): foreach ($featuredCategories as $category): ?>
-                    <?php $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($category['name']))); ?>
-                    <a href="<?= BASE_URL ?>/collection/<?= $slug ?>" class="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-lg">
-                        <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-brand transition group-hover:bg-brand group-hover:text-white">
-                            <i class="fas fa-tag text-2xl"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-slate-900"><?= sanitize($category['name']) ?></h3>
-                    </a>
-                <?php endforeach;
-            else: ?>
-                <div class="col-span-full rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Categories not found.</div>
-            <?php endif; ?>
-        </div>
-    </section>
-    <section class="mt-16">
-        <div class="flex items-center justify-between gap-4">
-            <h2 class="text-2xl font-semibold text-slate-900">Trending Products</h2>
-            <a href="<?= BASE_URL ?>/collection" class="text-sm font-medium text-brand hover:text-slate-900">See all products</a>
-        </div>
-        <div class="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            <?php if ($trending): foreach ($trending as $product): ?>
-                    <?php $gallery = json_decode($product['gallery'], true) ?: []; ?>
-                    <article class="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                        <img src="<?= sanitize($gallery[0] ?? $product['images']) ?>" alt="<?= sanitize($product['name']) ?>" class="h-52 w-full object-cover" />
-                        <div class="space-y-3 p-5">
-                            <div class="space-y-1">
-                                <h3 class="text-lg font-semibold text-slate-900"><?= sanitize($product['name']) ?></h3>
-                                <p class="text-brand text-lg font-semibold">₹<?= number_format($product['price'], 2) ?></p>
-                            </div>
-                            <p class="text-sm leading-6 text-slate-500"><?= substr(sanitize($product['description']), 0, 80) ?>...</p>
-                            <div class="flex gap-3">
-                                <a href="<?= BASE_URL ?>/product.php?id=<?= $product['id'] ?>" class="inline-flex flex-1 items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">View</a>
-                                <a href="<?= BASE_URL ?>/cart.php?action=add&id=<?= $product['id'] ?>" class="inline-flex flex-1 items-center justify-center rounded-3xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800">Add</a>
-                            </div>
-                        </div>
-                    </article>
-                <?php endforeach;
-            else: ?>
-                <div class="col-span-full rounded-[1.75rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Products not found.</div>
-            <?php endif; ?>
-        </div>
-    </section>
-    <section class="mt-16 rounded-[2rem] bg-white p-8 shadow-sm lg:p-10">
-        <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
-            <div>
-                <h2 class="text-3xl font-semibold text-slate-900">Why Shop With Us?</h2>
-                <p class="mt-4 text-slate-600">High quality products, secure payments, and fast delivery with responsive support.</p>
-                <div class="mt-8 grid gap-4 sm:grid-cols-2">
-                    <div class="rounded-3xl bg-slate-50 p-6 text-slate-700">
-                        <h3 class="font-semibold">Fast shipping</h3>
-                        <p class="mt-2 text-sm text-slate-500">Reliable delivery across India.</p>
+        <div
+            class="flex gap-[30px] overflow-x-auto pb-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
+                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
+                    <video class="h-[calc(100%+76px)] w-full object-cover object-top"
+                        src="./vidssave.com%20Edifice%20Casio%20Grey%20Dial%20Luxurious%20Elegant%20Men's%20Watch%20%23luxurywatchesformen%20%23elegantwatches%20%23casio%201080P.mp4"
+                        autoplay muted loop playsinline></video>
+                </div>
+
+                <div class="pt-[14px]">
+                    <h2 class="truncate text-[16px] leading-[20px] text-black">
+                        Edifice Casio Grey Dial Watch
+                    </h2>
+                    <div class="mt-[10px] flex items-center gap-3">
+                        <span class="text-[16px] font-bold text-black">&#8377; 9,999</span>
+                        <span class="text-[16px] text-gray-500 line-through">&#8377; 13,999</span>
                     </div>
-                    <div class="rounded-3xl bg-slate-50 p-6 text-slate-700">
-                        <h3 class="font-semibold">Secure checkout</h3>
-                        <p class="mt-2 text-sm text-slate-500">PCI-compliant payment flow.</p>
-                    </div>
-                    <div class="rounded-3xl bg-slate-50 p-6 text-slate-700">
-                        <h3 class="font-semibold">Easy returns</h3>
-                        <p class="mt-2 text-sm text-slate-500">Hassle-free order support.</p>
-                    </div>
-                    <div class="rounded-3xl bg-slate-50 p-6 text-slate-700">
-                        <h3 class="font-semibold">24/7 support</h3>
-                        <p class="mt-2 text-sm text-slate-500">Friendly customer service.</p>
+                    <div class="mt-[10px]">
+                        <span
+                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
+                            29% off
+                        </span>
                     </div>
                 </div>
+            </article>
+
+            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
+                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
+                    <video class="h-[calc(100%+76px)] w-full object-cover object-top" src="./vidss.mp4" autoplay muted loop
+                        playsinline></video>
+                </div>
+
+                <div class="pt-[14px]">
+                    <h2 class="truncate text-[16px] leading-[20px] text-black">
+                        Men's Edifice Casio Watch | Grey Dial
+                    </h2>
+                    <div class="mt-[10px] flex items-center gap-3">
+                        <span class="text-[16px] font-bold text-black">&#8377; 8,599</span>
+                        <span class="text-[16px] text-gray-500 line-through">&#8377; 12,999</span>
+                    </div>
+                    <div class="mt-[10px]">
+                        <span
+                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
+                            34% off
+                        </span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
+                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
+                    <video class="h-[calc(100%+76px)] w-full object-cover object-top"
+                        src="./vidssave.com%20Edifice%20Casio%20Grey%20Dial%20Luxurious%20Elegant%20Men's%20Watch%20%23luxurywatchesformen%20%23elegantwatches%20%23casio%201080P.mp4"
+                        autoplay muted loop playsinline></video>
+                </div>
+
+                <div class="pt-[14px]">
+                    <h2 class="truncate text-[16px] leading-[20px] text-black">
+                        Casio Edifice Luxury Men's Watch
+                    </h2>
+                    <div class="mt-[10px] flex items-center gap-3">
+                        <span class="text-[16px] font-bold text-black">&#8377; 7,999</span>
+                        <span class="text-[16px] text-gray-500 line-through">&#8377; 11,999</span>
+                    </div>
+                    <div class="mt-[10px]">
+                        <span
+                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
+                            33% off
+                        </span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
+                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
+                    <video class="h-[calc(100%+76px)] w-full object-cover object-top"
+                        src="./vidssave.com%20Edifice%20Casio%20Grey%20Dial%20Luxurious%20Elegant%20Men's%20Watch%20%23luxurywatchesformen%20%23elegantwatches%20%23casio%201080P.mp4"
+                        autoplay muted loop playsinline></video>
+                </div>
+
+                <div class="pt-[14px]">
+                    <h2 class="truncate text-[16px] leading-[20px] text-black">
+                        Edifice Casio Elegant Men's Watch
+                    </h2>
+                    <div class="mt-[10px] flex items-center gap-3">
+                        <span class="text-[16px] font-bold text-black">&#8377; 8,399</span>
+                        <span class="text-[16px] text-gray-500 line-through">&#8377; 10,999</span>
+                    </div>
+                    <div class="mt-[10px]">
+                        <span
+                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
+                            24% off
+                        </span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
+                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
+                    <video class="h-[calc(100%+76px)] w-full object-cover object-top"
+                        src="./vidssave.com%20Edifice%20Casio%20Grey%20Dial%20Luxurious%20Elegant%20Men's%20Watch%20%23luxurywatchesformen%20%23elegantwatches%20%23casio%201080P.mp4"
+                        autoplay muted loop playsinline></video>
+                </div>
+
+                <div class="pt-[14px]">
+                    <h2 class="truncate text-[16px] leading-[20px] text-black">
+                        Casio Grey Dial Stainless Watch
+                    </h2>
+                    <div class="mt-[10px] flex items-center gap-3">
+                        <span class="text-[16px] font-bold text-black">&#8377; 8,999</span>
+                        <span class="text-[16px] text-gray-500 line-through">&#8377; 13,999</span>
+                    </div>
+                    <div class="mt-[10px]">
+                        <span
+                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
+                            36% off
+                        </span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
+                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
+                    <video class="h-[calc(100%+76px)] w-full object-cover object-top"
+                        src="./vidssave.com%20Edifice%20Casio%20Grey%20Dial%20Luxurious%20Elegant%20Men's%20Watch%20%23luxurywatchesformen%20%23elegantwatches%20%23casio%201080P.mp4"
+                        autoplay muted loop playsinline></video>
+                </div>
+
+                <div class="pt-[14px]">
+                    <h2 class="truncate text-[16px] leading-[20px] text-black">
+                        Men's Luxury Watch | Casio Edifice
+                    </h2>
+                    <div class="mt-[10px] flex items-center gap-3">
+                        <span class="text-[16px] font-bold text-black">&#8377; 7,599</span>
+                        <span class="text-[16px] text-gray-500 line-through">&#8377; 9,999</span>
+                    </div>
+                    <div class="mt-[10px]">
+                        <span
+                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
+                            24% off
+                        </span>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<div id="watchModal" class="fixed inset-0 z-[9999] hidden overflow-hidden bg-[#303030]">
+    <!-- Close -->
+    <button id="closeModal"
+        class="absolute right-6 top-5 z-50 text-white md:right-[24%] md:top-[62px]"
+        type="button"
+        aria-label="Close">
+        <i data-lucide="x" class="h-10 w-10 stroke-[1]"></i>
+    </button>
+
+    <!-- Previous -->
+    <button id="prevModal"
+        class="absolute left-5 top-1/2 z-40 flex h-[30px] w-[30px] md:h-[42px] md:w-[42px] -translate-y-1/2 items-center justify-center rounded-full bg-white text-black shadow-lg md:left-[25%]"
+        type="button"
+        aria-label="Previous">
+        <i data-lucide="chevron-left" class="h-5 w-5 md:h-7 md:w-7 stroke-[1]"></i>
+    </button>
+
+    <!-- Next -->
+    <button id="nextModal"
+        class="absolute right-5 top-1/2 z-40 flex h-[30px] w-[30px] md:h-[42px] md:w-[42px] -translate-y-1/2 items-center justify-center rounded-full bg-white text-black shadow-lg md:right-[25%]"
+        type="button"
+        aria-label="Next">
+        <i data-lucide="chevron-right" class="h-5 w-5 md:h-7 md:w-7 stroke-[1]"></i>
+    </button>
+
+    <div class="flex h-full items-center justify-center gap-[24px] px-4">
+        <div class="hidden h-[452px] w-[254px] overflow-hidden rounded-[8px] bg-black opacity-45 md:block">
+            <video id="prevVideo" class="h-[calc(100%+76px)] w-full object-cover object-top" muted loop playsinline></video>
+        </div>
+
+        <div
+            class="relative h-[min(78vh,660px)] w-[min(84vw,372px)] overflow-hidden rounded-[12px] border border-white/20 bg-black shadow-2xl md:h-[660px] md:w-[372px]">
+            <video id="mainVideo" class="h-[calc(100%+76px)] w-full object-cover object-top" muted loop playsinline></video>
+
+            <!-- Sound Button -->
+            <button
+                class="absolute right-3 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm"
+                type="button"
+                aria-label="Sound">
+                <i data-lucide="volume-2" class="h-6 w-6 stroke-[1]"></i>
+            </button>
+
+            <!-- Like & Share -->
+            <div class="absolute bottom-[152px] right-3 flex flex-col items-center gap-2 text-white">
+
+                <button
+                    class="flex h-11 w-11 items-center justify-center rounded-full bg-black/35 backdrop-blur-sm"
+                    type="button"
+                    aria-label="Like">
+                    <i data-lucide="heart" class="h-7 w-7 stroke-[1]"></i>
+                </button>
+                <span class="text-[12px] font-bold leading-none">Like</span>
+
+                <button
+                    class="mt-2 flex h-11 w-11 items-center justify-center rounded-full bg-black/35 backdrop-blur-sm"
+                    type="button"
+                    aria-label="Share">
+                    <i data-lucide="share-2" class="h-6 w-6 stroke-[1]"></i>
+                </button>
+                <span class="text-[12px] font-bold leading-none">Share</span>
+
             </div>
-            <div class="aspect-[16/9] overflow-hidden rounded-[2rem] bg-slate-900">
-                <iframe class="h-full w-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Company Video" allowfullscreen></iframe>
+
+            <div class="absolute bottom-[10px] left-[18px] right-[18px] md:left-[52px] md:right-[52px]">
+                <h3 id="modalTitleTop"
+                    class="mb-2 truncate text-center font-serif text-[20px] leading-tight text-white drop-shadow"></h3>
+
+                <div class="overflow-hidden rounded-[7px] bg-white/95 shadow-xl">
+                    <div class="flex min-h-[78px]">
+                        <div class="h-[88px] w-[94px] shrink-0 bg-white">
+                            <img id="productThumb" class="h-full w-full object-contain object-center"
+                                src="https://i.ibb.co/jvmWzcf0/Invicta-Men-s-Pro-Diver-Collection-Coin-Edge-Automatic-Watch.jpg"
+                                alt="Invicta Men's Pro Diver Watch" />
+                        </div>
+
+                        <div class="relative min-w-0 flex-1 px-3 py-3">
+                            <button class="absolute right-2 top-2 text-[18px] text-gray-700" type="button"
+                                aria-label="View product">
+                                &#8599;
+                            </button>
+
+                            <h4 id="modalTitle" class="truncate pr-6 text-[14px] font-semibold leading-[18px] text-black"></h4>
+
+                            <div class="mt-2 flex items-center gap-2">
+                                <span id="modalPrice" class="rounded bg-[#f4f4f4] px-2 py-1 text-[12px] font-bold text-black"></span>
+                                <span id="modalOldPrice" class="text-[12px] text-gray-500 line-through"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="w-full bg-[#2b2b2b] py-[13px] text-[17px] font-bold uppercase leading-none text-white"
+                        type="button">
+                        ADD TO CART
+                    </button>
+                </div>
+
+                <p class="mt-3 text-center text-[12px] font-semibold text-white">
+                    Powered By
+                    <span class="mx-1 inline-block rounded-sm bg-pink-300 px-1 text-black">◆</span>
+                    Websolvit
+                </p>
             </div>
         </div>
-    </section>
-    <section class="mt-16">
-        <h2 class="text-2xl font-semibold text-slate-900">FAQ</h2>
-        <div class="mt-6 space-y-4">
-            <details class="rounded-[1.75rem] border border-slate-200 bg-white p-5">
-                <summary class="cursor-pointer text-lg font-medium text-slate-900">How do I track my order?</summary>
-                <p class="mt-4 text-slate-600">Your order details and status are available in your account dashboard under Orders.</p>
-            </details>
-            <details class="rounded-[1.75rem] border border-slate-200 bg-white p-5">
-                <summary class="cursor-pointer text-lg font-medium text-slate-900">Can I return products?</summary>
-                <p class="mt-4 text-slate-600">Yes, returns are accepted within the policy period. Contact support through the Help page.</p>
-            </details>
-            <details class="rounded-[1.75rem] border border-slate-200 bg-white p-5">
-                <summary class="cursor-pointer text-lg font-medium text-slate-900">What payment options are available?</summary>
-                <p class="mt-4 text-slate-600">We support Razorpay and Cash on Delivery with ₹50 advance for COD orders.</p>
-            </details>
+
+        <div class="hidden h-[452px] w-[254px] overflow-hidden rounded-[8px] bg-black opacity-45 md:block">
+            <video id="nextVideo" class="h-[calc(100%+76px)] w-full object-cover object-top" muted loop playsinline></video>
         </div>
-    </section>
+    </div>
 </div>
+
+<!-- Running strip -->
+<section class="w-full bg-black py-6 overflow-hidden">
+    <div class="flex w-max animate-marquee">
+
+        <!-- First Set -->
+        <div class="flex items-center gap-7 md:gap-20 px-6 md:px-8 shrink-0">
+            <img src="<?= BASE_URL ?>/assets/images/brands/arma.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/rado.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/2.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/3.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/4.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/5.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/6.png" class="h-25 md:h-24 w-auto py-4" alt="">
+
+        </div>
+
+        <!-- Duplicate Set -->
+        <div class="flex items-center gap-7 md:gap-20  px-6 md:px-8 shrink-0">
+            <img src="<?= BASE_URL ?>/assets/images/brands/arma.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/rado.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/2.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/ca.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/4.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/5.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/6.png" class="h-25 md:h-24 w-auto py-4" alt="">
+
+        </div>
+
+    </div>
+</section>
+
+<!-- CUSTOMER REVIEWS -->
+<section class="w-full bg-[#f5f5f3] py-10 md:py-14 overflow-hidden">
+    <div class="max-w-[1400px] mx-auto px-4">
+
+        <!-- HEADING -->
+        <div class="text-center mb-10 md:mb-14">
+            <h2 class="text-[32px] md:text-[42px] font-serif text-black">
+                Customer Reviews
+            </h2>
+        </div>
+
+        <!-- REVIEWS -->
+        <div id="reviewSlider"
+            class="flex gap-5 md:gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+
+            <!-- REVIEW CARD -->
+            <div
+                class="bg-white rounded-[24px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
+
+                <h3 class="text-[20px] text-[#222]">
+                    Nirav
+                </h3>
+
+                <div class="flex justify-center gap-1 text-[#f4c400] text-[20px] mb-4">
+                    ★ ★ ★ ★ ★
+                </div>
+
+                <div class="flex justify-center mb-4">
+                    <img
+                        src="https://i.ibb.co/yD4bp6k/Gemini-Generated-Image-2nnke92nnke92nnk-400x400.png"
+                        alt="Nirav"
+                        class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
+                </div>
+
+                <p class="text-[14px] md:text-[15px] font-serif text-[#333] line-clamp-2">
+                    Got gifted this by my girl, loved it! Checked out the website and
+                    ordered the Apex kada as well and my god this is superb! Thanks!
+                </p>
+            </div>
+
+            <!-- REVIEW CARD -->
+            <div
+                class="bg-white rounded-[24px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
+
+                <h3 class="text-[20px] text-[#222]">
+                    Mihir
+                </h3>
+
+                <div class="flex justify-center gap-1 text-[#f4c400] text-[20px] mb-4">
+                    ★ ★ ★ ★ ★
+                </div>
+
+                <div class="flex justify-center mb-4">
+                    <img
+                        src="https://i.ibb.co/yD4bp6k/Gemini-Generated-Image-2nnke92nnke92nnk-400x400.png"
+                        alt="Mihir"
+                        class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
+                </div>
+
+                <p class="text-[14px] md:text-[15px] font-serif text-[#333] line-clamp-2">
+                    Even though I have a real gold chain, I prefer wearing this daily.
+                    Stylish, lightweight, and comfortable for everyday use.
+                </p>
+            </div>
+
+            <!-- REVIEW CARD -->
+            <div
+                class="bg-white rounded-[24px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
+
+                <h3 class="text-[20px] text-[#222]">
+                    Mihir
+                </h3>
+
+                <div class="flex justify-center gap-1 text-[#f4c400] text-[20px] mb-4">
+                    ★ ★ ★ ★ ★
+                </div>
+
+                <div class="flex justify-center mb-4">
+                    <img
+                        src="https://i.ibb.co/yD4bp6k/Gemini-Generated-Image-2nnke92nnke92nnk-400x400.png"
+                        alt="Mihir"
+                        class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
+                </div>
+
+                <p class="text-[14px] md:text-[15px] font-serif text-[#333] line-clamp-2">
+                    Even though I have a real gold chain, I prefer wearing this daily.
+                    Stylish, lightweight, and comfortable for everyday use.
+                </p>
+            </div>
+
+            <!-- REVIEW CARD -->
+            <div
+                class="bg-white rounded-[24px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
+
+                <h3 class="text-[20px] text-[#222]">
+                    Priti
+                </h3>
+
+                <div class="flex justify-center gap-1 text-[#f4c400] text-[20px] mb-4">
+                    ★ ★ ★ ★ ★
+                </div>
+
+                <div class="flex justify-center mb-4">
+                    <img
+                        src="https://i.ibb.co/yD4bp6k/Gemini-Generated-Image-2nnke92nnke92nnk-400x400.png"
+                        alt="Priti"
+                        class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
+                </div>
+
+                <p class="text-[14px] md:text-[15px] font-serif text-[#333] line-clamp-2">
+                    Beautiful craftsmanship and premium finish. The quality exceeded
+                    my expectations and delivery was very quick.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
 <?php include __DIR__ . '/includes/footer.php'; ?>

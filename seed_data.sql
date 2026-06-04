@@ -282,3 +282,29 @@ ON DUPLICATE KEY UPDATE
     email = VALUES(email),
     phone = VALUES(phone),
     message = VALUES(message);
+
+-- SLIDES
+INSERT INTO slides (id, type, file_path, mobile_file_path, sort_order, is_active)
+VALUES
+(
+    1,
+    'hero',
+    'https://i.ibb.co/fVV6MSGV/Untitled-design-36.png',
+    'https://i.ibb.co/WpqS6MVp/Chat-GPT-Image-Jun-1-2026-03-47-29-PM.png',
+    1,
+    1
+),
+(
+    2,
+    'hero',
+    'https://i.ibb.co/4Z4P7hL4/Untitled-design-37.png',
+    'https://i.ibb.co/fdvH4XyM/pposter-2.webp',
+    2,
+    1
+)
+ON DUPLICATE KEY UPDATE
+    type = VALUES(type),
+    file_path = VALUES(file_path),
+    mobile_file_path = VALUES(mobile_file_path),
+    sort_order = VALUES(sort_order),
+    is_active = VALUES(is_active);

@@ -261,6 +261,47 @@ function getActiveBoxOptions() {
     return $stmt->fetchAll();
 }
 
+function ensureSlidesTableExists() {
+    global $pdo;
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS slides (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            type VARCHAR(20) NOT NULL DEFAULT 'hero',
+            file_path VARCHAR(255) NOT NULL,
+            mobile_file_path VARCHAR(255) DEFAULT NULL,
+            sort_order INT UNSIGNED NOT NULL DEFAULT 0,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    try {
+        $columns = $pdo->query('SHOW COLUMNS FROM slides')->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('mobile_file_path', $columns, true)) {
+            $pdo->exec('ALTER TABLE slides ADD COLUMN mobile_file_path VARCHAR(255) DEFAULT NULL AFTER file_path');
+        }
+        if (!in_array('sort_order', $columns, true)) {
+            $pdo->exec('ALTER TABLE slides ADD COLUMN sort_order INT UNSIGNED NOT NULL DEFAULT 0 AFTER mobile_file_path');
+        }
+        if (!in_array('is_active', $columns, true)) {
+            $pdo->exec('ALTER TABLE slides ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1 AFTER sort_order');
+        }
+    } catch (Throwable $e) {
+        return false;
+    }
+
+    return true;
+}
+
+function getActiveHeroSlides() {
+    global $pdo;
+    ensureSlidesTableExists();
+
+    $stmt = $pdo->prepare("SELECT * FROM slides WHERE type = ? AND is_active = 1 ORDER BY sort_order ASC, id ASC");
+    $stmt->execute(['hero']);
+    return $stmt->fetchAll();
+}
+
 function getCartItems() {
     if (empty($_SESSION['cart'])) return [];
     global $pdo;

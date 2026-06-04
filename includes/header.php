@@ -274,8 +274,8 @@ function is_active($match)
 
                 <!-- LOGO -->
                 <a href="<?= BASE_URL ?>" class="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0">
-                    <img src="https://i.ibb.co/4RXtqcgX/Untitled-design-35.png" alt="Logo"
-                        class="h-[40px] lg:h-[52px] lg:mr-[400px] object-contain" />
+                    <img src="<?= BASE_URL ?>/assets/images/public/logo.png" alt="Logo"
+                        class="h-[40px] lg:h-[52px] lg:mr-[280px] object-contain" />
                 </a>
 
                 <!-- RIGHT -->
@@ -456,7 +456,7 @@ function is_active($match)
 
         <!-- HEADER -->
         <div class="flex items-center justify-between px-5 h-[72px] border-b border-slate-100 shrink-0">
-            <img src="https://i.ibb.co/nNcH2Bnt/Viral-Watch-Logo.png"
+            <img src="<?= BASE_URL ?>/assets/images/public/logo.png"
                 class="h-8 object-contain"
                 alt="Logo">
 
