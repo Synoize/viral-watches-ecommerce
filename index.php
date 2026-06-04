@@ -585,7 +585,7 @@ if ($featuredCategories) {
 
             <!-- REVIEW CARD -->
             <div
-                class="bg-white rounded-[24px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
+                class="bg-white rounded-[16px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
 
                 <h3 class="text-[20px] text-[#222]">
                     Nirav
@@ -602,7 +602,7 @@ if ($featuredCategories) {
                         class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
                 </div>
 
-                <p class="text-[14px] md:text-[15px] font-serif text-[#333] line-clamp-2">
+                <p class="text-[14px] text-[#333] line-clamp-2">
                     Got gifted this by my girl, loved it! Checked out the website and
                     ordered the Apex kada as well and my god this is superb! Thanks!
                 </p>
@@ -610,7 +610,7 @@ if ($featuredCategories) {
 
             <!-- REVIEW CARD -->
             <div
-                class="bg-white rounded-[24px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
+                class="bg-white rounded-[16px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
 
                 <h3 class="text-[20px] text-[#222]">
                     Mihir
@@ -627,7 +627,7 @@ if ($featuredCategories) {
                         class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
                 </div>
 
-                <p class="text-[14px] md:text-[15px] font-serif text-[#333] line-clamp-2">
+                <p class="text-[14px] text-[#333] line-clamp-2">
                     Even though I have a real gold chain, I prefer wearing this daily.
                     Stylish, lightweight, and comfortable for everyday use.
                 </p>
@@ -635,7 +635,7 @@ if ($featuredCategories) {
 
             <!-- REVIEW CARD -->
             <div
-                class="bg-white rounded-[24px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
+                class="bg-white rounded-[16px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
 
                 <h3 class="text-[20px] text-[#222]">
                     Mihir
@@ -652,7 +652,7 @@ if ($featuredCategories) {
                         class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
                 </div>
 
-                <p class="text-[14px] md:text-[15px] font-serif text-[#333] line-clamp-2">
+                <p class="text-[14px] text-[#333] line-clamp-2">
                     Even though I have a real gold chain, I prefer wearing this daily.
                     Stylish, lightweight, and comfortable for everyday use.
                 </p>
@@ -660,7 +660,7 @@ if ($featuredCategories) {
 
             <!-- REVIEW CARD -->
             <div
-                class="bg-white rounded-[24px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
+                class="bg-white rounded-[16px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
 
                 <h3 class="text-[20px] text-[#222]">
                     Priti
@@ -677,7 +677,7 @@ if ($featuredCategories) {
                         class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
                 </div>
 
-                <p class="text-[14px] md:text-[15px] font-serif text-[#333] line-clamp-2">
+                <p class="text-[14px] text-[#333] line-clamp-2">
                     Beautiful craftsmanship and premium finish. The quality exceeded
                     my expectations and delivery was very quick.
                 </p>
