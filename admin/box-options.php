@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__ . '/_header.php';
+require_once __DIR__ . '/../includes/functions.php';
+if (!isAdmin()) {
+    redirect('/admin/login.php');
+}
 
 ensureBoxOptionsTableExists();
 
@@ -99,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $boxes = $pdo->query('SELECT * FROM box_options ORDER BY is_active DESC, name')->fetchAll();
+require_once __DIR__ . '/_header.php';
 ?>
 <div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
     <div>

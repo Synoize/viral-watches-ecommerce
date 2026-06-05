@@ -1,5 +1,9 @@
 <?php
-require_once __DIR__ . '/_header.php';
+require_once __DIR__ . '/../includes/functions.php';
+if (!isAdmin()) {
+    redirect('/admin/login.php');
+}
+
 ensureCouponRuleTablesExist();
 
 $coupon = null;
@@ -69,6 +73,7 @@ $coupons = $pdo->query(
      GROUP BY c.id
      ORDER BY c.id DESC'
 )->fetchAll();
+require_once __DIR__ . '/_header.php';
 ?>
 <div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
     <div>

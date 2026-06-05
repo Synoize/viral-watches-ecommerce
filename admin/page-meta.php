@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__ . '/_header.php';
+require_once __DIR__ . '/../includes/functions.php';
+if (!isAdmin()) {
+    redirect('/admin/login.php');
+}
 
 seedDefaultPageMeta();
 
@@ -47,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $items = $pdo->query('SELECT * FROM page_meta ORDER BY path')->fetchAll();
+require_once __DIR__ . '/_header.php';
 ?>
 <div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
     <div>

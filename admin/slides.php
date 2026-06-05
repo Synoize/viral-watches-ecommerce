@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__ . '/_header.php';
+require_once __DIR__ . '/../includes/functions.php';
+if (!isAdmin()) {
+    redirect('/admin/login.php');
+}
 
 ensureSlidesTableExists();
 
@@ -58,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $slides = $pdo->query("SELECT * FROM slides WHERE type = 'hero' ORDER BY sort_order ASC, id ASC")->fetchAll();
+require_once __DIR__ . '/_header.php';
 ?>
 <div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
     <div>

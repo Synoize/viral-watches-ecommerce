@@ -119,7 +119,7 @@ if ($activeCategoryName) {
 <?php if ($message = flash('success')): ?><div class="mx-auto max-w-[1920px] px-4 pt-4 md:px-10"><div class="rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($message) ?></div></div><?php endif; ?>
 <?php if ($message = flash('error')): ?><div class="mx-auto max-w-[1920px] px-4 pt-4 md:px-10"><div class="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($message) ?></div></div><?php endif; ?>
 
-<section class="mx-auto max-w-[1920px] px-4 md:px-10 py-10 md:py-14">
+<section class="mx-auto max-w-[1920px] px-4 md:px-10 py-10">
     <?php if (!$hasActiveFilters && empty($_GET['page'])): ?>
         <div>
             <div class="flex items-center justify-between">
@@ -133,6 +133,7 @@ if ($activeCategoryName) {
                 <?php if ($categories): ?>
                     <?php foreach ($categories as $catItem):
                         $slugItem = strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($catItem['name'])));
+                        $categoryImage = resolveAssetUrl($catItem['category_image'] ?? '');
                     ?>
 
                         <a href="<?= BASE_URL ?>/collection/<?= $slugItem ?>"
@@ -140,10 +141,16 @@ if ($activeCategoryName) {
 
                             <!-- IMAGE -->
                             <div class="overflow-hidden rounded-[16px] bg-white h-[180px] md:h-[320px]">
-                                <!-- <img
-                            src="<?= BASE_URL . 'assets/images/categories/' . $catItem['category_image'] ?>"
-                            alt="<?= sanitize($catItem['name']) ?>"
-                            class="h-full w-full object-cover transition duration-500 group-hover:scale-105 " /> -->
+                                <?php if ($categoryImage): ?>
+                                    <img
+                                        src="<?= sanitize($categoryImage) ?>"
+                                        alt="<?= sanitize($catItem['name']) ?>"
+                                        class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                                <?php else: ?>
+                                    <div class="flex h-full w-full items-center justify-center bg-slate-100 px-4 text-center text-sm font-medium text-slate-500">
+                                        <?= sanitize($catItem['name']) ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
 
                             <!-- TITLE -->
@@ -151,7 +158,7 @@ if ($activeCategoryName) {
                                 <h3 class="font-serif text-[18px] md:text-[24px] text-[#222]">
                                     <?= sanitize($catItem['name']) ?>
                                     <span class="ml-1 transition group-hover:translate-x-1 inline-block">
-                                        →
+                                        &rarr;
                                     </span>
                                 </h3>
                             </div>

@@ -201,7 +201,13 @@ function getPageMeta($path = null, $overrides = []) {
 }
 
 function redirect($path) {
-    header('Location: ' . BASE_URL . $path);
+    $url = BASE_URL . $path;
+    if (!headers_sent()) {
+        header('Location: ' . $url);
+        exit;
+    }
+    echo '<script>window.location.href = ' . json_encode($url) . ';</script>';
+    echo '<noscript><meta http-equiv="refresh" content="0;url=' . sanitize($url) . '"></noscript>';
     exit;
 }
 
@@ -235,7 +241,7 @@ function flash($key, $message = null) {
 
 function getCategories() {
     global $pdo;
-    $stmt = $pdo->query('SELECT id, name FROM categories ORDER BY name');
+    $stmt = $pdo->query('SELECT id, name, category_image FROM categories ORDER BY name');
     return $stmt->fetchAll();
 }
 
@@ -393,14 +399,14 @@ function renderWishlistButton($productId, $isWished = false, $classes = '') {
     $action = $isWished ? 'remove' : 'add';
     $label = $isWished ? 'Remove from wishlist' : 'Add to wishlist';
     $iconClass = $isWished ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
-    $stateClass = $isWished ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-white text-slate-700 border-slate-200';
+    $stateClass = $isWished ? 'text-rose-600' : 'text-slate-700';
     $redirectTo = $_SERVER['REQUEST_URI'] ?? '/';
 
     return '<form method="post" action="' . BASE_URL . '/wishlist.php" class="' . sanitize($classes) . '">' .
         '<input type="hidden" name="action" value="' . $action . '">' .
         '<input type="hidden" name="product_id" value="' . $productId . '">' .
         '<input type="hidden" name="redirect_to" value="' . sanitize($redirectTo) . '">' .
-        '<button type="submit" aria-label="' . $label . '" title="' . $label . '" class="inline-flex h-10 w-10 items-center justify-center rounded-full border shadow-sm transition hover:bg-rose-50 hover:text-rose-600 ' . $stateClass . '">' .
+        '<button type="submit" aria-label="' . $label . '" title="' . $label . '" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white transition hover:text-rose-600 ' . $stateClass . '">' .
         '<i class="' . $iconClass . ' text-sm"></i>' .
         '</button>' .
     '</form>';
@@ -558,7 +564,7 @@ function applyCouponLegacy($code) {
     if (!$coupon) return ['error' => 'Invalid or expired coupon.'];
     $subtotal = calculateCartTotal();
     if ($subtotal < $coupon['min_order']) {
-        return ['error' => 'Order must be at least ₹' . $coupon['min_order'] . ' for this coupon.'];
+        return ['error' => 'Order must be at least Rs. ' . $coupon['min_order'] . ' for this coupon.'];
     }
     $discount = 0;
     if ($coupon['type'] === 'percent') {

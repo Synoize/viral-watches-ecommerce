@@ -228,14 +228,14 @@ function is_active($match)
 
     <!-- TOP BAR -->
     <div class="bg-black text-white relative">
-        <div class="max-w-[1920px] mx-auto py-1 text-center">
+        <div class="max-w-[1920px] mx-auto py-2 text-center">
             <!-- LEFT ARROW -->
             <!-- <button id="prevBtn" class="absolute left-5 top-1/2 -translate-y-1/2 text-[12px]">
       <i class="fa-solid fa-chevron-left"></i>
     </button> -->
 
             <!-- TEXT -->
-            <p id="announcementText" class="text-[16px] font-heading font-semibold tracking-wide">
+            <p id="announcementText" class="text-[14px] font-serif font-semibold tracking-wide">
                 Prepaid Orders Deliver Faster!
             </p>
 
@@ -276,7 +276,7 @@ function is_active($match)
                 <!-- LOGO -->
                 <a href="<?= BASE_URL ?>" class="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0">
                     <img src="<?= BASE_URL ?>/assets/images/public/logo.png" alt="Logo"
-                        class="h-[40px] lg:h-[52px] lg:mr-[280px] object-contain" />
+                        class="h-[40px] lg:h-[52px] lg:mr-[220px] object-contain" />
                 </a>
 
                 <!-- RIGHT -->

@@ -56,6 +56,7 @@ $wishlistLookupIds = array_map('intval', array_column($bestSellers, 'id'));
 foreach ($categoryProductSections as $section) {
     $wishlistLookupIds = array_merge($wishlistLookupIds, array_map('intval', array_column($section['products'], 'id')));
 }
+$wishlistLookupIds = array_merge($wishlistLookupIds, array_map('intval', array_column($watchBuyProducts, 'id')));
 if ($wishlistLookupIds) {
     $wishlistProductIds = getWishlistProductIds($wishlistLookupIds);
 }
@@ -325,8 +326,11 @@ if ($wishlistLookupIds) {
                     $priceText = 'Rs. ' . number_format($displayPrice, 2);
                     $productUrl = BASE_URL . '/product.php?id=' . (int)$product['id'];
                     $discount = $hasOffer ? max(1, round((1 - ($displayPrice / (float)$product['price'])) * 100)) : 0;
+                    $isVideoWished = in_array((int)$product['id'], $wishlistProductIds, true);
                     ?>
                     <article class="watch-card w-[270px] shrink-0 cursor-pointer"
+                        data-product-id="<?= (int)$product['id'] ?>"
+                        data-wished="<?= $isVideoWished ? '1' : '0' ?>"
                         data-title="<?= sanitize($product['name']) ?>"
                         data-price="<?= sanitize($priceText) ?>"
                         data-old-price="<?= sanitize($oldPrice) ?>"
@@ -415,13 +419,20 @@ if ($wishlistLookupIds) {
             <!-- Like & Share -->
             <div class="absolute bottom-[152px] right-3 flex flex-col items-center gap-2 text-white">
 
-                <button
-                    class="flex h-11 w-11 items-center justify-center rounded-full bg-black/35 backdrop-blur-sm"
-                    type="button"
-                    aria-label="Like">
-                    <i data-lucide="heart" class="h-7 w-7 stroke-[1]"></i>
-                </button>
-                <span class="text-[12px] font-bold leading-none">Like</span>
+                <form id="watchWishlistForm" method="post" action="<?= BASE_URL ?>/wishlist.php">
+                    <input type="hidden" name="action" id="watchWishlistAction" value="add">
+                    <input type="hidden" name="product_id" id="watchWishlistProductId" value="">
+                    <input type="hidden" name="redirect_to" value="<?= sanitize($_SERVER['REQUEST_URI'] ?? '/') ?>">
+                    <button
+                        id="watchWishlistButton"
+                        class="flex h-11 w-11 items-center justify-center rounded-full bg-black/35 backdrop-blur-sm transition hover:bg-rose-500/70"
+                        type="submit"
+                        aria-label="Add to wishlist"
+                        title="Add to wishlist">
+                        <i data-lucide="heart" class="h-6 w-6 stroke-[1]"></i>
+                    </button>
+                </form>
+                <span id="watchWishlistLabel" class="text-[12px] font-bold leading-none">Like</span>
 
                 <!-- Share Button -->
                 <button
@@ -443,7 +454,7 @@ if ($wishlistLookupIds) {
                 <div class="overflow-hidden rounded-[7px] bg-white/95 shadow-xl">
                     <div class="flex">
                         <div class="h-[88px] w-[94px] shrink-0 bg-white">
-                            <img id="productThumb" class="h-full w-full object-contain object-center" ₹
+                            <img id="productThumb" class="h-full w-full object-contain object-center"
                                 src="https://i.ibb.co/jvmWzcf0/Invicta-Men-s-Pro-Diver-Collection-Coin-Edge-Automatic-Watch.jpg"
                                 alt="Invicta Men's Pro Diver Watch" />
                         </div>

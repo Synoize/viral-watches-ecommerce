@@ -5,10 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.getElementById("closeSearch");
   const overlay = document.getElementById("searchOverlay");
   const panel = document.getElementById("searchPanel");
-  const input = panel.querySelector("input");
+  const input = panel?.querySelector("input");
 
   // Open Search
   openBtn?.addEventListener("click", () => {
+    if (!overlay || !panel) return;
 
     overlay.classList.remove("invisible", "opacity-0");
     overlay.classList.add("opacity-100");
@@ -27,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Close Search
   function closeSearch() {
+    if (!overlay || !panel) return;
 
     panel.classList.remove("translate-y-0");
     panel.classList.add("-translate-y-full");
@@ -55,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Click Outside Panel
-  overlay.addEventListener("click", (e) => {
+  overlay?.addEventListener("click", (e) => {
     if (e.target === overlay) {
       closeSearch();
     }
@@ -82,17 +84,25 @@ function updateCountdown() {
   const mm = String(minutes).padStart(2, "0");
   const ss = String(seconds).padStart(2, "0");
 
+  const h1 = document.getElementById("h1");
+  const h2 = document.getElementById("h2");
+  const m1 = document.getElementById("m1");
+  const m2 = document.getElementById("m2");
+  const s1 = document.getElementById("s1");
+  const s2 = document.getElementById("s2");
+  if (!h1 || !h2 || !m1 || !m2 || !s1 || !s2) return;
+
   // Hours
-  document.getElementById("h1").innerText = hh[0];
-  document.getElementById("h2").innerText = hh[1];
+  h1.innerText = hh[0];
+  h2.innerText = hh[1];
 
   // Minutes
-  document.getElementById("m1").innerText = mm[0];
-  document.getElementById("m2").innerText = mm[1];
+  m1.innerText = mm[0];
+  m2.innerText = mm[1];
 
   // Seconds
-  document.getElementById("s1").innerText = ss[0];
-  document.getElementById("s2").innerText = ss[1];
+  s1.innerText = ss[0];
+  s2.innerText = ss[1];
 }
 
 // Start Countdown
@@ -103,7 +113,7 @@ setInterval(updateCountdown, 1000);
 /* TOP ANNOUNCEMENT BAR */
 const messages = [
   "Prepaid Orders Deliver Faster!",
-  "Free Shipping on Orders Above ₹999",
+  "Free Shipping on Orders Above Rs. 999",
   "Easy Returns Within 7 Days",
   "Premium Quality Watches"
 ];
@@ -125,8 +135,11 @@ setInterval(() => {
 document.addEventListener("DOMContentLoaded", () => {
 
   const details = document.getElementById("profileMenu");
+  if (!details) return;
+
   const summary = details.querySelector("summary");
   const dropdown = details.querySelector(".dropdown");
+  if (!summary || !dropdown) return;
 
   function openDropdown() {
     details.open = true;
@@ -198,6 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Open Sidebar
   menuBtn?.addEventListener("click", () => {
+    if (!sidebar || !overlay) return;
     sidebar.style.left = "0";
     overlay.classList.remove("hidden");
     document.body.style.overflow = "hidden";
@@ -205,6 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Close Sidebar Function
   function closeSidebar() {
+    if (!sidebar || !overlay) return;
     sidebar.style.left = "-320px";
     overlay.classList.add("hidden");
     document.body.style.overflow = "";
@@ -217,19 +232,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* HERO SLIDER */
-new Swiper(".heroSlider", {
-  loop: true,
+if (typeof Swiper !== "undefined" && document.querySelector(".heroSlider")) {
+  new Swiper(".heroSlider", {
+    loop: true,
 
-  navigation: {
-    nextEl: ".swiper-button-next",
-    prevEl: ".swiper-button-prev",
-  },
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
 
-  autoplay: {
-    delay: 4000,
-    disableOnInteraction: false,
-  },
-});
+    autoplay: {
+      delay: 4000,
+      disableOnInteraction: false,
+    },
+  });
+}
 
 
 /* WATCH & BUY SECTION */
@@ -252,6 +269,11 @@ const modalOldPrice = document.getElementById("modalOldPrice");
 
 const productViewLink = document.getElementById("productViewLink");
 const watchBuyForm = document.getElementById("watchBuyForm");
+const watchWishlistForm = document.getElementById("watchWishlistForm");
+const watchWishlistAction = document.getElementById("watchWishlistAction");
+const watchWishlistProductId = document.getElementById("watchWishlistProductId");
+const watchWishlistButton = document.getElementById("watchWishlistButton");
+const watchWishlistLabel = document.getElementById("watchWishlistLabel");
 
 const soundToggle = document.getElementById("soundToggle");
 
@@ -277,7 +299,9 @@ function cardData(index) {
     price: card.dataset.price || (prices[0] ? prices[0].innerText.trim() : ""),
     oldPrice: card.dataset.oldPrice || (prices[1] ? prices[1].innerText.trim() : ""),
     thumb: card.dataset.thumb || "",
-    productUrl: card.dataset.productUrl || ""
+    productUrl: card.dataset.productUrl || "",
+    productId: card.dataset.productId || "",
+    wished: card.dataset.wished === "1"
   };
 }
 
@@ -314,7 +338,9 @@ function renderModal() {
 
   setVideo(mainVideo, current.src, true);
 
-  mainVideo.muted = isMuted;
+  if (mainVideo) {
+    mainVideo.muted = isMuted;
+  }
 
   setVideo(prevVideo, previous.src, true);
   setVideo(nextVideo, next.src, true);
@@ -324,11 +350,19 @@ function renderModal() {
     productThumb.alt = current.title;
   }
 
-  modalTitleTop.textContent = current.title;
-  modalTitle.textContent = current.title;
+  if (modalTitleTop) {
+    modalTitleTop.textContent = current.title;
+  }
+  if (modalTitle) {
+    modalTitle.textContent = current.title;
+  }
 
-  modalPrice.textContent = current.price;
-  modalOldPrice.textContent = current.oldPrice;
+  if (modalPrice) {
+    modalPrice.textContent = current.price;
+  }
+  if (modalOldPrice) {
+    modalOldPrice.textContent = current.oldPrice;
+  }
 
   if (productViewLink) {
     productViewLink.href = current.productUrl;
@@ -336,6 +370,28 @@ function renderModal() {
 
   if (watchBuyForm) {
     watchBuyForm.action = current.productUrl;
+  }
+
+  if (watchWishlistForm && watchWishlistAction && watchWishlistProductId && watchWishlistButton) {
+    watchWishlistAction.value = current.wished ? "remove" : "add";
+    watchWishlistProductId.value = current.productId;
+    watchWishlistButton.setAttribute(
+      "aria-label",
+      current.wished ? "Remove from wishlist" : "Add to wishlist"
+    );
+    watchWishlistButton.setAttribute(
+      "title",
+      current.wished ? "Remove from wishlist" : "Add to wishlist"
+    );
+    watchWishlistButton.classList.toggle("bg-rose-500/80", current.wished);
+    watchWishlistButton.classList.toggle("bg-black/35", !current.wished);
+    watchWishlistButton.innerHTML = current.wished
+      ? '<i class="fa-solid fa-heart text-[20px] text-white"></i>'
+      : '<i data-lucide="heart" class="h-6 w-6 stroke-[1]"></i>';
+    if (watchWishlistLabel) {
+      watchWishlistLabel.textContent = current.wished ? "Saved" : "Like";
+    }
+    lucide.createIcons();
   }
 }
 
@@ -366,10 +422,14 @@ function closeModal() {
 
     isMuted = true;
 
-    mainVideo.muted = true;
+    if (mainVideo) {
+      mainVideo.muted = true;
+    }
 
-    soundToggle.innerHTML =
+    if (soundToggle) {
+      soundToggle.innerHTML =
         '<i data-lucide="volume-x" class="h-6 w-6 stroke-[1]"></i>';
+    }
 
     lucide.createIcons();
 
@@ -387,7 +447,9 @@ function closeModal() {
 /* -----------------------------
    MUTE / UNMUTE
 ------------------------------ */
-soundToggle.addEventListener("click", () => {
+soundToggle?.addEventListener("click", () => {
+
+    if (!mainVideo) return;
 
     mainVideo.muted = !mainVideo.muted;
 
@@ -465,11 +527,11 @@ if (cards.length && modal) {
 
   document
     .getElementById("closeModal")
-    .addEventListener("click", closeModal);
+    ?.addEventListener("click", closeModal);
 
   document
     .getElementById("prevModal")
-    .addEventListener("click", () => {
+    ?.addEventListener("click", () => {
 
       activeIndex =
         (activeIndex - 1 + cards.length) %
@@ -481,7 +543,7 @@ if (cards.length && modal) {
 
   document
     .getElementById("nextModal")
-    .addEventListener("click", () => {
+    ?.addEventListener("click", () => {
 
       activeIndex =
         (activeIndex + 1) %

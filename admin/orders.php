@@ -1,5 +1,9 @@
 <?php
-require_once __DIR__ . '/_header.php';
+require_once __DIR__ . '/../includes/functions.php';
+if (!isAdmin()) {
+    redirect('/admin/login.php');
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['order_id'])) {
     $status = sanitize($_POST['status'] ?? 'Pending');
     $stmt = $pdo->prepare('UPDATE orders SET status = ? WHERE id = ?');
@@ -8,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['order_id'])) {
     redirect('/admin/orders.php');
 }
 $orders = $pdo->query('SELECT o.*, u.name AS user_name FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC')->fetchAll();
+require_once __DIR__ . '/_header.php';
 ?>
 <div>
     <h2 class="text-2xl font-semibold text-slate-900">Orders</h2>
@@ -22,7 +27,7 @@ $orders = $pdo->query('SELECT o.*, u.name AS user_name FROM orders o LEFT JOIN u
                     <tr class="border-t border-slate-200 bg-white">
                         <td class="px-6 py-4">#<?= $order['id'] ?></td>
                         <td class="px-6 py-4"><?= sanitize($order['user_name'] ?? 'Guest') ?></td>
-                        <td class="px-6 py-4">₹<?= number_format($order['total_amount'], 2) ?></td>
+                        <td class="px-6 py-4">&#8377;<?= number_format($order['total_amount'], 2) ?></td>
                         <td class="px-6 py-4"><?= sanitize($order['payment_method']) ?> / <?= sanitize($order['payment_status']) ?></td>
                         <td class="px-6 py-4"><?= sanitize($order['status']) ?></td>
                         <td class="px-6 py-4"><?= date('j M Y', strtotime($order['created_at'])) ?></td>

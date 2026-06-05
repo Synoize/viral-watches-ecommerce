@@ -1,15 +1,25 @@
 <?php
-require_once __DIR__ . '/_header.php';
-$category = null;
-if (!empty($_GET['edit'])) {
-    $stmt = $pdo->prepare('SELECT * FROM categories WHERE id = ?');
-    $stmt->execute([(int)$_GET['edit']]);
-    $category = $stmt->fetch();
+require_once __DIR__ . '/../includes/functions.php';
+
+if (!isAdmin()) {
+    redirect('/admin/login.php');
 }
+
+$category = null;
+$error = null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!empty($_POST['delete_id'])) {
+        $stmt = $pdo->prepare('DELETE FROM categories WHERE id = ?');
+        $stmt->execute([(int)$_POST['delete_id']]);
+        flash('success', 'Category deleted.');
+        redirect('/admin/categories.php');
+    }
+
     $name = sanitize($_POST['name'] ?? '');
     $image = sanitize($_POST['category_image'] ?? '');
     $upload = saveAdminImageUpload($_FILES['category_image_file'] ?? [], 'categories', 'category');
+
     if (!empty($upload['error'])) {
         $error = $upload['error'];
     } elseif (!empty($upload['path'])) {
@@ -31,13 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/admin/categories.php');
     }
 }
-if (!empty($_POST['delete_id'])) {
-    $stmt = $pdo->prepare('DELETE FROM categories WHERE id = ?');
-    $stmt->execute([(int)$_POST['delete_id']]);
-    flash('success', 'Category deleted.');
-    redirect('/admin/categories.php');
+
+if (!empty($_GET['edit'])) {
+    $stmt = $pdo->prepare('SELECT * FROM categories WHERE id = ?');
+    $stmt->execute([(int)$_GET['edit']]);
+    $category = $stmt->fetch();
 }
+
 $categories = $pdo->query('SELECT * FROM categories ORDER BY name')->fetchAll();
+require_once __DIR__ . '/_header.php';
 ?>
 <div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
     <div>
@@ -45,15 +57,33 @@ $categories = $pdo->query('SELECT * FROM categories ORDER BY name')->fetchAll();
         <?php if ($msg = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($msg) ?></div><?php endif; ?>
         <div class="mt-6 overflow-hidden rounded-[2rem] border border-slate-200">
             <table class="w-full border-separate border-spacing-0 text-left text-sm">
-                <thead class="bg-slate-100 text-slate-600"><tr><th class="px-6 py-4">Name</th><th class="px-6 py-4">Image</th><th class="px-6 py-4"></th></tr></thead>
+                <thead class="bg-slate-100 text-slate-600">
+                    <tr>
+                        <th class="px-6 py-4">Name</th>
+                        <th class="px-6 py-4">Image</th>
+                        <th class="px-6 py-4"></th>
+                    </tr>
+                </thead>
                 <tbody>
                     <?php foreach ($categories as $cat): ?>
                         <tr class="border-t border-slate-200 bg-white">
                             <td class="px-6 py-4 text-slate-900"><?= sanitize($cat['name']) ?></td>
-                            <td class="px-6 py-4 text-slate-700"><?= sanitize($cat['category_image']) ? '<a href="' . sanitize($cat['category_image']) . '" target="_blank" class="text-brand underline">View</a>' : '—' ?></td>
-                            <td class="px-6 py-4 space-x-2 flex ">
-                                <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= BASE_URL ?>/admin/categories.php?edit=<?= $cat['id'] ?>">Edit</a>
-                                <form class="inline" method="post" onsubmit="return confirm('Delete category?');"><input type="hidden" name="delete_id" value="<?= $cat['id'] ?>"><button class="inline-flex rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">Delete</button></form>
+                            <td class="px-6 py-4 text-slate-700">
+                                <?php if (!empty($cat['category_image'])): ?>
+                                    <a href="<?= sanitize(resolveAssetUrl($cat['category_image'])) ?>" target="_blank" class="inline-flex items-center gap-3 text-brand hover:underline">
+                                        <img src="<?= sanitize(resolveAssetUrl($cat['category_image'])) ?>" alt="<?= sanitize($cat['name']) ?>" class="h-12 w-12 rounded-xl border border-slate-200 bg-slate-50 object-cover">
+                                        <span>View</span>
+                                    </a>
+                                <?php else: ?>
+                                    <span class="text-slate-400">No image</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="flex space-x-2 px-6 py-4">
+                                <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= BASE_URL ?>/admin/categories.php?edit=<?= (int)$cat['id'] ?>">Edit</a>
+                                <form class="inline" method="post" onsubmit="return confirm('Delete category?');">
+                                    <input type="hidden" name="delete_id" value="<?= (int)$cat['id'] ?>">
+                                    <button class="inline-flex rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">Delete</button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -64,6 +94,7 @@ $categories = $pdo->query('SELECT * FROM categories ORDER BY name')->fetchAll();
             </table>
         </div>
     </div>
+
     <aside class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
         <h2 class="text-2xl font-semibold text-slate-900"><?= $category ? 'Edit Category' : 'Add Category' ?></h2>
         <?php if (!empty($error)): ?><div class="mt-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
