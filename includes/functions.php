@@ -14,6 +14,73 @@ function resolveAssetUrl($path) {
     return rtrim(BASE_URL, '/') . '/' . ltrim($path, '/');
 }
 
+function normalizeLocalAssetPath($path) {
+    $path = trim((string)$path);
+    if ($path === '' || preg_match('/^(https?:)?\/\//i', $path)) return null;
+
+    $basePrefix = defined('BASE_URL') ? trim(BASE_URL, '/') : '';
+    $path = str_replace('\\', '/', $path);
+    $path = preg_replace('/[?#].*$/', '', $path);
+    if ($basePrefix !== '' && strpos($path, '/' . $basePrefix . '/') === 0) {
+        $path = substr($path, strlen('/' . $basePrefix . '/'));
+    }
+    $path = ltrim($path, '/');
+
+    if (strpos($path, 'assets/') !== 0 || strpos($path, '..') !== false) {
+        return null;
+    }
+
+    return $path;
+}
+
+function isLocalAssetReferenced($path) {
+    global $pdo;
+    $path = normalizeLocalAssetPath($path);
+    if (!$path) return true;
+
+    $checks = [
+        ['SELECT COUNT(*) FROM products WHERE images = ? OR gallery LIKE ?', [$path, '%' . $path . '%']],
+        ['SELECT COUNT(*) FROM products_video WHERE file_path = ?', [$path]],
+        ['SELECT COUNT(*) FROM categories WHERE category_image = ?', [$path]],
+        ['SELECT COUNT(*) FROM slides WHERE file_path = ? OR mobile_file_path = ?', [$path, $path]],
+        ['SELECT COUNT(*) FROM box_options WHERE image = ?', [$path]],
+    ];
+
+    foreach ($checks as [$sql, $params]) {
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            if ((int)$stmt->fetchColumn() > 0) {
+                return true;
+            }
+        } catch (Throwable $e) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function deleteLocalAssetIfUnused($path) {
+    $path = normalizeLocalAssetPath($path);
+    if (!$path || isLocalAssetReferenced($path)) return false;
+
+    $projectRoot = realpath(__DIR__ . '/..');
+    $assetRoot = realpath($projectRoot . DIRECTORY_SEPARATOR . 'assets');
+    $fullPath = realpath($projectRoot . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $path));
+
+    if (!$projectRoot || !$assetRoot || !$fullPath || !is_file($fullPath)) return false;
+    if (strpos($fullPath, $assetRoot . DIRECTORY_SEPARATOR) !== 0) return false;
+
+    return @unlink($fullPath);
+}
+
+function deleteLocalAssetsIfUnused($paths) {
+    foreach ((array)$paths as $path) {
+        deleteLocalAssetIfUnused($path);
+    }
+}
+
 function saveAdminImageUpload($file, $folder, $prefix = 'image') {
     if (empty($file['name']) || empty($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
         return null;
@@ -123,20 +190,20 @@ function seedDefaultPageMeta() {
     ensurePageMetaTableExists();
 
     $defaults = [
-        ['home', 'Home', '/', 'ViralWatches | Premium Watches Online', 'Shop premium watches online at ViralWatches with curated collections, secure checkout, fast delivery, and stylish gift box options.', 'premium watches, online watch store, viralwatches, luxury watches'],
-        ['collection', 'Collections', '/collection', 'Watch Collections | ViralWatches', 'Explore ViralWatches collections by category, latest arrivals, price, offers, and best-selling watch styles.', 'watch collections, mens watches, womens watches, best seller watches'],
-        ['about', 'About', '/about', 'About ViralWatches | Premium Watch Store', 'Learn about ViralWatches, our watch collections, product quality, secure shopping experience, and customer support.', 'about viralwatches, watch store, premium watches'],
+        ['home', 'Home', '/', 'ViralWatches - Premium Watches Online', 'Shop premium watches online at ViralWatches with curated collections, secure checkout, fast delivery, and stylish gift box options.', 'premium watches, online watch store, viralwatches, luxury watches'],
+        ['collection', 'Collections', '/collection', 'Watch Collections - ViralWatches', 'Explore ViralWatches collections by category, latest arrivals, price, offers, and best-selling watch styles.', 'watch collections, mens watches, womens watches, best seller watches'],
+        ['about', 'About', '/about', 'About ViralWatches - Premium Watch Store', 'Learn about ViralWatches, our watch collections, product quality, secure shopping experience, and customer support.', 'about viralwatches, watch store, premium watches'],
         ['contact', 'Contact', '/contact', 'Contact ViralWatches Support', 'Contact ViralWatches for order support, product questions, payment help, delivery updates, and returns assistance.', 'contact viralwatches, watch support, order help'],
-        ['cart', 'Cart', '/cart', 'Shopping Cart | ViralWatches', 'Review your ViralWatches cart, update quantities, choose gift box options, and continue to secure checkout.', 'shopping cart, watch cart, checkout'],
-        ['wishlist', 'Wishlist', '/wishlist', 'Wishlist | ViralWatches', 'View saved watches in your ViralWatches wishlist and quickly return to your favorite products.', 'wishlist, saved watches, favorite watches'],
-        ['checkout', 'Checkout', '/checkout', 'Secure Checkout | ViralWatches', 'Complete your ViralWatches order with secure checkout, delivery details, coupon discounts, and payment options.', 'secure checkout, watch order, payment'],
-        ['login', 'Login', '/login', 'Login | ViralWatches', 'Log in to your ViralWatches account to manage your wishlist, orders, profile, and checkout faster.', 'login, customer account, viralwatches account'],
-        ['register', 'Register', '/register', 'Create Account | ViralWatches', 'Create a ViralWatches account for faster checkout, order tracking, wishlist access, and account management.', 'register, create account, watch shopping account'],
-        ['forgot', 'Forgot Password', '/forgot', 'Forgot Password | ViralWatches', 'Reset your ViralWatches account password securely and regain access to your orders and wishlist.', 'forgot password, reset account, viralwatches login help'],
-        ['reset', 'Reset Password', '/reset', 'Reset Password | ViralWatches', 'Set a new ViralWatches account password using your secure password reset link.', 'reset password, account security, new password'],
-        ['profile', 'Profile', '/user/profile', 'My Profile | ViralWatches', 'Manage your ViralWatches profile details, contact information, password, and account settings.', 'my profile, account settings, customer profile'],
-        ['orders', 'Orders', '/user/orders', 'My Orders | ViralWatches', 'View your ViralWatches order history, payment status, order status, and purchase details.', 'my orders, order history, watch orders'],
-        ['product', 'Product Detail', '/product', '{product_name} | ViralWatches', 'Buy {product_name} online for {product_price}. View product details, images, availability, and checkout securely.', 'product, watch, viralwatches, buy watch online'],
+        ['cart', 'Cart', '/cart', 'Shopping Cart - ViralWatches', 'Review your ViralWatches cart, update quantities, choose gift box options, and continue to secure checkout.', 'shopping cart, watch cart, checkout'],
+        ['wishlist', 'Wishlist', '/wishlist', 'Wishlist - ViralWatches', 'View saved watches in your ViralWatches wishlist and quickly return to your favorite products.', 'wishlist, saved watches, favorite watches'],
+        ['checkout', 'Checkout', '/checkout', 'Secure Checkout - ViralWatches', 'Complete your ViralWatches order with secure checkout, delivery details, coupon discounts, and payment options.', 'secure checkout, watch order, payment'],
+        ['login', 'Login', '/login', 'Login - ViralWatches', 'Log in to your ViralWatches account to manage your wishlist, orders, profile, and checkout faster.', 'login, customer account, viralwatches account'],
+        ['register', 'Register', '/register', 'Create Account - ViralWatches', 'Create a ViralWatches account for faster checkout, order tracking, wishlist access, and account management.', 'register, create account, watch shopping account'],
+        ['forgot', 'Forgot Password', '/forgot', 'Forgot Password - ViralWatches', 'Reset your ViralWatches account password securely and regain access to your orders and wishlist.', 'forgot password, reset account, viralwatches login help'],
+        ['reset', 'Reset Password', '/reset', 'Reset Password - ViralWatches', 'Set a new ViralWatches account password using your secure password reset link.', 'reset password, account security, new password'],
+        ['profile', 'Profile', '/user/profile', 'My Profile - ViralWatches', 'Manage your ViralWatches profile details, contact information, password, and account settings.', 'my profile, account settings, customer profile'],
+        ['orders', 'Orders', '/user/orders', 'My Orders - ViralWatches', 'View your ViralWatches order history, payment status, order status, and purchase details.', 'my orders, order history, watch orders'],
+        ['product', 'Product Detail', '/product', '{product_name} - ViralWatches', 'Buy {product_name} online for {product_price}. View product details, images, availability, and checkout securely.', 'product, watch, viralwatches, buy watch online'],
     ];
 
     $stmt = $pdo->prepare(

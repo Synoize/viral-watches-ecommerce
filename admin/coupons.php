@@ -75,7 +75,7 @@ $coupons = $pdo->query(
 )->fetchAll();
 require_once __DIR__ . '/_header.php';
 ?>
-<div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
+<div class="grid gap-6 xl:grid-cols-[68%_30%]">
     <div>
         <h2 class="text-2xl font-semibold text-slate-900">Coupons</h2>
         <?php if ($msg = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($msg) ?></div><?php endif; ?>

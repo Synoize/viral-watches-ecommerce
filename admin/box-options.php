@@ -51,9 +51,14 @@ function saveBoxUpload($field, $uploadDir, $uploadPathPrefix) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_POST['delete_id'])) {
         $deleteId = (int)$_POST['delete_id'];
+        $stmt = $pdo->prepare('SELECT image FROM box_options WHERE id = ?');
+        $stmt->execute([$deleteId]);
+        $assetPaths = [$stmt->fetchColumn() ?: ''];
+
         try {
             $stmt = $pdo->prepare('DELETE FROM box_options WHERE id = ?');
             $stmt->execute([$deleteId]);
+            deleteLocalAssetsIfUnused($assetPaths);
             flash('success', 'Box option deleted.');
         } catch (PDOException $e) {
             $stmt = $pdo->prepare('UPDATE box_options SET is_active = 0 WHERE id = ?');
@@ -86,8 +91,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($error)) {
         try {
             if (!empty($_POST['box_id'])) {
+                $boxId = (int)$_POST['box_id'];
+                $stmt = $pdo->prepare('SELECT image FROM box_options WHERE id = ?');
+                $stmt->execute([$boxId]);
+                $oldAssetPaths = [$stmt->fetchColumn() ?: ''];
+
                 $stmt = $pdo->prepare('UPDATE box_options SET name = ?, image = ?, price = ?, is_active = ? WHERE id = ?');
-                $stmt->execute([$name, $image, $price, $isActive, (int)$_POST['box_id']]);
+                $stmt->execute([$name, $image, $price, $isActive, $boxId]);
+                deleteLocalAssetsIfUnused($oldAssetPaths);
                 flash('success', 'Box option updated.');
             } else {
                 $stmt = $pdo->prepare('INSERT INTO box_options (name, image, price, is_active) VALUES (?, ?, ?, ?)');

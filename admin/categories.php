@@ -10,8 +10,14 @@ $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_POST['delete_id'])) {
+        $deleteId = (int)$_POST['delete_id'];
+        $stmt = $pdo->prepare('SELECT category_image FROM categories WHERE id = ?');
+        $stmt->execute([$deleteId]);
+        $assetPaths = [$stmt->fetchColumn() ?: ''];
+
         $stmt = $pdo->prepare('DELETE FROM categories WHERE id = ?');
-        $stmt->execute([(int)$_POST['delete_id']]);
+        $stmt->execute([$deleteId]);
+        deleteLocalAssetsIfUnused($assetPaths);
         flash('success', 'Category deleted.');
         redirect('/admin/categories.php');
     }
@@ -26,14 +32,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image = $upload['path'];
     }
 
-    if (empty($error) && empty($name)) {
-        $error = 'Category name is required.';
-    } elseif (empty($error)) {
-        if (!empty($_POST['category_id'])) {
-            $stmt = $pdo->prepare('UPDATE categories SET name = ?, category_image = ? WHERE id = ?');
-            $stmt->execute([$name, $image, (int)$_POST['category_id']]);
-            flash('success', 'Category updated.');
-        } else {
+        if (empty($error) && empty($name)) {
+            $error = 'Category name is required.';
+        } elseif (empty($error)) {
+            if (!empty($_POST['category_id'])) {
+                $categoryId = (int)$_POST['category_id'];
+                $stmt = $pdo->prepare('SELECT category_image FROM categories WHERE id = ?');
+                $stmt->execute([$categoryId]);
+                $oldAssetPaths = [$stmt->fetchColumn() ?: ''];
+
+                $stmt = $pdo->prepare('UPDATE categories SET name = ?, category_image = ? WHERE id = ?');
+                $stmt->execute([$name, $image, $categoryId]);
+                deleteLocalAssetsIfUnused($oldAssetPaths);
+                flash('success', 'Category updated.');
+            } else {
             $stmt = $pdo->prepare('INSERT INTO categories (name, category_image) VALUES (?, ?)');
             $stmt->execute([$name, $image]);
             flash('success', 'Category added.');

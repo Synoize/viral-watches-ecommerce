@@ -9,10 +9,23 @@ $action = $_GET['action'] ?? '';
 $product = null;
 $error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['delete_id'])) {
+    $deleteId = (int)$_POST['delete_id'];
+    $assetPaths = [];
+    $stmt = $pdo->prepare('SELECT images, gallery FROM products WHERE id = ?');
+    $stmt->execute([$deleteId]);
+    if ($deleteProduct = $stmt->fetch()) {
+        $assetPaths[] = $deleteProduct['images'] ?? '';
+        $assetPaths = array_merge($assetPaths, json_decode($deleteProduct['gallery'] ?? '[]', true) ?: []);
+    }
+    $stmt = $pdo->prepare('SELECT file_path FROM products_video WHERE product_id = ?');
+    $stmt->execute([$deleteId]);
+    $assetPaths = array_merge($assetPaths, $stmt->fetchAll(PDO::FETCH_COLUMN));
+
     $stmt = $pdo->prepare('DELETE FROM products_video WHERE product_id = ?');
-    $stmt->execute([(int)$_POST['delete_id']]);
+    $stmt->execute([$deleteId]);
     $stmt = $pdo->prepare('DELETE FROM products WHERE id = ?');
-    $stmt->execute([(int)$_POST['delete_id']]);
+    $stmt->execute([$deleteId]);
+    deleteLocalAssetsIfUnused($assetPaths);
     flash('success', 'Product deleted.');
     redirect('/admin/products.php');
 }
@@ -56,6 +69,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (empty($error)) {
         if (!empty($_POST['product_id'])) {
             $productId = (int)$_POST['product_id'];
+            $oldAssetPaths = [];
+            $stmt = $pdo->prepare('SELECT images, gallery FROM products WHERE id = ?');
+            $stmt->execute([$productId]);
+            if ($oldProduct = $stmt->fetch()) {
+                $oldAssetPaths[] = $oldProduct['images'] ?? '';
+                $oldAssetPaths = array_merge($oldAssetPaths, json_decode($oldProduct['gallery'] ?? '[]', true) ?: []);
+            }
+            $stmt = $pdo->prepare('SELECT file_path FROM products_video WHERE product_id = ?');
+            $stmt->execute([$productId]);
+            $oldAssetPaths = array_merge($oldAssetPaths, $stmt->fetchAll(PDO::FETCH_COLUMN));
+
             $stmt = $pdo->prepare('UPDATE products SET name = ?, description = ?, category = ?, price = ?, stock = ?, is_best_seller = ?, images = ?, gallery = ? WHERE id = ?');
             $stmt->execute([$name, $description, $category, $price, $stock, $isBestSeller, $images, $galleryJson, $productId]);
             flash('success', 'Product updated.');
@@ -71,6 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($videoPath !== '') {
             $stmt = $pdo->prepare('INSERT INTO products_video (product_id, file_path) VALUES (?, ?)');
             $stmt->execute([$productId, $videoPath]);
+        }
+        if (!empty($oldAssetPaths)) {
+            deleteLocalAssetsIfUnused($oldAssetPaths);
         }
         redirect('/admin/products.php');
     }
@@ -89,7 +116,7 @@ if ($action === 'edit' && !empty($_GET['id'])) {
 $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON p.category = c.id ORDER BY p.id DESC')->fetchAll();
 require_once __DIR__ . '/_header.php';
 ?>
-<div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
+<div class="grid gap-6 xl:grid-cols-[68%_30%]">
     <div>
         <h2 class="text-2xl font-semibold text-slate-900">Products</h2>
         <?php if ($msg = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($msg) ?></div><?php endif; ?>
