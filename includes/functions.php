@@ -123,16 +123,20 @@ function seedDefaultPageMeta() {
     ensurePageMetaTableExists();
 
     $defaults = [
-        ['home', 'Home', '/', 'ShopMaster | Premium Watches and Accessories', 'Shop premium watches, accessories, gift boxes, and secure online deals at ShopMaster.', 'watches, accessories, online shopping'],
-        ['collection', 'Collections', '/collection', 'Collections | ShopMaster', 'Browse ShopMaster collections by category, price, and latest available products.', 'collections, products, watches'],
-        ['about', 'About', '/about', 'About ShopMaster', 'Learn about ShopMaster, our ecommerce experience, product quality, and customer support.', 'about shopmaster, ecommerce'],
-        ['contact', 'Contact', '/contact', 'Contact ShopMaster Support', 'Contact ShopMaster for order help, product questions, payments, returns, and support.', 'contact, support, help'],
-        ['cart', 'Cart', '/cart', 'Shopping Cart | ShopMaster', 'Review your selected products, box options, quantities, and order subtotal.', 'cart, checkout'],
-        ['wishlist', 'Wishlist', '/wishlist', 'Wishlist | ShopMaster', 'Save your favorite ShopMaster products and return to them later.', 'wishlist, saved products, favorites'],
-        ['checkout', 'Checkout', '/checkout', 'Checkout | ShopMaster', 'Complete your ShopMaster order with secure payment and delivery details.', 'checkout, payment'],
-        ['login', 'Login', '/login', 'Login | ShopMaster', 'Log in to your ShopMaster account to manage orders and checkout faster.', 'login, account'],
-        ['register', 'Register', '/register', 'Create Account | ShopMaster', 'Create a ShopMaster account for faster checkout and order management.', 'register, account'],
-        ['product', 'Product Detail', '/product', '{product_name} | ShopMaster', 'Buy {product_name} online for {product_price}. Choose gift box options and checkout securely.', 'product, watch, box'],
+        ['home', 'Home', '/', 'ViralWatches | Premium Watches Online', 'Shop premium watches online at ViralWatches with curated collections, secure checkout, fast delivery, and stylish gift box options.', 'premium watches, online watch store, viralwatches, luxury watches'],
+        ['collection', 'Collections', '/collection', 'Watch Collections | ViralWatches', 'Explore ViralWatches collections by category, latest arrivals, price, offers, and best-selling watch styles.', 'watch collections, mens watches, womens watches, best seller watches'],
+        ['about', 'About', '/about', 'About ViralWatches | Premium Watch Store', 'Learn about ViralWatches, our watch collections, product quality, secure shopping experience, and customer support.', 'about viralwatches, watch store, premium watches'],
+        ['contact', 'Contact', '/contact', 'Contact ViralWatches Support', 'Contact ViralWatches for order support, product questions, payment help, delivery updates, and returns assistance.', 'contact viralwatches, watch support, order help'],
+        ['cart', 'Cart', '/cart', 'Shopping Cart | ViralWatches', 'Review your ViralWatches cart, update quantities, choose gift box options, and continue to secure checkout.', 'shopping cart, watch cart, checkout'],
+        ['wishlist', 'Wishlist', '/wishlist', 'Wishlist | ViralWatches', 'View saved watches in your ViralWatches wishlist and quickly return to your favorite products.', 'wishlist, saved watches, favorite watches'],
+        ['checkout', 'Checkout', '/checkout', 'Secure Checkout | ViralWatches', 'Complete your ViralWatches order with secure checkout, delivery details, coupon discounts, and payment options.', 'secure checkout, watch order, payment'],
+        ['login', 'Login', '/login', 'Login | ViralWatches', 'Log in to your ViralWatches account to manage your wishlist, orders, profile, and checkout faster.', 'login, customer account, viralwatches account'],
+        ['register', 'Register', '/register', 'Create Account | ViralWatches', 'Create a ViralWatches account for faster checkout, order tracking, wishlist access, and account management.', 'register, create account, watch shopping account'],
+        ['forgot', 'Forgot Password', '/forgot', 'Forgot Password | ViralWatches', 'Reset your ViralWatches account password securely and regain access to your orders and wishlist.', 'forgot password, reset account, viralwatches login help'],
+        ['reset', 'Reset Password', '/reset', 'Reset Password | ViralWatches', 'Set a new ViralWatches account password using your secure password reset link.', 'reset password, account security, new password'],
+        ['profile', 'Profile', '/user/profile', 'My Profile | ViralWatches', 'Manage your ViralWatches profile details, contact information, password, and account settings.', 'my profile, account settings, customer profile'],
+        ['orders', 'Orders', '/user/orders', 'My Orders | ViralWatches', 'View your ViralWatches order history, payment status, order status, and purchase details.', 'my orders, order history, watch orders'],
+        ['product', 'Product Detail', '/product', '{product_name} | ViralWatches', 'Buy {product_name} online for {product_price}. View product details, images, availability, and checkout securely.', 'product, watch, viralwatches, buy watch online'],
     ];
 
     $stmt = $pdo->prepare(

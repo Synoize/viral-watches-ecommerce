@@ -150,16 +150,20 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO page_meta
 (page_key, page_name, path, title, description, keywords, is_active)
 VALUES
-('home', 'Home', '/', 'Luxury Watch Store', 'Premium watches at best prices', 'watches,luxury watches,smart watches', 1),
-('collection', 'Collections', '/collection', 'Shop Watches', 'Browse all watches', 'shop,watches', 1),
-('about', 'About', '/about', 'About Us', 'Learn more about our company', 'about', 1),
-('contact', 'Contact', '/contact', 'Contact Us', 'Get in touch with us', 'contact', 1),
-('cart', 'Cart', '/cart', 'Shopping Cart', 'Review your selected products and checkout securely.', 'cart,checkout', 1),
-('checkout', 'Checkout', '/checkout', 'Checkout', 'Complete your order securely.', 'checkout,payment', 1),
-('login', 'Login', '/login', 'Login', 'Log in to your account.', 'login,account', 1),
-('register', 'Register', '/register', 'Create Account', 'Create your customer account.', 'register,account', 1),
-('product', 'Product Detail', '/product', '{product_name}', 'Buy {product_name} online for {product_price}.', 'product,watches', 1),
-('wishlist', 'Wishlist', '/wishlist', 'Wishlist', 'Save favorite products and view them later.', 'wishlist,favorites', 1)
+('home', 'Home', '/', 'ViralWatches | Premium Watches Online', 'Shop premium watches online at ViralWatches with curated collections, secure checkout, fast delivery, and stylish gift box options.', 'premium watches, online watch store, viralwatches, luxury watches', 1),
+('collection', 'Collections', '/collection', 'Watch Collections | ViralWatches', 'Explore ViralWatches collections by category, latest arrivals, price, offers, and best-selling watch styles.', 'watch collections, mens watches, womens watches, best seller watches', 1),
+('about', 'About', '/about', 'About ViralWatches | Premium Watch Store', 'Learn about ViralWatches, our watch collections, product quality, secure shopping experience, and customer support.', 'about viralwatches, watch store, premium watches', 1),
+('contact', 'Contact', '/contact', 'Contact ViralWatches Support', 'Contact ViralWatches for order support, product questions, payment help, delivery updates, and returns assistance.', 'contact viralwatches, watch support, order help', 1),
+('cart', 'Cart', '/cart', 'Shopping Cart | ViralWatches', 'Review your ViralWatches cart, update quantities, choose gift box options, and continue to secure checkout.', 'shopping cart, watch cart, checkout', 1),
+('checkout', 'Checkout', '/checkout', 'Secure Checkout | ViralWatches', 'Complete your ViralWatches order with secure checkout, delivery details, coupon discounts, and payment options.', 'secure checkout, watch order, payment', 1),
+('login', 'Login', '/login', 'Login | ViralWatches', 'Log in to your ViralWatches account to manage your wishlist, orders, profile, and checkout faster.', 'login, customer account, viralwatches account', 1),
+('register', 'Register', '/register', 'Create Account | ViralWatches', 'Create a ViralWatches account for faster checkout, order tracking, wishlist access, and account management.', 'register, create account, watch shopping account', 1),
+('forgot', 'Forgot Password', '/forgot', 'Forgot Password | ViralWatches', 'Reset your ViralWatches account password securely and regain access to your orders and wishlist.', 'forgot password, reset account, viralwatches login help', 1),
+('reset', 'Reset Password', '/reset', 'Reset Password | ViralWatches', 'Set a new ViralWatches account password using your secure password reset link.', 'reset password, account security, new password', 1),
+('profile', 'Profile', '/user/profile', 'My Profile | ViralWatches', 'Manage your ViralWatches profile details, contact information, password, and account settings.', 'my profile, account settings, customer profile', 1),
+('orders', 'Orders', '/user/orders', 'My Orders | ViralWatches', 'View your ViralWatches order history, payment status, order status, and purchase details.', 'my orders, order history, watch orders', 1),
+('product', 'Product Detail', '/product', '{product_name} | ViralWatches', 'Buy {product_name} online for {product_price}. View product details, images, availability, and checkout securely.', 'product, watch, viralwatches, buy watch online', 1),
+('wishlist', 'Wishlist', '/wishlist', 'Wishlist | ViralWatches', 'View saved watches in your ViralWatches wishlist and quickly return to your favorite products.', 'wishlist, saved watches, favorite watches', 1)
 ON DUPLICATE KEY UPDATE
     page_name = VALUES(page_name),
     path = VALUES(path),
