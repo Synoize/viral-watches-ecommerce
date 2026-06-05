@@ -16,8 +16,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_role'] = $user['role'];
-            flash('success', 'Welcome back, ' . sanitize($user['name']) . '!');
-            redirect('/index.php');
+            $redirectAfterLogin = $_SESSION['redirect_after_login'] ?? '/index.php';
+            $pendingWishlistAction = $_SESSION['pending_wishlist_action'] ?? null;
+            unset($_SESSION['redirect_after_login']);
+            unset($_SESSION['pending_wishlist_action']);
+
+            if ($pendingWishlistAction && !empty($pendingWishlistAction['product_id'])) {
+                $wishlistResult = ($pendingWishlistAction['action'] ?? 'add') === 'remove'
+                    ? removeWishlistItem((int)$pendingWishlistAction['product_id'])
+                    : addWishlistItem((int)$pendingWishlistAction['product_id']);
+                flash(empty($wishlistResult['error']) ? 'success' : 'error', $wishlistResult['success'] ?? $wishlistResult['error']);
+            } else {
+                flash('success', 'Welcome back, ' . sanitize($user['name']) . '!');
+            }
+            redirect($redirectAfterLogin);
         }
         $error = 'Email or password is incorrect.';
     }
@@ -28,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm">
         <h3 class="text-3xl font-semibold text-slate-900">Login</h3>
         <?php if ($error): ?><div class="mt-4 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
+        <?php if ($message = flash('error')): ?><div class="mt-4 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($message) ?></div><?php endif; ?>
         <?php if ($message = flash('success')): ?><div class="mt-4 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($message) ?></div><?php endif; ?>
         <form method="post" class="mt-8 space-y-5">
             <div><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" name="email" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>

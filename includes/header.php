@@ -2,6 +2,7 @@
 require_once __DIR__ . '/functions.php';
 $categories = getCategories();
 $cartCount = getCartCount();
+$wishlistCount = getWishlistCount();
 $user = getCurrentUser();
 $csrfToken = generateCsrfToken();
 $pageMeta = getPageMeta($_SERVER['REQUEST_URI'] ?? '/', $pageMetaOverrides ?? []);
@@ -425,6 +426,22 @@ function is_active($match)
 
                     <?php endif; ?>
 
+                    <!-- WISHLIST -->
+                    <a href="<?= BASE_URL ?>/wishlist"
+                        class="relative text-slate-700 hover:opacity-70 transition <?= is_active('/wishlist') ?>">
+
+                        <i data-lucide="heart"
+                            class="w-6 h-6 stroke-[1]"></i>
+
+                        <?php if ($wishlistCount > 0): ?>
+                            <span
+                                class="absolute -right-2 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-[10px] font-semibold text-white">
+                                <?= $wishlistCount ?>
+                            </span>
+                        <?php endif; ?>
+
+                    </a>
+
                     <!-- CART -->
                     <a href="<?= BASE_URL ?>/cart"
                         class="relative text-slate-700 hover:opacity-70 transition <?= is_active('/cart') ?>">
@@ -542,6 +559,12 @@ function is_active($match)
                         class="flex items-center gap-3 px-6 py-3 text-sm text-slate-700 hover:bg-slate-50 transition <?= is_active('/user/orders') ?>">
                         <i data-lucide="package" class="w-4 h-4 stroke-[1]"></i>
                         My Orders
+                    </a>
+
+                    <a href="<?= BASE_URL ?>/wishlist"
+                        class="flex items-center gap-3 px-6 py-3 text-sm text-slate-700 hover:bg-slate-50 transition <?= is_active('/wishlist') ?>">
+                        <i data-lucide="heart" class="w-4 h-4 stroke-[1]"></i>
+                        Wishlist
                     </a>
 
                     <a href="<?= BASE_URL ?>/logout.php"

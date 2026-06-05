@@ -128,6 +128,7 @@ function seedDefaultPageMeta() {
         ['about', 'About', '/about', 'About ShopMaster', 'Learn about ShopMaster, our ecommerce experience, product quality, and customer support.', 'about shopmaster, ecommerce'],
         ['contact', 'Contact', '/contact', 'Contact ShopMaster Support', 'Contact ShopMaster for order help, product questions, payments, returns, and support.', 'contact, support, help'],
         ['cart', 'Cart', '/cart', 'Shopping Cart | ShopMaster', 'Review your selected products, box options, quantities, and order subtotal.', 'cart, checkout'],
+        ['wishlist', 'Wishlist', '/wishlist', 'Wishlist | ShopMaster', 'Save your favorite ShopMaster products and return to them later.', 'wishlist, saved products, favorites'],
         ['checkout', 'Checkout', '/checkout', 'Checkout | ShopMaster', 'Complete your ShopMaster order with secure payment and delivery details.', 'checkout, payment'],
         ['login', 'Login', '/login', 'Login | ShopMaster', 'Log in to your ShopMaster account to manage orders and checkout faster.', 'login, account'],
         ['register', 'Register', '/register', 'Create Account | ShopMaster', 'Create a ShopMaster account for faster checkout and order management.', 'register, account'],
@@ -288,6 +289,121 @@ function getCategoryBySlug($slug) {
 function getCartCount() {
     if (empty($_SESSION['cart'])) return 0;
     return array_sum(array_column($_SESSION['cart'], 'quantity'));
+}
+
+function ensureWishlistTableExists() {
+    global $pdo;
+
+    try {
+        $pdo->exec(
+            "CREATE TABLE IF NOT EXISTS wishlists (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                product_id INT NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY uq_wishlist_user_product (user_id, product_id),
+                KEY idx_wishlist_user (user_id),
+                KEY idx_wishlist_product (product_id),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        );
+        return true;
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
+function getWishlistCount($userId = null) {
+    global $pdo;
+    $userId = $userId ?: ($_SESSION['user_id'] ?? 0);
+    if (!$userId || !ensureWishlistTableExists()) return 0;
+
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM wishlists WHERE user_id = ?');
+    $stmt->execute([(int)$userId]);
+    return (int)$stmt->fetchColumn();
+}
+
+function getWishlistProductIds($productIds = [], $userId = null) {
+    global $pdo;
+    $userId = $userId ?: ($_SESSION['user_id'] ?? 0);
+    if (!$userId || !ensureWishlistTableExists()) return [];
+
+    $productIds = array_values(array_unique(array_filter(array_map('intval', $productIds))));
+    if (!$productIds) return [];
+
+    $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+    $stmt = $pdo->prepare("SELECT product_id FROM wishlists WHERE user_id = ? AND product_id IN ($placeholders)");
+    $stmt->execute(array_merge([(int)$userId], $productIds));
+    return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+}
+
+function isProductInWishlist($productId, $userId = null) {
+    return in_array((int)$productId, getWishlistProductIds([(int)$productId], $userId), true);
+}
+
+function addWishlistItem($productId, $userId = null) {
+    global $pdo;
+    $userId = $userId ?: ($_SESSION['user_id'] ?? 0);
+    $productId = (int)$productId;
+    if (!$userId) return ['error' => 'Please login to add products to your wishlist.'];
+    if ($productId <= 0 || !ensureWishlistTableExists()) return ['error' => 'Invalid wishlist request.'];
+
+    $stmt = $pdo->prepare('SELECT id FROM products WHERE id = ? LIMIT 1');
+    $stmt->execute([$productId]);
+    if (!$stmt->fetchColumn()) {
+        return ['error' => 'Product not found.'];
+    }
+
+    $stmt = $pdo->prepare('INSERT IGNORE INTO wishlists (user_id, product_id) VALUES (?, ?)');
+    $stmt->execute([(int)$userId, $productId]);
+    return ['success' => 'Product added to wishlist.'];
+}
+
+function removeWishlistItem($productId, $userId = null) {
+    global $pdo;
+    $userId = $userId ?: ($_SESSION['user_id'] ?? 0);
+    $productId = (int)$productId;
+    if (!$userId) return ['error' => 'Please login to update your wishlist.'];
+    if ($productId <= 0 || !ensureWishlistTableExists()) return ['error' => 'Invalid wishlist request.'];
+
+    $stmt = $pdo->prepare('DELETE FROM wishlists WHERE user_id = ? AND product_id = ?');
+    $stmt->execute([(int)$userId, $productId]);
+    return ['success' => 'Product removed from wishlist.'];
+}
+
+function getWishlistItems($userId = null) {
+    global $pdo;
+    $userId = $userId ?: ($_SESSION['user_id'] ?? 0);
+    if (!$userId || !ensureWishlistTableExists()) return [];
+
+    $stmt = $pdo->prepare(
+        'SELECT p.*, w.created_at AS wished_at
+         FROM wishlists w
+         INNER JOIN products p ON p.id = w.product_id
+         WHERE w.user_id = ?
+         ORDER BY w.created_at DESC'
+    );
+    $stmt->execute([(int)$userId]);
+    return $stmt->fetchAll();
+}
+
+function renderWishlistButton($productId, $isWished = false, $classes = '') {
+    $productId = (int)$productId;
+    $action = $isWished ? 'remove' : 'add';
+    $label = $isWished ? 'Remove from wishlist' : 'Add to wishlist';
+    $iconClass = $isWished ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+    $stateClass = $isWished ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-white text-slate-700 border-slate-200';
+    $redirectTo = $_SERVER['REQUEST_URI'] ?? '/';
+
+    return '<form method="post" action="' . BASE_URL . '/wishlist.php" class="' . sanitize($classes) . '">' .
+        '<input type="hidden" name="action" value="' . $action . '">' .
+        '<input type="hidden" name="product_id" value="' . $productId . '">' .
+        '<input type="hidden" name="redirect_to" value="' . sanitize($redirectTo) . '">' .
+        '<button type="submit" aria-label="' . $label . '" title="' . $label . '" class="inline-flex h-10 w-10 items-center justify-center rounded-full border shadow-sm transition hover:bg-rose-50 hover:text-rose-600 ' . $stateClass . '">' .
+        '<i class="' . $iconClass . ' text-sm"></i>' .
+        '</button>' .
+    '</form>';
 }
 
 function ensureBoxOptionsTableExists() {

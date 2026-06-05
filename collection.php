@@ -85,6 +85,11 @@ $stmt->bindValue(count($params) + 1, $pageSize, PDO::PARAM_INT);
 $stmt->bindValue(count($params) + 2, $offset, PDO::PARAM_INT);
 $stmt->execute();
 $products = $stmt->fetchAll();
+$wishlistLookupIds = array_merge(
+    array_map('intval', array_column($bestSellers, 'id')),
+    array_map('intval', array_column($products, 'id'))
+);
+$wishlistProductIds = $wishlistLookupIds ? getWishlistProductIds($wishlistLookupIds) : [];
 $activeCategoryName = $categoryId ? ($cat['name'] ?? '') : '';
 $activeCategorySlug = $activeCategoryName ? strtolower(preg_replace('/[^a-z0-9]+/i', '-', trim($activeCategoryName))) : '';
 $clearFiltersUrl = BASE_URL . ($activeCategorySlug ? '/collection/' . $activeCategorySlug : '/collection');
@@ -111,6 +116,8 @@ if ($activeCategoryName) {
 }
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
+<?php if ($message = flash('success')): ?><div class="mx-auto max-w-[1920px] px-4 pt-4 md:px-10"><div class="rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($message) ?></div></div><?php endif; ?>
+<?php if ($message = flash('error')): ?><div class="mx-auto max-w-[1920px] px-4 pt-4 md:px-10"><div class="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($message) ?></div></div><?php endif; ?>
 
 <section class="mx-auto max-w-[1920px] px-4 md:px-10 py-10 md:py-14">
     <?php if (!$hasActiveFilters && empty($_GET['page'])): ?>
@@ -195,45 +202,48 @@ if ($activeCategoryName) {
                         }
                         ?>
                         <!-- CARD -->
-                        <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="group flex-shrink-0 w-auto snap-start">
-                            <div class="relative bg-white rounded-md overflow-hidden">
-                                <?php if ($mainImage): ?>
-                                    <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
-                                        class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-8 transition-all duration-500 group-hover:opacity-0" />
-                                <?php else: ?>
-                                    <div class="flex h-[180px] w-full items-center justify-center bg-slate-100 p-5 text-center text-sm text-slate-500 md:h-[440px] md:w-[400px]">Image not found</div>
-                                <?php endif; ?>
-
-                                <?php if ($hoverImage): ?>
-                                    <img src="<?= sanitize($hoverImage) ?>" alt="<?= sanitize($product['name']) ?>"
-                                        class="absolute inset-0 h-full w-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100" />
-                                <?php endif; ?>
-
-                                <span
-                                    class="absolute left-2 md:left-5 bottom-2 md:bottom-5 text-[12px] px-3 md:px-4 py-1 md:py-1.5 rounded-full z-10 <?= $badgeClass ?>">
-                                    <?= htmlspecialchars($badgeText) ?>
-                                </span>
-                            </div>
-
-                            <!-- CONTENT -->
-                            <div class="pt-3 md:pt-5">
-                                <h3 class="text-[14px] md:text-[16px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
-                                    <?= sanitize($product['name']) ?>
-                                </h3>
-
-                                <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
-                                    <?php if ($hasOffer): ?>
-                                        <span class="text-[12px] md:text-[14px] text-[#666] line-through">
-                                            Rs. <?= number_format((float)$product['price'], 2) ?>
-                                        </span>
+                        <article class="relative group flex-shrink-0 w-auto snap-start">
+                            <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="block">
+                                <div class="relative bg-white rounded-md overflow-hidden">
+                                    <?php if ($mainImage): ?>
+                                        <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
+                                            class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-8 transition-all duration-500 group-hover:opacity-0" />
+                                    <?php else: ?>
+                                        <div class="flex h-[180px] w-full items-center justify-center bg-slate-100 p-5 text-center text-sm text-slate-500 md:h-[440px] md:w-[400px]">Image not found</div>
                                     <?php endif; ?>
 
-                                    <span class="text-[14px] md:text-[16px] font-medium text-black">
-                                        Rs. <?= number_format($displayPrice, 2) ?>
+                                    <?php if ($hoverImage): ?>
+                                        <img src="<?= sanitize($hoverImage) ?>" alt="<?= sanitize($product['name']) ?>"
+                                            class="absolute inset-0 h-full w-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100" />
+                                    <?php endif; ?>
+
+                                    <span
+                                        class="absolute left-2 md:left-5 bottom-2 md:bottom-5 text-[12px] px-3 md:px-4 py-1 md:py-1.5 rounded-full z-10 <?= $badgeClass ?>">
+                                        <?= htmlspecialchars($badgeText) ?>
                                     </span>
                                 </div>
-                            </div>
-                        </a>
+
+                                <!-- CONTENT -->
+                                <div class="pt-3 md:pt-5">
+                                    <h3 class="text-[14px] md:text-[16px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
+                                        <?= sanitize($product['name']) ?>
+                                    </h3>
+
+                                    <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
+                                        <?php if ($hasOffer): ?>
+                                            <span class="text-[12px] md:text-[14px] text-[#666] line-through">
+                                                Rs. <?= number_format((float)$product['price'], 2) ?>
+                                            </span>
+                                        <?php endif; ?>
+
+                                        <span class="text-[14px] md:text-[16px] font-medium text-black">
+                                            Rs. <?= number_format($displayPrice, 2) ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                            <?= renderWishlistButton($product['id'], in_array((int)$product['id'], $wishlistProductIds, true), 'absolute right-2 top-2 z-20 md:right-4 md:top-4') ?>
+                        </article>
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
@@ -701,45 +711,48 @@ if ($activeCategoryName) {
                     ?>
 
                         <!-- CARD -->
-                        <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="group flex-shrink-0 w-auto snap-start">
-                            <div class="relative bg-white rounded-md overflow-hidden">
-                                <?php if ($mainImage): ?>
-                                    <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
-                                        class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-8 transition-all duration-500 group-hover:opacity-0" />
-                                <?php else: ?>
-                                    <div class="flex h-[180px] w-full items-center justify-center bg-slate-100 p-5 text-center text-sm text-slate-500 md:h-[440px] md:w-[400px]">Image not found</div>
-                                <?php endif; ?>
-
-                                <?php if ($hoverImage): ?>
-                                    <img src="<?= sanitize($hoverImage) ?>" alt="<?= sanitize($product['name']) ?>"
-                                        class="absolute inset-0 h-full w-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100" />
-                                <?php endif; ?>
-
-                                <span
-                                    class="absolute left-2 md:left-5 bottom-2 md:bottom-5 text-[12px] px-3 md:px-4 py-1 md:py-1.5 rounded-full z-10 <?= $badgeClass ?>">
-                                    <?= htmlspecialchars($badgeText) ?>
-                                </span>
-                            </div>
-
-                            <!-- CONTENT -->
-                            <div class="pt-3 md:pt-5">
-                                <h3 class="text-[14px] md:text-[16px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
-                                    <?= sanitize($product['name']) ?>
-                                </h3>
-
-                                <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
-                                    <?php if ($hasOffer): ?>
-                                        <span class="text-[12px] md:text-[14px] text-[#666] line-through">
-                                            Rs. <?= number_format((float)$product['price'], 2) ?>
-                                        </span>
+                        <article class="relative group flex-shrink-0 w-auto snap-start">
+                            <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="block">
+                                <div class="relative bg-white rounded-md overflow-hidden">
+                                    <?php if ($mainImage): ?>
+                                        <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
+                                            class="w-full md:w-[400px] h-[180px] md:h-[440px] object-contain p-5 md:p-8 transition-all duration-500 group-hover:opacity-0" />
+                                    <?php else: ?>
+                                        <div class="flex h-[180px] w-full items-center justify-center bg-slate-100 p-5 text-center text-sm text-slate-500 md:h-[440px] md:w-[400px]">Image not found</div>
                                     <?php endif; ?>
 
-                                    <span class="text-[14px] md:text-[16px] font-medium text-black">
-                                        Rs. <?= number_format($displayPrice, 2) ?>
+                                    <?php if ($hoverImage): ?>
+                                        <img src="<?= sanitize($hoverImage) ?>" alt="<?= sanitize($product['name']) ?>"
+                                            class="absolute inset-0 h-full w-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100" />
+                                    <?php endif; ?>
+
+                                    <span
+                                        class="absolute left-2 md:left-5 bottom-2 md:bottom-5 text-[12px] px-3 md:px-4 py-1 md:py-1.5 rounded-full z-10 <?= $badgeClass ?>">
+                                        <?= htmlspecialchars($badgeText) ?>
                                     </span>
                                 </div>
-                            </div>
-                        </a>
+
+                                <!-- CONTENT -->
+                                <div class="pt-3 md:pt-5">
+                                    <h3 class="text-[14px] md:text-[16px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
+                                        <?= sanitize($product['name']) ?>
+                                    </h3>
+
+                                    <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
+                                        <?php if ($hasOffer): ?>
+                                            <span class="text-[12px] md:text-[14px] text-[#666] line-through">
+                                                Rs. <?= number_format((float)$product['price'], 2) ?>
+                                            </span>
+                                        <?php endif; ?>
+
+                                        <span class="text-[14px] md:text-[16px] font-medium text-black">
+                                            Rs. <?= number_format($displayPrice, 2) ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                            <?= renderWishlistButton($product['id'], in_array((int)$product['id'], $wishlistProductIds, true), 'absolute right-2 top-2 z-20 md:right-4 md:top-4') ?>
+                        </article>
                     <?php endforeach; ?>
 
                 <?php else: ?>

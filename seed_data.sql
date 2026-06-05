@@ -158,7 +158,8 @@ VALUES
 ('checkout', 'Checkout', '/checkout', 'Checkout', 'Complete your order securely.', 'checkout,payment', 1),
 ('login', 'Login', '/login', 'Login', 'Log in to your account.', 'login,account', 1),
 ('register', 'Register', '/register', 'Create Account', 'Create your customer account.', 'register,account', 1),
-('product', 'Product Detail', '/product', '{product_name}', 'Buy {product_name} online for {product_price}.', 'product,watches', 1)
+('product', 'Product Detail', '/product', '{product_name}', 'Buy {product_name} online for {product_price}.', 'product,watches', 1),
+('wishlist', 'Wishlist', '/wishlist', 'Wishlist', 'Save favorite products and view them later.', 'wishlist,favorites', 1)
 ON DUPLICATE KEY UPDATE
     page_name = VALUES(page_name),
     path = VALUES(path),

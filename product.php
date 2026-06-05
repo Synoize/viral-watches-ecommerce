@@ -86,6 +86,7 @@ $pageMetaOverrides = [
         'category_name' => $product['category_name'] ?? 'General',
     ],
 ];
+$isWished = isProductInWishlist($product['id']);
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -110,8 +111,13 @@ $pageMetaOverrides = [
 
         <div class="space-y-6">
             <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p class="text-sm text-slate-500">Category: <?= sanitize($product['category_name'] ?? 'General') ?></p>
-                <h1 class="mt-3 text-4xl font-semibold text-slate-900"><?= sanitize($product['name']) ?></h1>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-sm text-slate-500">Category: <?= sanitize($product['category_name'] ?? 'General') ?></p>
+                        <h1 class="mt-3 text-4xl font-semibold text-slate-900"><?= sanitize($product['name']) ?></h1>
+                    </div>
+                    <?= renderWishlistButton($product['id'], $isWished, 'shrink-0') ?>
+                </div>
                 <p class="mt-4 text-3xl font-semibold text-slate-900">&#8377;<?= number_format($product['price'], 2) ?></p>
                 <p class="mt-4 leading-7 text-slate-600"><?= nl2br(sanitize($product['description'])) ?></p>
                 <p class="mt-6 text-sm font-medium text-slate-700">Status: <span class="font-semibold text-slate-900"><?= $product['stock'] > 0 ? 'In stock' : 'Out of stock' ?></span></p>
@@ -209,14 +215,18 @@ $pageMetaOverrides = [
             $relStmt = $pdo->prepare('SELECT id, name, price, images, gallery FROM products WHERE category = ? AND id != ? LIMIT 4');
             $relStmt->execute([$product['category'], $product['id']]);
             $related = $relStmt->fetchAll();
+            $relatedWishlistIds = $related ? getWishlistProductIds(array_map('intval', array_column($related, 'id'))) : [];
             if ($related): foreach ($related as $item): $itemGallery = json_decode($item['gallery'] ?? '[]', true) ?: []; ?>
-                <a href="<?= BASE_URL ?>/product.php?id=<?= $item['id'] ?>" class="group overflow-hidden rounded-xl border border-slate-200 bg-slate-50 transition hover:-translate-y-0.5 hover:shadow-sm">
-                    <img src="<?= sanitize(resolveAssetUrl($itemGallery[0] ?? $item['images'])) ?>" alt="<?= sanitize($item['name']) ?>" class="h-40 w-full object-cover" />
-                    <div class="p-4">
-                        <h3 class="text-base font-semibold text-slate-900"><?= sanitize($item['name']) ?></h3>
-                        <p class="mt-2 text-sm text-slate-700">&#8377;<?= number_format($item['price'], 2) ?></p>
-                    </div>
-                </a>
+                <article class="relative group overflow-hidden rounded-xl border border-slate-200 bg-slate-50 transition hover:-translate-y-0.5 hover:shadow-sm">
+                    <a href="<?= BASE_URL ?>/product.php?id=<?= $item['id'] ?>" class="block">
+                        <img src="<?= sanitize(resolveAssetUrl($itemGallery[0] ?? $item['images'])) ?>" alt="<?= sanitize($item['name']) ?>" class="h-40 w-full object-cover" />
+                        <div class="p-4">
+                            <h3 class="text-base font-semibold text-slate-900"><?= sanitize($item['name']) ?></h3>
+                            <p class="mt-2 text-sm text-slate-700">&#8377;<?= number_format($item['price'], 2) ?></p>
+                        </div>
+                    </a>
+                    <?= renderWishlistButton($item['id'], in_array((int)$item['id'], $relatedWishlistIds, true), 'absolute right-3 top-3 z-20') ?>
+                </article>
             <?php endforeach; else: ?>
                 <div class="col-span-full rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6 text-center text-slate-600">Related products not found.</div>
             <?php endif; ?>

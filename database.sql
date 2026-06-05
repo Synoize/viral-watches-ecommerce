@@ -58,6 +58,19 @@ CREATE TABLE IF NOT EXISTS products_video (
   KEY idx_products_video_product (product_id)
 ) ENGINE=InnoDB;
 
+-- WISHLISTS
+CREATE TABLE IF NOT EXISTS wishlists (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_wishlist_user_product (user_id, product_id),
+    KEY idx_wishlist_user (user_id),
+    KEY idx_wishlist_product (product_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- BOX OPTIONS
 CREATE TABLE IF NOT EXISTS box_options (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
