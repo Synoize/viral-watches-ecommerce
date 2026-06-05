@@ -48,6 +48,41 @@ function saveAdminImageUpload($file, $folder, $prefix = 'image') {
     return ['path' => 'assets/images/' . $folder . '/' . $filename];
 }
 
+function saveAdminVideoUpload($file, $folder, $prefix = 'video') {
+    if (empty($file['name']) || empty($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+        return null;
+    }
+
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return ['error' => 'Video upload failed.'];
+    }
+
+    $allowed = [
+        'video/mp4' => 'mp4',
+        'video/webm' => 'webm',
+        'video/quicktime' => 'mov',
+        'video/x-m4v' => 'm4v',
+    ];
+    $mime = mime_content_type($file['tmp_name']);
+    if (!isset($allowed[$mime])) {
+        return ['error' => 'Upload an MP4, WEBM, MOV, or M4V video.'];
+    }
+
+    $folder = trim(preg_replace('/[^a-z0-9_-]+/i', '-', $folder), '-');
+    $uploadDir = __DIR__ . '/../assets/videos/' . $folder;
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0775, true);
+    }
+
+    $filename = trim(preg_replace('/[^a-z0-9_-]+/i', '-', $prefix), '-') . '-' . date('YmdHis') . '-' . bin2hex(random_bytes(4)) . '.' . $allowed[$mime];
+    $target = $uploadDir . DIRECTORY_SEPARATOR . $filename;
+    if (!move_uploaded_file($file['tmp_name'], $target)) {
+        return ['error' => 'Could not save uploaded video.'];
+    }
+
+    return ['path' => 'assets/videos/' . $folder . '/' . $filename];
+}
+
 function normalizeMultipleUploads($files) {
     if (empty($files['name']) || !is_array($files['name'])) return [];
     $uploads = [];
@@ -214,6 +249,24 @@ function ensureProductBestSellerColumn() {
             $pdo->exec('ALTER TABLE products ADD COLUMN is_best_seller TINYINT(1) NOT NULL DEFAULT 0 AFTER stock');
         }
         $checked = true;
+        return true;
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
+function ensureProductVideosTableExists() {
+    global $pdo;
+    try {
+        $pdo->exec(
+            "CREATE TABLE IF NOT EXISTS products_video (
+                id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                product_id INT NOT NULL,
+                file_path VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                KEY idx_products_video_product (product_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        );
         return true;
     } catch (Throwable $e) {
         return false;

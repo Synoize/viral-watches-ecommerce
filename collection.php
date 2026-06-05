@@ -167,7 +167,7 @@ if ($activeCategoryName) {
         <div class="mt-10 md:mt-14">
             <!-- HEADING -->
             <div class="text-center mb-10 md:mb-16 px-4">
-                <h2 class="text-[42px] leading-none font-serif text-[#303030] animate-slide-bottom">
+                <h2 class="text-[32px] md:text-[42px] leading-none font-serif text-[#303030] animate-slide-bottom">
                     Best Seller
                 </h2>
             </div>
@@ -217,18 +217,18 @@ if ($activeCategoryName) {
 
                             <!-- CONTENT -->
                             <div class="pt-3 md:pt-5">
-                                <h3 class="text-[17px] md:text-[18px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
+                                <h3 class="text-[14px] md:text-[16px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
                                     <?= sanitize($product['name']) ?>
                                 </h3>
 
                                 <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
                                     <?php if ($hasOffer): ?>
-                                        <span class="text-[14px] md:text-[16px] text-[#666] line-through">
+                                        <span class="text-[12px] md:text-[14px] text-[#666] line-through">
                                             Rs. <?= number_format((float)$product['price'], 2) ?>
                                         </span>
                                     <?php endif; ?>
 
-                                    <span class="text-[16px] md:text-[18px] font-medium text-black">
+                                    <span class="text-[14px] md:text-[16px] font-medium text-black">
                                         Rs. <?= number_format($displayPrice, 2) ?>
                                     </span>
                                 </div>
@@ -245,7 +245,7 @@ if ($activeCategoryName) {
         <div>
             <!-- PAGE TITLE -->
             <div class="mb-10 md:mb-14">
-                <h1 class="text-[42px] leading-none font-serif text-[#222]">
+                <h1 class="text-[32px] md:text-[42px] leading-none font-serif text-[#222]">
                     <?= $activeCategoryName ? sanitize($activeCategoryName) : 'Products' ?>
                 </h1>
             </div>
@@ -723,18 +723,18 @@ if ($activeCategoryName) {
 
                             <!-- CONTENT -->
                             <div class="pt-3 md:pt-5">
-                                <h3 class="text-[17px] md:text-[18px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
+                                <h3 class="text-[14px] md:text-[16px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
                                     <?= sanitize($product['name']) ?>
                                 </h3>
 
                                 <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
                                     <?php if ($hasOffer): ?>
-                                        <span class="text-[14px] md:text-[16px] text-[#666] line-through">
+                                        <span class="text-[12px] md:text-[14px] text-[#666] line-through">
                                             Rs. <?= number_format((float)$product['price'], 2) ?>
                                         </span>
                                     <?php endif; ?>
 
-                                    <span class="text-[16px] md:text-[18px] font-medium text-black">
+                                    <span class="text-[14px] md:text-[16px] font-medium text-black">
                                         Rs. <?= number_format($displayPrice, 2) ?>
                                     </span>
                                 </div>

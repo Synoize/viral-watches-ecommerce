@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
 ensureProductBestSellerColumn();
+ensureProductVideosTableExists();
 $featuredCategories = getCategories();
 $heroSlides = getActiveHeroSlides();
 $makeSlug = function ($value) {
@@ -10,6 +11,21 @@ $stmt = $pdo->query('SELECT * FROM products WHERE stock > 0 AND is_best_seller =
 $bestSellers = $stmt->fetchAll();
 $stmt = $pdo->query('SELECT * FROM products WHERE stock > 0 ORDER BY id DESC LIMIT 8');
 $trending = $stmt->fetchAll();
+$stmt = $pdo->query(
+    "SELECT p.*, pv.file_path AS video_path
+     FROM products p
+     INNER JOIN (
+        SELECT product_id, MAX(id) AS latest_video_id
+        FROM products_video
+        WHERE file_path <> ''
+        GROUP BY product_id
+     ) latest ON latest.product_id = p.id
+     INNER JOIN products_video pv ON pv.id = latest.latest_video_id
+     WHERE p.stock > 0
+     ORDER BY pv.id DESC
+     LIMIT 12"
+);
+$watchBuyProducts = $stmt->fetchAll();
 $categoryProductSections = [];
 if ($featuredCategories) {
     $categoryIds = array_map('intval', array_column($featuredCategories, 'id'));
@@ -82,7 +98,7 @@ if ($featuredCategories) {
     <div class="max-w-[1920px] mx-auto px-4 md:px-10">
         <!-- HEADING -->
         <div class="text-center mb-10 md:mb-16 px-4">
-            <h2 class="text-[42px] leading-none font-serif text-[#303030] animate-slide-bottom">
+            <h2 class="text-[32px] md:text-[42px] leading-none font-serif text-[#303030] animate-slide-bottom">
                 Best Seller
             </h2>
         </div>
@@ -133,18 +149,18 @@ if ($featuredCategories) {
 
                         <!-- CONTENT -->
                         <div class="pt-3 md:pt-5">
-                            <h3 class="text-[17px] md:text-[18px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
+                            <h3 class="text-[14px] md:text-[16px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
                                 <?= sanitize($product['name']) ?>
                             </h3>
 
                             <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
                                 <?php if ($hasOffer): ?>
-                                    <span class="text-[14px] md:text-[16px] text-[#666] line-through">
+                                    <span class="text-[12px] md:text-[14px] text-[#666] line-through">
                                         Rs. <?= number_format((float)$product['price'], 2) ?>
                                     </span>
                                 <?php endif; ?>
 
-                                <span class="text-[16px] md:text-[18px] font-medium text-black">
+                                <span class="text-[14px] md:text-[16px] font-medium text-black">
                                     Rs. <?= number_format($displayPrice, 2) ?>
                                 </span>
                             </div>
@@ -173,7 +189,7 @@ if ($featuredCategories) {
             <div class="max-w-[1920px] mx-auto px-4 md:px-10">
                 <!-- HEADING -->
                 <div class="text-center mb-10 md:mb-16 px-4">
-                    <h2 class="text-[42px] leading-none font-serif text-[#303030] animate-slide-bottom">
+                    <h2 class="text-[32px] md:text-[42px] leading-none font-serif text-[#303030] animate-slide-bottom">
                         <?= sanitize($section['category']['name']) ?>
                     </h2>
                 </div>
@@ -224,18 +240,18 @@ if ($featuredCategories) {
 
                                 <!-- CONTENT -->
                                 <div class="pt-3 md:pt-5">
-                                    <h3 class="text-[17px] md:text-[18px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
+                                    <h3 class="text-[14px] md:text-[16px] leading-[1.3] md:leading-[1.4] text-[#222] mb-2 md:mb-3">
                                         <?= sanitize($product['name']) ?>
                                     </h3>
 
                                     <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-wrap">
                                         <?php if ($hasOffer): ?>
-                                            <span class="text-[14px] md:text-[16px] text-[#666] line-through">
+                                            <span class="text-[12px] md:text-[14px] text-[#666] line-through">
                                                 Rs. <?= number_format((float)$product['price'], 2) ?>
                                             </span>
                                         <?php endif; ?>
 
-                                        <span class="text-[16px] md:text-[18px] font-medium text-black">
+                                        <span class="text-[14px] md:text-[16px] font-medium text-black">
                                             Rs. <?= number_format($displayPrice, 2) ?>
                                         </span>
                                     </div>
@@ -281,148 +297,57 @@ if ($featuredCategories) {
 
         <div
             class="flex gap-[30px] overflow-x-auto pb-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
-                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
-                    <video class="h-[calc(100%+76px)] w-full object-cover object-top"
-                        src="./vidssave.com%20Edifice%20Casio%20Grey%20Dial%20Luxurious%20Elegant%20Men's%20Watch%20%23luxurywatchesformen%20%23elegantwatches%20%23casio%201080P.mp4"
-                        autoplay muted loop playsinline></video>
-                </div>
+            <?php if ($watchBuyProducts): ?>
+                <?php foreach ($watchBuyProducts as $product): ?>
+                    <?php
+                    $gallery = json_decode($product['gallery'] ?? '[]', true) ?: [];
+                    $videoUrl = resolveAssetUrl($product['video_path'] ?? '');
+                    $thumbUrl = resolveAssetUrl($product['images'] ?: ($gallery[0] ?? ''));
+                    $hasOffer = (float)$product['offer_price'] > 0 && (float)$product['offer_price'] < (float)$product['price'];
+                    $displayPrice = $hasOffer ? (float)$product['offer_price'] : (float)$product['price'];
+                    $oldPrice = $hasOffer ? 'Rs. ' . number_format((float)$product['price'], 2) : '';
+                    $priceText = 'Rs. ' . number_format($displayPrice, 2);
+                    $productUrl = BASE_URL . '/product.php?id=' . (int)$product['id'];
+                    $discount = $hasOffer ? max(1, round((1 - ($displayPrice / (float)$product['price'])) * 100)) : 0;
+                    ?>
+                    <article class="watch-card w-[270px] shrink-0 cursor-pointer"
+                        data-title="<?= sanitize($product['name']) ?>"
+                        data-price="<?= sanitize($priceText) ?>"
+                        data-old-price="<?= sanitize($oldPrice) ?>"
+                        data-thumb="<?= sanitize($thumbUrl) ?>"
+                        data-product-url="<?= sanitize($productUrl) ?>">
+                        <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
+                            <video class="h-[calc(100%+76px)] w-full object-cover object-top"
+                                src="<?= sanitize($videoUrl) ?>"
+                                autoplay muted loop playsinline></video>
+                        </div>
 
-                <div class="pt-[14px]">
-                    <h2 class="truncate text-[16px] leading-[20px] text-black">
-                        Edifice Casio Grey Dial Watch
-                    </h2>
-                    <div class="mt-[10px] flex items-center gap-3">
-                        <span class="text-[16px] font-bold text-black">&#8377; 9,999</span>
-                        <span class="text-[16px] text-gray-500 line-through">&#8377; 13,999</span>
-                    </div>
-                    <div class="mt-[10px]">
-                        <span
-                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
-                            29% off
-                        </span>
-                    </div>
+                        <div class="pt-[14px]">
+                            <h2 class="truncate text-[14px] md:text-[16px] leading-[20px] text-black">
+                                <?= sanitize($product['name']) ?>
+                            </h2>
+                            <div class="mt-[10px] flex items-center gap-3">
+                                <span class="text-[14px] md:text-[16px] font-bold text-black"><?= sanitize($priceText) ?></span>
+                                <?php if ($hasOffer): ?>
+                                    <span class="text-[12px] md:text-[14px] text-gray-500 line-through"><?= sanitize($oldPrice) ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($hasOffer): ?>
+                                <div class="mt-[10px]">
+                                    <span
+                                        class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
+                                        <?= (int)$discount ?>% off
+                                    </span>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="w-full rounded-[12px] border border-slate-200 bg-slate-50 p-8 text-center text-slate-600">
+                    Product videos not found.
                 </div>
-            </article>
-
-            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
-                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
-                    <video class="h-[calc(100%+76px)] w-full object-cover object-top" src="./vidss.mp4" autoplay muted loop
-                        playsinline></video>
-                </div>
-
-                <div class="pt-[14px]">
-                    <h2 class="truncate text-[16px] leading-[20px] text-black">
-                        Men's Edifice Casio Watch | Grey Dial
-                    </h2>
-                    <div class="mt-[10px] flex items-center gap-3">
-                        <span class="text-[16px] font-bold text-black">&#8377; 8,599</span>
-                        <span class="text-[16px] text-gray-500 line-through">&#8377; 12,999</span>
-                    </div>
-                    <div class="mt-[10px]">
-                        <span
-                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
-                            34% off
-                        </span>
-                    </div>
-                </div>
-            </article>
-
-            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
-                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
-                    <video class="h-[calc(100%+76px)] w-full object-cover object-top"
-                        src="./vidssave.com%20Edifice%20Casio%20Grey%20Dial%20Luxurious%20Elegant%20Men's%20Watch%20%23luxurywatchesformen%20%23elegantwatches%20%23casio%201080P.mp4"
-                        autoplay muted loop playsinline></video>
-                </div>
-
-                <div class="pt-[14px]">
-                    <h2 class="truncate text-[16px] leading-[20px] text-black">
-                        Casio Edifice Luxury Men's Watch
-                    </h2>
-                    <div class="mt-[10px] flex items-center gap-3">
-                        <span class="text-[16px] font-bold text-black">&#8377; 7,999</span>
-                        <span class="text-[16px] text-gray-500 line-through">&#8377; 11,999</span>
-                    </div>
-                    <div class="mt-[10px]">
-                        <span
-                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
-                            33% off
-                        </span>
-                    </div>
-                </div>
-            </article>
-
-            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
-                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
-                    <video class="h-[calc(100%+76px)] w-full object-cover object-top"
-                        src="./vidssave.com%20Edifice%20Casio%20Grey%20Dial%20Luxurious%20Elegant%20Men's%20Watch%20%23luxurywatchesformen%20%23elegantwatches%20%23casio%201080P.mp4"
-                        autoplay muted loop playsinline></video>
-                </div>
-
-                <div class="pt-[14px]">
-                    <h2 class="truncate text-[16px] leading-[20px] text-black">
-                        Edifice Casio Elegant Men's Watch
-                    </h2>
-                    <div class="mt-[10px] flex items-center gap-3">
-                        <span class="text-[16px] font-bold text-black">&#8377; 8,399</span>
-                        <span class="text-[16px] text-gray-500 line-through">&#8377; 10,999</span>
-                    </div>
-                    <div class="mt-[10px]">
-                        <span
-                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
-                            24% off
-                        </span>
-                    </div>
-                </div>
-            </article>
-
-            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
-                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
-                    <video class="h-[calc(100%+76px)] w-full object-cover object-top"
-                        src="./vidssave.com%20Edifice%20Casio%20Grey%20Dial%20Luxurious%20Elegant%20Men's%20Watch%20%23luxurywatchesformen%20%23elegantwatches%20%23casio%201080P.mp4"
-                        autoplay muted loop playsinline></video>
-                </div>
-
-                <div class="pt-[14px]">
-                    <h2 class="truncate text-[16px] leading-[20px] text-black">
-                        Casio Grey Dial Stainless Watch
-                    </h2>
-                    <div class="mt-[10px] flex items-center gap-3">
-                        <span class="text-[16px] font-bold text-black">&#8377; 8,999</span>
-                        <span class="text-[16px] text-gray-500 line-through">&#8377; 13,999</span>
-                    </div>
-                    <div class="mt-[10px]">
-                        <span
-                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
-                            36% off
-                        </span>
-                    </div>
-                </div>
-            </article>
-
-            <article class="watch-card w-[270px] shrink-0 cursor-pointer">
-                <div class="relative h-[400px] overflow-hidden rounded-[12px] bg-neutral-100">
-                    <video class="h-[calc(100%+76px)] w-full object-cover object-top"
-                        src="./vidssave.com%20Edifice%20Casio%20Grey%20Dial%20Luxurious%20Elegant%20Men's%20Watch%20%23luxurywatchesformen%20%23elegantwatches%20%23casio%201080P.mp4"
-                        autoplay muted loop playsinline></video>
-                </div>
-
-                <div class="pt-[14px]">
-                    <h2 class="truncate text-[16px] leading-[20px] text-black">
-                        Men's Luxury Watch | Casio Edifice
-                    </h2>
-                    <div class="mt-[10px] flex items-center gap-3">
-                        <span class="text-[16px] font-bold text-black">&#8377; 7,599</span>
-                        <span class="text-[16px] text-gray-500 line-through">&#8377; 9,999</span>
-                    </div>
-                    <div class="mt-[10px]">
-                        <span
-                            class="inline-flex rounded-[4px] bg-[#008000] px-[9px] py-[6px] text-[14px] font-bold leading-none text-white">
-                            24% off
-                        </span>
-                    </div>
-                </div>
-            </article>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -461,12 +386,14 @@ if ($featuredCategories) {
             class="relative h-[min(78vh,660px)] w-[min(84vw,372px)] overflow-hidden rounded-[12px] border border-white/20 bg-black shadow-2xl md:h-[660px] md:w-[372px]">
             <video id="mainVideo" class="h-[calc(100%+76px)] w-full object-cover object-top" muted loop playsinline></video>
 
+
             <!-- Sound Button -->
             <button
+                id="soundToggle"
                 class="absolute right-3 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm"
-                type="button"
-                aria-label="Sound">
-                <i data-lucide="volume-2" class="h-6 w-6 stroke-[1]"></i>
+                type="button">
+                <i data-lucide="volume-x"
+                    class="h-6 w-6 stroke-[1]"></i>
             </button>
 
             <!-- Like & Share -->
@@ -480,11 +407,14 @@ if ($featuredCategories) {
                 </button>
                 <span class="text-[12px] font-bold leading-none">Like</span>
 
+                <!-- Share Button -->
                 <button
+                    id="shareProduct"
                     class="mt-2 flex h-11 w-11 items-center justify-center rounded-full bg-black/35 backdrop-blur-sm"
-                    type="button"
-                    aria-label="Share">
+                    type="button">
+
                     <i data-lucide="share-2" class="h-6 w-6 stroke-[1]"></i>
+
                 </button>
                 <span class="text-[12px] font-bold leading-none">Share</span>
 
@@ -495,38 +425,43 @@ if ($featuredCategories) {
                     class="mb-2 truncate text-center font-serif text-[20px] leading-tight text-white drop-shadow"></h3>
 
                 <div class="overflow-hidden rounded-[7px] bg-white/95 shadow-xl">
-                    <div class="flex min-h-[78px]">
+                    <div class="flex">
                         <div class="h-[88px] w-[94px] shrink-0 bg-white">
-                            <img id="productThumb" class="h-full w-full object-contain object-center"
+                            <img id="productThumb" class="h-full w-full object-contain object-center" ₹
                                 src="https://i.ibb.co/jvmWzcf0/Invicta-Men-s-Pro-Diver-Collection-Coin-Edge-Automatic-Watch.jpg"
                                 alt="Invicta Men's Pro Diver Watch" />
                         </div>
 
                         <div class="relative min-w-0 flex-1 px-3 py-3">
-                            <button class="absolute right-2 top-2 text-[18px] text-gray-700" type="button"
+                            <a id="productViewLink" href="#" class="absolute right-2 top-2 text-[18px] text-gray-700"
                                 aria-label="View product">
                                 &#8599;
-                            </button>
+                            </a>
 
                             <h4 id="modalTitle" class="truncate pr-6 text-[14px] font-semibold leading-[18px] text-black"></h4>
 
                             <div class="mt-2 flex items-center gap-2">
-                                <span id="modalPrice" class="rounded bg-[#f4f4f4] px-2 py-1 text-[12px] font-bold text-black"></span>
+                                <span id="modalPrice" class="rounded bg-[#f4f4f4] text-[12px] font-bold text-black"></span>
                                 <span id="modalOldPrice" class="text-[12px] text-gray-500 line-through"></span>
                             </div>
                         </div>
                     </div>
 
-                    <button class="w-full bg-[#2b2b2b] py-[13px] text-[17px] font-bold uppercase leading-none text-white"
-                        type="button">
-                        ADD TO CART
-                    </button>
+                    <form id="watchBuyForm" method="post" action="">
+                        <input type="hidden" name="quantity" value="1">
+                        <input type="hidden" name="action" value="add_cart">
+                        <button class="w-full bg-[#2b2b2b] py-[13px] text-[17px] font-bold uppercase leading-none text-white"
+                            type="submit">
+                            ADD TO CART
+                        </button>
+                    </form>
                 </div>
 
                 <p class="mt-3 text-center text-[12px] font-semibold text-white">
                     Powered By
-                    <span class="mx-1 inline-block rounded-sm bg-pink-300 px-1 text-black">◆</span>
-                    Websolvit
+                    <a href="https://websolvit.com" target="_blank" class="underline">
+                        <img src="https://i.ibb.co/TMMLkPmj/websolvit-logo.png" alt="Websolvit" class="inline h-4">
+                    </a>
                 </p>
             </div>
         </div>

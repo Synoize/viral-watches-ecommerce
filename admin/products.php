@@ -1,13 +1,20 @@
 <?php
-require_once __DIR__ . '/_header.php';
+require_once __DIR__ . '/../includes/functions.php';
+if (!isAdmin()) {
+    redirect('/admin/login.php');
+}
 ensureProductBestSellerColumn();
+ensureProductVideosTableExists();
 $action = $_GET['action'] ?? '';
 $product = null;
-$categories = $pdo->query('SELECT id, name FROM categories')->fetchAll();
-if ($action === 'edit' && !empty($_GET['id'])) {
-    $stmt = $pdo->prepare('SELECT * FROM products WHERE id = ?');
-    $stmt->execute([(int)$_GET['id']]);
-    $product = $stmt->fetch();
+$error = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['delete_id'])) {
+    $stmt = $pdo->prepare('DELETE FROM products_video WHERE product_id = ?');
+    $stmt->execute([(int)$_POST['delete_id']]);
+    $stmt = $pdo->prepare('DELETE FROM products WHERE id = ?');
+    $stmt->execute([(int)$_POST['delete_id']]);
+    flash('success', 'Product deleted.');
+    redirect('/admin/products.php');
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = sanitize($_POST['name'] ?? '');
@@ -17,12 +24,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stock = (int)($_POST['stock'] ?? 0);
     $isBestSeller = isset($_POST['is_best_seller']) ? 1 : 0;
     $images = sanitize($_POST['images'] ?? '');
+    $videoPath = sanitize($_POST['video_path'] ?? '');
     $gallery = array_filter(array_map('trim', explode(',', $_POST['gallery'] ?? '')));
     $mainUpload = saveAdminImageUpload($_FILES['main_image_file'] ?? [], 'products', 'product-main');
     if (!empty($mainUpload['error'])) {
         $error = $mainUpload['error'];
     } elseif (!empty($mainUpload['path'])) {
         $images = $mainUpload['path'];
+    }
+
+    $videoUpload = saveAdminVideoUpload($_FILES['product_video_file'] ?? [], 'products', 'product-video');
+    if (!empty($videoUpload['error'])) {
+        $error = $videoUpload['error'];
+    } elseif (!empty($videoUpload['path'])) {
+        $videoPath = $videoUpload['path'];
     }
 
     foreach (normalizeMultipleUploads($_FILES['gallery_files'] ?? []) as $uploadFile) {
@@ -40,24 +55,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Product must have a name and positive price.';
     } elseif (empty($error)) {
         if (!empty($_POST['product_id'])) {
+            $productId = (int)$_POST['product_id'];
             $stmt = $pdo->prepare('UPDATE products SET name = ?, description = ?, category = ?, price = ?, stock = ?, is_best_seller = ?, images = ?, gallery = ? WHERE id = ?');
-            $stmt->execute([$name, $description, $category, $price, $stock, $isBestSeller, $images, $galleryJson, (int)$_POST['product_id']]);
+            $stmt->execute([$name, $description, $category, $price, $stock, $isBestSeller, $images, $galleryJson, $productId]);
             flash('success', 'Product updated.');
         } else {
             $stmt = $pdo->prepare('INSERT INTO products (name, description, category, price, stock, is_best_seller, images, gallery) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([$name, $description, $category, $price, $stock, $isBestSeller, $images, $galleryJson]);
+            $productId = (int)$pdo->lastInsertId();
             flash('success', 'Product added.');
+        }
+
+        $stmt = $pdo->prepare('DELETE FROM products_video WHERE product_id = ?');
+        $stmt->execute([$productId]);
+        if ($videoPath !== '') {
+            $stmt = $pdo->prepare('INSERT INTO products_video (product_id, file_path) VALUES (?, ?)');
+            $stmt->execute([$productId, $videoPath]);
         }
         redirect('/admin/products.php');
     }
 }
-if (!empty($_POST['delete_id'])) {
-    $stmt = $pdo->prepare('DELETE FROM products WHERE id = ?');
-    $stmt->execute([(int)$_POST['delete_id']]);
-    flash('success', 'Product deleted.');
-    redirect('/admin/products.php');
+$categories = $pdo->query('SELECT id, name FROM categories')->fetchAll();
+if ($action === 'edit' && !empty($_GET['id'])) {
+    $stmt = $pdo->prepare('SELECT * FROM products WHERE id = ?');
+    $stmt->execute([(int)$_GET['id']]);
+    $product = $stmt->fetch();
+    if ($product) {
+        $stmt = $pdo->prepare('SELECT file_path FROM products_video WHERE product_id = ? ORDER BY id DESC LIMIT 1');
+        $stmt->execute([(int)$product['id']]);
+        $product['video_path'] = $stmt->fetchColumn() ?: '';
+    }
 }
 $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON p.category = c.id ORDER BY p.id DESC')->fetchAll();
+require_once __DIR__ . '/_header.php';
 ?>
 <div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
     <div>
@@ -72,6 +102,7 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
                         <th class="px-6 py-4">Price</th>
                         <th class="px-6 py-4">Stock</th>
                         <th class="px-6 py-4">Best Seller</th>
+                        <th class="px-6 py-4">Video</th>
                         <th class="px-6 py-4">Actions</th>
                     </tr>
                 </thead>
@@ -89,6 +120,18 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
                                     <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">No</span>
                                 <?php endif; ?>
                             </td>
+                            <td class="px-6 py-4">
+                                <?php
+                                $stmt = $pdo->prepare('SELECT file_path FROM products_video WHERE product_id = ? ORDER BY id DESC LIMIT 1');
+                                $stmt->execute([(int)$item['id']]);
+                                $videoPath = $stmt->fetchColumn();
+                                ?>
+                                <?php if ($videoPath): ?>
+                                    <a href="<?= sanitize(resolveAssetUrl($videoPath)) ?>" target="_blank" class="text-emerald-700 underline">View</a>
+                                <?php else: ?>
+                                    <span class="text-slate-400">No</span>
+                                <?php endif; ?>
+                            </td>
                             <td class="px-6 py-4 space-x-2 flex">
                                 <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= BASE_URL ?>/admin/products.php?action=edit&id=<?= $item['id'] ?>">Edit</a>
                                 <form class="inline" method="post" onsubmit="return confirm('Delete this product?');">
@@ -99,7 +142,7 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
                         </tr>
                     <?php endforeach; ?>
                     <?php if (!$products): ?>
-                        <tr class="bg-white"><td colspan="6" class="px-6 py-8 text-center text-slate-500">Products not found.</td></tr>
+                        <tr class="bg-white"><td colspan="7" class="px-6 py-8 text-center text-slate-500">Products not found.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -129,12 +172,20 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
             </label>
             <label class="block text-sm font-medium text-slate-700">Main Image URL or Path<input name="images" value="<?= sanitize($product['images'] ?? '') ?>" placeholder="assets/images/products/example.jpg or https://..." class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
             <label class="block text-sm font-medium text-slate-700">Upload Main Image<input type="file" name="main_image_file" accept="image/png,image/jpeg,image/webp" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-900" /></label>
+            <label class="block text-sm font-medium text-slate-700">Product Video URL or Path<input name="video_path" value="<?= sanitize($product['video_path'] ?? '') ?>" placeholder="assets/videos/products/example.mp4 or https://..." class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>
+            <label class="block text-sm font-medium text-slate-700">Upload Product Video<input type="file" name="product_video_file" accept="video/mp4,video/webm,video/quicktime,video/x-m4v" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-900" /></label>
             <label class="block text-sm font-medium text-slate-700">Gallery URLs or Paths (comma separated)<textarea name="gallery" rows="2" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900"><?= sanitize(implode(', ', json_decode($product['gallery'] ?? '[]', true) ?: [])) ?></textarea></label>
             <label class="block text-sm font-medium text-slate-700">Upload Gallery Images<input type="file" name="gallery_files[]" accept="image/png,image/jpeg,image/webp" multiple class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-900" /></label>
             <?php if (!empty($product['images'])): ?>
                 <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
                     <p class="text-sm font-medium text-slate-700">Current main image</p>
                     <img src="<?= sanitize(resolveAssetUrl($product['images'])) ?>" alt="<?= sanitize($product['name'] ?? 'Product image') ?>" class="mt-3 h-28 w-full object-contain">
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($product['video_path'])): ?>
+                <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-sm font-medium text-slate-700">Current product video</p>
+                    <video src="<?= sanitize(resolveAssetUrl($product['video_path'])) ?>" class="mt-3 h-40 w-full rounded-2xl bg-black object-contain" muted controls playsinline></video>
                 </div>
             <?php endif; ?>
             <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Save Product</button>
