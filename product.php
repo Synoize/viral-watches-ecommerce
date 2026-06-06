@@ -168,7 +168,7 @@ $reviewUser = getCurrentUser();
     <?php if ($message = flash('error')): ?><div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($message) ?></div><?php endif; ?>
 
     <div class="mt-8 grid gap-10 lg:grid-cols-[520px_1fr] lg:items-start">
-        <div class="space-y-6 md:sticky md:top-40">
+        <div class="space-y-6 lg:sticky lg:top-40">
             <div class="relative overflow-hidden rounded-2xl bg-white shadow-sm">
                 <span class="absolute right-4 top-4 z-50">
                     <?= renderWishlistButton($product['id'], $isWished) ?>
@@ -202,6 +202,20 @@ $reviewUser = getCurrentUser();
                     <h1 class="mt-4 text-3xl md:text-4xl font-medium leading-tight text-slate-900">
                         <?= sanitize($product['name']) ?>
                     </h1>
+
+                    <div class="flex items-center gap-3 mt-4">
+
+                        <div class="flex gap-1 text-amber-500">
+                            <?php for ($star = 1; $star <= 5; $star++): ?>
+                                <i class="<?= $star <= round($reviewAverage) ? 'fa-solid' : 'fa-regular' ?> fa-star text-lg"></i>
+                            <?php endfor; ?>
+                        </div>
+
+                        <a href="#customer-reviews" class="text-lg font-serif text-[#222] hover:underline">
+                            <?= $reviewTotal ?> <?= $reviewTotal === 1 ? 'Review' : 'Reviews' ?>
+                        </a>
+
+                    </div>
                 </div>
 
                 <!-- Price -->
@@ -239,22 +253,19 @@ $reviewUser = getCurrentUser();
                 <div>
                     <?php if ($product['stock'] > 10): ?>
 
-                        <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
-                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="inline-flex items-center gap-2 rounded-full bg-black px-6 py-2 text-sm text-white">
                             Sale
                         </span>
 
                     <?php elseif ($product['stock'] > 0): ?>
 
-                        <span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">
-                            <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span class="inline-flex items-center rounded-full bg-amber-500 px-6 py-2 text-sm text-white">
                             Only <?= (int)$product['stock'] ?> left
                         </span>
 
                     <?php else: ?>
 
-                        <span class="inline-flex items-center gap-2 rounded-full bg-red-50 px-4 py-2 text-sm font-medium text-red-700">
-                            <span class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                        <span class="inline-flex items-center rounded-full bg-red-600 px-6 py-2 text-sm text-white">
                             Out of Stock
                         </span>
 
@@ -331,9 +342,9 @@ $reviewUser = getCurrentUser();
                     </div>
                 </div>
 
-                <section class="grid gap-5 sm:grid-cols-[180px_1fr] sm:items-end">
+                <div class="grid gap-5 sm:grid-cols-[180px_1fr] sm:items-end">
                     <div>
-                        <label class="text-lg font-medium text-slate-700 mr-2 md:mr-0">Quantity</label>
+                        <label class="text-lg text-slate-700 mr-2 md:mr-0">Quantity</label>
                         <div class="mt-4 inline-flex items-center overflow-hidden rounded-xl border border-slate-200 bg-white">
 
                             <button
@@ -373,18 +384,134 @@ $reviewUser = getCurrentUser();
                         <button type="submit" name="action" value="add_cart" class="inline-flex h-14 items-center justify-center bg-slate-200/90 px-6 text-sm font-semibold uppercase text-slate-900 hover:bg-slate-200" <?= $product['stock'] ? '' : 'disabled' ?>>Add to Cart</button>
                         <button type="submit" name="action" value="buy_now" class="inline-flex h-14 items-center justify-center bg-black/90 px-6 text-sm font-semibold uppercase text-white hover:bg-black" <?= $product['stock'] ? '' : 'disabled' ?>>Buy Now</button>
                     </div>
-                </section>
+                </div>
 
-                <p class="text-xs uppercase tracking-[0.35em] text-sky-700">Shipping days 4 to 7 days</p>
             </form>
 
+            <!-- Payment Icons -->
+            <div class="py-4">
+                <h3 class="text-lg text-slate-700">
+                    Secure Checkout With
+                </h3>
+
+                <div class="mt-4 flex flex-wrap gap-3">
+
+                    <!-- Mastercard -->
+                    <div class="group flex h-12 w-16 md:h-14 md:w-24 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
+                            alt="Mastercard"
+                            class="max-h-7 md:max-h-9 w-auto object-contain">
+                    </div>
+
+                    <!-- Paytm -->
+                    <div class="group flex h-12 w-16 md:h-14 md:w-24 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+                        <img src="https://i.ibb.co/RTDHZRbC/paytm-color-card.jpg"
+                            alt="Paytm"
+                            class="h-full w-full object-cover">
+                    </div>
+
+                    <!-- Visa -->
+                    <div class="group flex h-12 w-16 md:h-14 md:w-24 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+                        <img src="https://i.ibb.co/pjYkM62V/visa-1-color-card.jpg"
+                            alt="Visa"
+                            class="h-full w-full object-cover">
+                    </div>
+
+                    <!-- Google Pay -->
+                    <div class="group flex h-12 w-16 md:h-14 md:w-24 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg"
+                            alt="Google Pay"
+                            class="max-h-7 md:max-h-8 w-auto object-contain px-2">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="max-w-xl mx-auto p-5">
+
+                <div class="flex items-center justify-between gap-4">
+
+                    <!-- Ordered -->
+                    <div class="flex flex-col items-center text-center">
+                        <i data-lucide="shopping-bag" class="h-8 w-8 stroke-[1]"></i>
+
+                        <h4 class="mt-3 text-sm font-serif text-[#303030]">
+                            Ordered
+                        </h4>
+
+                        <p id="ordered-date" class="text-sm text-slate-700"></p>
+                    </div>
+
+                    <i data-lucide="chevron-right" class="h-6 w-6 stroke-[1] text-slate-500"></i>
+
+                    <!-- Ready -->
+                    <div class="flex flex-col items-center text-center">
+                        <i data-lucide="truck" class="h-8 w-8 stroke-[1]"></i>
+
+                        <h4 class="mt-3 text-sm font-serif text-[#303030]">
+                            Order Ready
+                        </h4>
+
+                        <p id="ready-date" class="text-sm text-slate-700"></p>
+                    </div>
+
+                    <i data-lucide="chevron-right" class="h-6 w-6 stroke-[1] text-slate-500"></i>
+
+                    <!-- Delivered -->
+                    <div class="flex flex-col items-center text-center">
+                        <i data-lucide="map-pin" class="h-8 w-8 stroke-[1]"></i>
+
+                        <h4 class="mt-3 text-sm font-serif text-[#303030]">
+                            Delivered
+                        </h4>
+
+                        <p id="delivery-date" class="text-sm text-slate-700"></p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <script>
+                function formatDate(date) {
+                    return date.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: '2-digit'
+                    });
+                }
+
+                const today = new Date();
+
+                const readyDate = new Date(today);
+                readyDate.setDate(today.getDate() + 1);
+
+                const deliveryStart = new Date(today);
+                deliveryStart.setDate(today.getDate() + 3);
+
+                const deliveryEnd = new Date(today);
+                deliveryEnd.setDate(today.getDate() + 4);
+
+                document.getElementById('ordered-date').textContent =
+                    formatDate(today);
+
+                document.getElementById('ready-date').textContent =
+                    formatDate(readyDate);
+
+                document.getElementById('delivery-date').textContent =
+                    formatDate(deliveryStart) + ' - ' + formatDate(deliveryEnd);
+
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            </script>
 
             <div class="space-y-3 rounded-xl border border bg-white p-6">
                 <details open class="group border-b pb-4">
-                    <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold uppercase tracking-[0.16em] text-slate-900">
+                    <summary class="flex cursor-pointer list-none items-center justify-between text-sm uppercase tracking-[0.16em] text-slate-900">
                         Product Description
                         <span class="transition duration-300 group-open:rotate-180">
-                            <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                            <i data-lucide="chevron-down" class="w-5 h-5 stroke-[1]"></i>
                         </span>
                     </summary>
                     <div class="pt-4 text-sm leading-6 text-slate-700">
@@ -393,27 +520,32 @@ $reviewUser = getCurrentUser();
                     </div>
                 </details>
 
-                <details class="group border-b pb-4">
-                    <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold uppercase tracking-[0.16em] text-slate-900">
-                        Exchange Policy
+                <details class="group border-b pt-2 pb-4">
+                    <summary class="flex cursor-pointer list-none items-center justify-between text-sm uppercase tracking-[0.16em] text-slate-900">
+                        Replacement policy
                         <span class="transition duration-300 group-open:rotate-180">
-                            <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                            <i data-lucide="chevron-down" class="w-5 h-5 stroke-[1]"></i>
                         </span>
                     </summary>
                     <div class="pt-4 text-sm leading-6 text-slate-700">
-                        Eligible exchange requests can be raised within 48 hours of delivery if the product is unused and in original packaging.
+                        Please note that we do not offer returns on any products. Replacement is only available if the product is damaged from our side.
+                        <br>
+                        To request a replacement in case of damage:
+                        You must record a proper unboxing video while opening the package for the first time and send on Whatsapp. The video should clearly show the sealed package, the opening process, and the product condition. Replacement requests without an unboxing video will not be accepted.
                     </div>
                 </details>
 
-                <details class="group">
-                    <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold uppercase tracking-[0.16em] text-slate-900">
-                        Return Policy
+                <details class="group pt-2">
+                    <summary class="flex cursor-pointer list-none items-center justify-between text-sm uppercase tracking-[0.16em] text-slate-900">
+                        Box Policy
                         <span class="transition duration-300 group-open:rotate-180">
-                            <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                            <i data-lucide="chevron-down" class="w-5 h-5 stroke-[1]"></i>
                         </span>
                     </summary>
                     <div class="pt-4 text-sm leading-6 text-slate-700">
-                        Returns are accepted only for damaged or incorrect items. Contact support with product photos and the order number.
+                        Standard packaging: Every watch is shipped in a secure, high-quality protective box suitable for safe delivery. This is included with every order at no extra cost.
+                        <br>
+                        Original / Brand box: Extra charges apply if an original or brand box is available for your selected watch. The extra fee will be shown at checkout. If the charge can't be displayed automatically, our team will confirm the box option and additional charges before shipping.
                     </div>
                 </details>
             </div>
@@ -426,11 +558,11 @@ $reviewUser = getCurrentUser();
             <?php if ($reviewTotal > 0): ?>
                 <button
                     type="button"
-                    class="open-review-modal inline-flex items-center gap-2 text-sm font-medium text-slate-900 hover:text-black transition-colors">
+                    class="open-review-modal inline-flex items-center gap-2 text-sm text-slate-900 hover:text-black transition-colors">
 
-                    <i data-lucide="pencil-line" class="w-4 h-4 stroke-[1.75]"></i>
+                    <i data-lucide="pencil-line" class="w-4 h-4 stroke-[1]"></i>
 
-                    <span>Write a Review</span>
+                    Write a Review
 
                 </button>
             <?php endif; ?>
@@ -488,10 +620,26 @@ $reviewUser = getCurrentUser();
 
                         <!-- Review Image -->
                         <?php if ($reviewImages): ?>
-                            <img
-                                src="<?= sanitize(resolveAssetUrl($reviewImages[0])) ?>"
-                                alt="<?= sanitize($review['name']) ?> review image"
-                                class="w-full aspect-[4/5] object-cover">
+                            <?php
+                            $reviewImageUrls = array_map('resolveAssetUrl', $reviewImages);
+                            $reviewImageJson = json_encode($reviewImageUrls, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+                            ?>
+                            <button
+                                type="button"
+                                class="review-gallery-open relative block w-full overflow-hidden"
+                                data-images='<?= sanitize($reviewImageJson) ?>'
+                                data-index="0"
+                                aria-label="Open review images">
+                                <img
+                                    src="<?= sanitize($reviewImageUrls[0]) ?>"
+                                    alt="<?= sanitize($review['name']) ?> review image"
+                                    class="w-full aspect-[4/5] object-cover transition duration-300 hover:scale-105">
+                                <?php if (count($reviewImageUrls) > 1): ?>
+                                    <span class="absolute bottom-2 right-2 rounded-full bg-black/70 px-2 py-1 text-xs font-medium text-white">
+                                        1/<?= count($reviewImageUrls) ?>
+                                    </span>
+                                <?php endif; ?>
+                            </button>
                         <?php else: ?>
                             <div class="aspect-[4/5] flex items-center justify-center bg-slate-50 text-slate-400">
                                 <i class="fa-regular fa-image text-4xl"></i>
@@ -599,6 +747,25 @@ $reviewUser = getCurrentUser();
                 <p class="text-xs text-slate-500">Reviews are published after admin approval.</p>
             </form>
         </div>
+    </div>
+
+    <div id="review-gallery-modal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/90 px-4 py-6">
+        <button type="button" class="close-review-gallery absolute right-5 top-5 z-20 text-white/80 hover:text-white" aria-label="Close review images">
+            <i data-lucide="x" class="h-8 w-8 stroke-[1]"></i>
+        </button>
+
+        <button type="button" id="review-gallery-prev" class="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur hover:bg-white/25 md:left-8" aria-label="Previous review image">
+            <i data-lucide="chevron-left" class="h-7 w-7 stroke-[1]"></i>
+        </button>
+
+        <figure class="relative flex max-h-[88vh] w-full max-w-5xl flex-col items-center justify-center gap-4">
+            <img id="review-gallery-image" src="" alt="Review image" class="max-h-[78vh] max-w-full object-contain rounded">
+            <figcaption id="review-gallery-count" class="rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white"></figcaption>
+        </figure>
+
+        <button type="button" id="review-gallery-next" class="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur hover:bg-white/25 md:right-8" aria-label="Next review image">
+            <i data-lucide="chevron-right" class="h-7 w-7 stroke-[1]"></i>
+        </button>
     </div>
 
     <div class="pt-10 md:pt-20 md:pb-14">
@@ -813,6 +980,13 @@ $reviewUser = getCurrentUser();
             const reviewModal = document.getElementById('review-modal');
             const openReviewButtons = document.querySelectorAll('.open-review-modal');
             const closeReviewButtons = document.querySelectorAll('.close-review-modal');
+            const reviewGalleryModal = document.getElementById('review-gallery-modal');
+            const reviewGalleryImage = document.getElementById('review-gallery-image');
+            const reviewGalleryCount = document.getElementById('review-gallery-count');
+            const reviewGalleryPrev = document.getElementById('review-gallery-prev');
+            const reviewGalleryNext = document.getElementById('review-gallery-next');
+            let reviewGalleryImages = [];
+            let reviewGalleryIndex = 0;
 
             function openReviewModal() {
                 if (!reviewModal) return;
@@ -828,13 +1002,83 @@ $reviewUser = getCurrentUser();
                 document.body.classList.remove('overflow-hidden');
             }
 
+            function renderReviewGallery() {
+                if (!reviewGalleryImage || !reviewGalleryImages.length) return;
+                reviewGalleryIndex = (reviewGalleryIndex + reviewGalleryImages.length) % reviewGalleryImages.length;
+                reviewGalleryImage.src = reviewGalleryImages[reviewGalleryIndex];
+                reviewGalleryCount.textContent = `${reviewGalleryIndex + 1}/${reviewGalleryImages.length}`;
+                const hasMany = reviewGalleryImages.length > 1;
+                reviewGalleryPrev.classList.toggle('hidden', !hasMany);
+                reviewGalleryNext.classList.toggle('hidden', !hasMany);
+            }
+
+            function openReviewGallery(images, index = 0) {
+                if (!reviewGalleryModal || !images.length) return;
+                reviewGalleryImages = images;
+                reviewGalleryIndex = index;
+                renderReviewGallery();
+                reviewGalleryModal.classList.remove('hidden');
+                reviewGalleryModal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+            }
+
+            function closeReviewGallery() {
+                if (!reviewGalleryModal) return;
+                reviewGalleryModal.classList.add('hidden');
+                reviewGalleryModal.classList.remove('flex');
+                reviewGalleryImages = [];
+                reviewGalleryIndex = 0;
+                if (reviewGalleryImage) reviewGalleryImage.src = '';
+                if (reviewModal?.classList.contains('hidden')) {
+                    document.body.classList.remove('overflow-hidden');
+                }
+            }
+
             openReviewButtons.forEach((button) => button.addEventListener('click', openReviewModal));
             closeReviewButtons.forEach((button) => button.addEventListener('click', closeReviewModal));
             reviewModal?.addEventListener('click', (event) => {
                 if (event.target === reviewModal) closeReviewModal();
             });
+            document.querySelectorAll('.review-gallery-open').forEach((button) => {
+                button.addEventListener('click', () => {
+                    let images = [];
+                    try {
+                        images = JSON.parse(button.dataset.images || '[]');
+                    } catch (error) {
+                        images = [];
+                    }
+                    openReviewGallery(images, Number(button.dataset.index || 0));
+                });
+            });
+            document.querySelectorAll('.close-review-gallery').forEach((button) => button.addEventListener('click', closeReviewGallery));
+            reviewGalleryModal?.addEventListener('click', (event) => {
+                if (event.target === reviewGalleryModal) closeReviewGallery();
+            });
+            reviewGalleryPrev?.addEventListener('click', () => {
+                reviewGalleryIndex -= 1;
+                renderReviewGallery();
+            });
+            reviewGalleryNext?.addEventListener('click', () => {
+                reviewGalleryIndex += 1;
+                renderReviewGallery();
+            });
             document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape') closeReviewModal();
+                const galleryOpen = reviewGalleryModal && !reviewGalleryModal.classList.contains('hidden');
+                if (event.key === 'Escape') {
+                    if (galleryOpen) {
+                        closeReviewGallery();
+                    } else {
+                        closeReviewModal();
+                    }
+                }
+                if (galleryOpen && event.key === 'ArrowLeft') {
+                    reviewGalleryIndex -= 1;
+                    renderReviewGallery();
+                }
+                if (galleryOpen && event.key === 'ArrowRight') {
+                    reviewGalleryIndex += 1;
+                    renderReviewGallery();
+                }
             });
 
             document.querySelectorAll('.review-form').forEach((reviewForm) => {

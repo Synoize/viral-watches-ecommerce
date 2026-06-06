@@ -416,32 +416,32 @@ function openModal(index) {
 
 function closeModal() {
 
-    modal.classList.add("hidden");
+  modal.classList.add("hidden");
 
-    document.body.classList.remove("overflow-hidden");
+  document.body.classList.remove("overflow-hidden");
 
-    isMuted = true;
+  isMuted = true;
 
-    if (mainVideo) {
-      mainVideo.muted = true;
-    }
+  if (mainVideo) {
+    mainVideo.muted = true;
+  }
 
-    if (soundToggle) {
-      soundToggle.innerHTML =
-        '<i data-lucide="volume-x" class="h-6 w-6 stroke-[1]"></i>';
-    }
+  if (soundToggle) {
+    soundToggle.innerHTML =
+      '<i data-lucide="volume-x" class="h-6 w-6 stroke-[1]"></i>';
+  }
 
-    lucide.createIcons();
+  lucide.createIcons();
 
-    [mainVideo, prevVideo, nextVideo].forEach(video => {
+  [mainVideo, prevVideo, nextVideo].forEach(video => {
 
-        if (!video) return;
+    if (!video) return;
 
-        video.pause();
-        video.removeAttribute("src");
-        video.load();
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
 
-    });
+  });
 }
 
 /* -----------------------------
@@ -449,15 +449,15 @@ function closeModal() {
 ------------------------------ */
 soundToggle?.addEventListener("click", () => {
 
-    if (!mainVideo) return;
+  if (!mainVideo) return;
 
-    mainVideo.muted = !mainVideo.muted;
+  mainVideo.muted = !mainVideo.muted;
 
-    soundToggle.innerHTML = mainVideo.muted
-        ? '<i data-lucide="volume-x" class="h-6 w-6 stroke-[1]"></i>'
-        : '<i data-lucide="volume-2" class="h-6 w-6 stroke-[1]"></i>';
+  soundToggle.innerHTML = mainVideo.muted
+    ? '<i data-lucide="volume-x" class="h-6 w-6 stroke-[1]"></i>'
+    : '<i data-lucide="volume-2" class="h-6 w-6 stroke-[1]"></i>';
 
-    lucide.createIcons();
+  lucide.createIcons();
 
 });
 
@@ -602,4 +602,37 @@ if (cards.length && modal) {
 
   });
 
+}
+
+
+// get dates for order, ready and delivery
+function formatDate(date) {
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: '2-digit'
+  });
+}
+
+const today = new Date();
+
+const readyDate = new Date(today);
+readyDate.setDate(today.getDate() + 1);
+
+const deliveryStart = new Date(today);
+deliveryStart.setDate(today.getDate() + 3);
+
+const deliveryEnd = new Date(today);
+deliveryEnd.setDate(today.getDate() + 4);
+
+document.getElementById('ordered-date').textContent =
+  formatDate(today);
+
+document.getElementById('ready-date').textContent =
+  formatDate(readyDate);
+
+document.getElementById('delivery-date').textContent =
+  formatDate(deliveryStart) + ' - ' + formatDate(deliveryEnd);
+
+if (typeof lucide !== 'undefined') {
+  lucide.createIcons();
 }

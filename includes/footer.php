@@ -69,42 +69,33 @@
 
                     <div class="flex flex-wrap gap-2">
 
-                        <!-- CARD -->
-                        <div class="bg-white border border-[#ddd] rounded-md
-              w-[50px] h-[35px]
-              md:w-[70px] md:h-[50px]
-              flex items-center justify-center">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt=""
-                                class="w-[30px] md:w-[45px]" />
+                        <!-- Mastercard -->
+                        <div class="group flex h-12 w-16 md:h-14 md:w-24 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
+                                alt="Mastercard"
+                                class="max-h-7 md:max-h-9 w-auto object-contain">
                         </div>
 
-                        <!-- CARD -->
-                        <div class="bg-white border border-[#ddd] rounded-md
-              w-[50px] h-[35px]
-              md:w-[70px] md:h-[50px]
-              flex items-center justify-center">
-                            <img src="https://i.ibb.co/RTDHZRbC/paytm-color-card.jpg" alt=""
-                                class="w-[35px] md:w-[70px] md:h-[49px]" />
+                        <!-- Paytm -->
+                        <div class="group flex h-12 w-16 md:h-14 md:w-24 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+                            <img src="https://i.ibb.co/RTDHZRbC/paytm-color-card.jpg"
+                                alt="Paytm"
+                                class="h-full w-full object-cover">
                         </div>
 
-                        <!-- CARD -->
-                        <div class="bg-white border border-[#ddd] rounded-md
-              w-[50px] h-[35px]
-              md:w-[70px] md:h-[50px]
-              flex items-center justify-center">
-                            <img src="https://i.ibb.co/pjYkM62V/visa-1-color-card.jpg" alt=""
-                                class="w-[40px] md:w-[70px] md:h-[49px]" />
+                        <!-- Visa -->
+                        <div class="group flex h-12 w-16 md:h-14 md:w-24 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+                            <img src="https://i.ibb.co/pjYkM62V/visa-1-color-card.jpg"
+                                alt="Visa"
+                                class="h-full w-full object-cover">
                         </div>
 
-                        <!-- CARD -->
-                        <div class="bg-white border border-[#ddd] rounded-md
-              w-[50px] h-[35px]
-              md:w-[70px] md:h-[50px]
-              flex items-center justify-center">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt=""
-                                class="w-[18px] md:w-[24px]" />
+                        <!-- Google Pay -->
+                        <div class="group flex h-12 w-16 md:h-14 md:w-24 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg"
+                                alt="Google Pay"
+                                class="max-h-7 md:max-h-8 w-auto object-contain px-2">
                         </div>
-
                     </div>
 
                 </div>

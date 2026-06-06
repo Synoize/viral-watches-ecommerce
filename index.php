@@ -518,25 +518,25 @@ if ($wishlistLookupIds) {
 
         <!-- First Set -->
         <div class="flex items-center gap-7 md:gap-20 px-6 md:px-8 shrink-0">
-            <img src="<?= BASE_URL ?>/assets/images/brands/arma.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/rado.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/2.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/3.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/4.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/5.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/6.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/arma.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/rado.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/2.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/3.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/4.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/5.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/6.png" class="h-22 md:h-16 w-auto py-4" alt="">
 
         </div>
 
         <!-- Duplicate Set -->
         <div class="flex items-center gap-7 md:gap-20  px-6 md:px-8 shrink-0">
-            <img src="<?= BASE_URL ?>/assets/images/brands/arma.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/rado.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/2.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/ca.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/4.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/5.png" class="h-25 md:h-24 w-auto py-4" alt="">
-            <img src="<?= BASE_URL ?>/assets/images/brands/6.png" class="h-25 md:h-24 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/arma.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/rado.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/2.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/ca.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/4.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/5.png" class="h-22 md:h-16 w-auto py-4" alt="">
+            <img src="<?= BASE_URL ?>/assets/images/brands/6.png" class="h-22 md:h-16 w-auto py-4" alt="">
 
         </div>
 
