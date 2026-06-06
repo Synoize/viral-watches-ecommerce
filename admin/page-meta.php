@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $items = $pdo->query('SELECT * FROM page_meta ORDER BY path')->fetchAll();
 require_once __DIR__ . '/_header.php';
 ?>
-<div class="grid gap-6 xl:grid-cols-[2fr_1fr]">
+<div class="grid gap-6 xl:grid-cols-[68%_30%]">
     <div>
         <h2 class="text-2xl font-semibold text-slate-900">Page Titles & Descriptions</h2>
         <?php if ($msg = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($msg) ?></div><?php endif; ?>
@@ -74,8 +74,8 @@ require_once __DIR__ . '/_header.php';
                                 <p class="mt-1 text-xs text-slate-500"><?= sanitize($item['path']) ?> / <?= sanitize($item['page_key']) ?></p>
                             </td>
                             <td class="px-6 py-4">
-                                <p class="max-w-[360px] truncate font-medium text-slate-900"><?= sanitize($item['title']) ?></p>
-                                <p class="mt-1 max-w-[420px] truncate text-xs text-slate-500"><?= sanitize($item['description'] ?? '') ?></p>
+                                <p class="max-w-[280px] truncate font-medium text-slate-900"><?= sanitize($item['title']) ?></p>
+                                <p class="mt-1 max-w-[280px] truncate text-xs text-slate-500"><?= sanitize($item['description'] ?? '') ?></p>
                             </td>
                             <td class="px-6 py-4">
                                 <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold <?= $item['is_active'] ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600' ?>">

@@ -401,6 +401,158 @@ function getWishlistCount($userId = null) {
     return (int)$stmt->fetchColumn();
 }
 
+function ensureProductReviewsTableExists() {
+    global $pdo;
+
+    try {
+        $pdo->exec(
+            "CREATE TABLE IF NOT EXISTS product_reviews (
+                id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                product_id INT NOT NULL,
+                user_id INT DEFAULT NULL,
+                name VARCHAR(120) NOT NULL,
+                email VARCHAR(150) DEFAULT NULL,
+                rating TINYINT UNSIGNED NOT NULL,
+                comment TEXT NOT NULL,
+                image LONGTEXT DEFAULT NULL,
+                status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+                is_verified_purchase TINYINT(1) NOT NULL DEFAULT 0,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+                KEY idx_product_reviews_product_status (product_id, status),
+                KEY idx_product_reviews_status (status),
+                FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        );
+        $columns = $pdo->query('SHOW COLUMNS FROM product_reviews')->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($columns as $column) {
+            if (($column['Field'] ?? '') === 'image' && stripos($column['Type'] ?? '', 'text') === false) {
+                $pdo->exec('ALTER TABLE product_reviews MODIFY image LONGTEXT DEFAULT NULL');
+                break;
+            }
+        }
+        return true;
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
+function getReviewImages($value) {
+    $value = trim((string)$value);
+    if ($value === '') return [];
+
+    $decoded = json_decode($value, true);
+    if (is_array($decoded)) {
+        return array_values(array_filter(array_map('trim', $decoded)));
+    }
+
+    return [$value];
+}
+
+function hasUserPurchasedProduct($userId, $productId) {
+    global $pdo;
+    $userId = (int)$userId;
+    $productId = (int)$productId;
+    if ($userId <= 0 || $productId <= 0) return false;
+
+    $stmt = $pdo->prepare(
+        "SELECT COUNT(*)
+         FROM orders o
+         INNER JOIN order_items oi ON oi.order_id = o.id
+         WHERE o.user_id = ?
+           AND oi.product_id = ?
+           AND (o.payment_status IN ('Paid', 'Success', 'Completed') OR o.status IN ('Delivered', 'Completed'))"
+    );
+    $stmt->execute([$userId, $productId]);
+    return (int)$stmt->fetchColumn() > 0;
+}
+
+function createProductReview($productId, $data, $userId = null) {
+    global $pdo;
+    if (!ensureProductReviewsTableExists()) {
+        return ['error' => 'Reviews are not available right now.'];
+    }
+
+    $productId = (int)$productId;
+    $rating = (int)($data['rating'] ?? 0);
+    $name = trim((string)($data['name'] ?? ''));
+    $email = trim((string)($data['email'] ?? ''));
+    $comment = trim((string)($data['comment'] ?? ''));
+    $imageData = $data['image'] ?? '';
+    $images = is_array($imageData)
+        ? array_slice(array_values(array_filter(array_map('trim', $imageData))), 0, 3)
+        : getReviewImages($imageData);
+    $image = $images ? json_encode($images) : '';
+    $userId = $userId ? (int)$userId : null;
+
+    if ($productId <= 0 || $rating < 1 || $rating > 5 || $name === '' || $comment === '') {
+        return ['error' => 'Please add your name, rating, and review.'];
+    }
+    $commentLength = function_exists('mb_strlen') ? mb_strlen($comment) : strlen($comment);
+    if ($commentLength > 2000) {
+        return ['error' => 'Review must be 2000 characters or less.'];
+    }
+    if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return ['error' => 'Please enter a valid email address.'];
+    }
+
+    $isVerifiedPurchase = $userId ? (hasUserPurchasedProduct($userId, $productId) ? 1 : 0) : 0;
+    $stmt = $pdo->prepare(
+        'INSERT INTO product_reviews (product_id, user_id, name, email, rating, comment, image, status, is_verified_purchase)
+         VALUES (?, ?, ?, ?, ?, ?, ?, "pending", ?)'
+    );
+    $stmt->execute([$productId, $userId, $name, $email ?: null, $rating, $comment, $image ?: null, $isVerifiedPurchase]);
+
+    return ['success' => true];
+}
+
+function getApprovedProductReviews($productId, $limit = 20) {
+    global $pdo;
+    if (!ensureProductReviewsTableExists()) return [];
+
+    $stmt = $pdo->prepare(
+        'SELECT *
+         FROM product_reviews
+         WHERE product_id = ? AND status = "approved"
+         ORDER BY created_at DESC
+         LIMIT ' . max(1, (int)$limit)
+    );
+    $stmt->execute([(int)$productId]);
+    return $stmt->fetchAll();
+}
+
+function getApprovedProductReviewSummary($productId) {
+    global $pdo;
+    $summary = ['total' => 0, 'average' => 0, 'distribution' => [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0]];
+    if (!ensureProductReviewsTableExists()) return $summary;
+
+    $stmt = $pdo->prepare(
+        'SELECT rating, COUNT(*) AS total
+         FROM product_reviews
+         WHERE product_id = ? AND status = "approved"
+         GROUP BY rating'
+    );
+    $stmt->execute([(int)$productId]);
+
+    $sum = 0;
+    foreach ($stmt->fetchAll() as $row) {
+        $rating = (int)$row['rating'];
+        $count = (int)$row['total'];
+        if (isset($summary['distribution'][$rating])) {
+            $summary['distribution'][$rating] = $count;
+            $summary['total'] += $count;
+            $sum += $rating * $count;
+        }
+    }
+
+    if ($summary['total'] > 0) {
+        $summary['average'] = round($sum / $summary['total'], 1);
+    }
+
+    return $summary;
+}
+
 function getWishlistProductIds($productIds = [], $userId = null) {
     global $pdo;
     $userId = $userId ?: ($_SESSION['user_id'] ?? 0);

@@ -105,11 +105,11 @@ require_once __DIR__ . '/_header.php';
 
                     <thead class="bg-slate-100 text-slate-600">
                         <tr>
-                            <th class="px-6 py-4">Desktop</th>
-                            <th class="px-6 py-4">Mobile</th>
-                            <th class="px-6 py-4">Order</th>
-                            <th class="px-6 py-4">Status</th>
-                            <th class="px-6 py-4 text-right">Actions</th>
+                            <th class="px-2 py-4">Desktop</th>
+                            <th class="px-2 py-4">Mobile</th>
+                            <th class="px-2 py-4">Order</th>
+                            <th class="px-2 py-4">Status</th>
+                            <th class="px-2 py-4 text-center">Actions</th>
                         </tr>
                     </thead>
 
@@ -119,7 +119,7 @@ require_once __DIR__ . '/_header.php';
 
                             <tr class="border-t border-slate-200 bg-white">
 
-                                <td class="px-6 py-4">
+                                <td class="px-2 py-4">
                                     <div class="flex items-center gap-3">
 
                                         <div class="flex h-16 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50">
@@ -129,14 +129,14 @@ require_once __DIR__ . '/_header.php';
                                                 class="h-14 w-20 rounded-lg object-cover">
                                         </div>
 
-                                        <p class="max-w-[120px] truncate text-xs text-slate-500">
+                                        <p class="max-w-[140px] truncate text-xs text-slate-500">
                                             <?= sanitize($item['file_path']) ?>
                                         </p>
 
                                     </div>
                                 </td>
 
-                                <td class="px-6 py-4">
+                                <td class="px-2 py-4">
                                     <?php if (!empty($item['mobile_file_path'])): ?>
 
                                         <div class="flex items-center gap-3">
@@ -148,7 +148,7 @@ require_once __DIR__ . '/_header.php';
                                                     class="h-14 w-10 rounded-lg object-cover">
                                             </div>
 
-                                            <p class="max-w-[120px] truncate text-xs text-slate-500">
+                                            <p class="max-w-[140px] truncate text-xs text-slate-500">
                                                 <?= sanitize($item['mobile_file_path']) ?>
                                             </p>
 
@@ -163,11 +163,11 @@ require_once __DIR__ . '/_header.php';
                                     <?php endif; ?>
                                 </td>
 
-                                <td class="px-6 py-4 font-medium text-slate-700">
+                                <td class="px-2 py-4 font-medium text-slate-700">
                                     <?= (int)$item['sort_order'] ?>
                                 </td>
 
-                                <td class="px-6 py-4">
+                                <td class="px-2 py-4">
                                     <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold <?= $item['is_active'] ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600' ?>">
                                         <?= $item['is_active'] ? 'Active' : 'Inactive' ?>
                                     </span>

@@ -5,19 +5,6 @@ $stmt = $pdo->prepare('SELECT p.*, c.name AS category_name FROM products p LEFT 
 $stmt->execute([$id]);
 $product = $stmt->fetch();
 
-$relStmt = $pdo->prepare('
-    SELECT id, name, price, offer_price, stock, images, gallery
-    FROM products
-    WHERE category = ? AND id != ?
-    LIMIT 4
-');
-$relStmt->execute([$product['category'], $product['id']]);
-$related = $relStmt->fetchAll();
-
-$relatedWishlistIds = $related
-    ? getWishlistProductIds(array_map('intval', array_column($related, 'id')))
-    : [];
-
 if (!$product) {
     $pageMetaOverrides = [
         'title' => 'Products not found | ShopMaster',
@@ -48,10 +35,66 @@ if (!$product) {
     exit;
 }
 
+$relStmt = $pdo->prepare('
+    SELECT id, name, price, offer_price, stock, images, gallery
+    FROM products
+    WHERE category = ? AND id != ?
+    LIMIT 4
+');
+$relStmt->execute([$product['category'], $product['id']]);
+$related = $relStmt->fetchAll();
+
+$relatedWishlistIds = $related
+    ? getWishlistProductIds(array_map('intval', array_column($related, 'id')))
+    : [];
+
 $gallery = json_decode($product['gallery'], true) ?: [];
 $boxOptions = getActiveBoxOptions();
 $defaultBox = $boxOptions[0] ?? null;
 $productMaxQuantity = max(1, min(10, (int)$product['stock']));
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submit_review') {
+    if (!checkCsrfToken($_POST['csrf_token'] ?? '')) {
+        flash('error', 'Invalid review request. Please try again.');
+        redirect('/product.php?id=' . $id . '#customer-reviews');
+    }
+
+    $reviewImages = [];
+    $reviewUploads = normalizeMultipleUploads($_FILES['review_images'] ?? []);
+    if (count($reviewUploads) > 3) {
+        flash('error', 'You can upload up to 3 review photos.');
+        redirect('/product.php?id=' . $id . '#customer-reviews');
+    }
+
+    foreach ($reviewUploads as $uploadFile) {
+        $reviewUpload = saveAdminImageUpload($uploadFile, 'reviews', 'product-review');
+        if (!empty($reviewUpload['error'])) {
+            deleteLocalAssetsIfUnused($reviewImages);
+            flash('error', $reviewUpload['error']);
+            redirect('/product.php?id=' . $id . '#customer-reviews');
+        }
+        if (!empty($reviewUpload['path'])) {
+            $reviewImages[] = $reviewUpload['path'];
+        }
+    }
+
+    $currentReviewUser = getCurrentUser();
+    $reviewResult = createProductReview($id, [
+        'name' => $_POST['review_name'] ?? ($currentReviewUser['name'] ?? ''),
+        'email' => $_POST['review_email'] ?? ($currentReviewUser['email'] ?? ''),
+        'rating' => $_POST['rating'] ?? 0,
+        'comment' => $_POST['comment'] ?? '',
+        'image' => $reviewImages,
+    ], $currentReviewUser['id'] ?? null);
+
+    if (!empty($reviewResult['error'])) {
+        deleteLocalAssetsIfUnused($reviewImages);
+        flash('error', $reviewResult['error']);
+    } else {
+        flash('success', 'Thank you. Your review was submitted and will appear after admin approval.');
+    }
+    redirect('/product.php?id=' . $id . '#customer-reviews');
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quantity'])) {
     if ((int)$product['stock'] <= 0) {
@@ -112,6 +155,12 @@ $pageMetaOverrides = [
     ],
 ];
 $isWished = isProductInWishlist($product['id']);
+$reviewSummary = getApprovedProductReviewSummary($product['id']);
+$approvedReviews = getApprovedProductReviews($product['id']);
+$reviewTotal = (int)$reviewSummary['total'];
+$reviewAverage = (float)$reviewSummary['average'];
+$reviewDistribution = $reviewSummary['distribution'];
+$reviewUser = getCurrentUser();
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 <div class="mx-auto max-w-[1400px] px-4 py-10 md:px-10">
@@ -371,6 +420,187 @@ $isWished = isProductInWishlist($product['id']);
         </div>
     </div>
 
+    <section id="customer-reviews" class="pt-12 md:pt-20">
+        <div class="flex items-start justify-between gap-6">
+            <h2 class="text-[30px] md:text-[40px] leading-none font-serif text-[#303030]">Customer Reviews</h2>
+            <?php if ($reviewTotal > 0): ?>
+                <button
+                    type="button"
+                    class="open-review-modal inline-flex items-center gap-2 text-sm font-medium text-slate-900 hover:text-black transition-colors">
+
+                    <i data-lucide="pencil-line" class="w-4 h-4 stroke-[1.75]"></i>
+
+                    <span>Write a Review</span>
+
+                </button>
+            <?php endif; ?>
+        </div>
+
+        <?php if ($reviewTotal > 0): ?>
+            <div class="mt-8 grid gap-8 md:grid-cols-[220px_1fr] md:items-center">
+                <div class="text-center md:border-r md:border-slate-200 md:pr-8">
+                    <p class="text-5xl font-semibold text-slate-950"><?= number_format($reviewAverage, 1) ?></p>
+                    <div class="mt-4 flex justify-center gap-1 text-amber-500">
+                        <?php for ($star = 1; $star <= 5; $star++): ?>
+                            <i class="<?= $star <= round($reviewAverage) ? 'fa-solid' : 'fa-regular' ?> fa-star"></i>
+                        <?php endfor; ?>
+                    </div>
+                    <p class="mt-4 text-sm text-slate-600"><?= $reviewTotal ?> <?= $reviewTotal === 1 ? 'review' : 'reviews' ?></p>
+                </div>
+
+                <div class="space-y-3">
+                    <?php foreach ([5, 4, 3, 2, 1] as $ratingRow): ?>
+                        <?php
+                        $ratingCount = (int)($reviewDistribution[$ratingRow] ?? 0);
+                        $ratingPercent = $reviewTotal > 0 ? min(100, round(($ratingCount / $reviewTotal) * 100)) : 0;
+                        ?>
+                        <div class="grid grid-cols-[54px_1fr_28px] items-center gap-3 text-sm text-slate-700">
+                            <span><?= $ratingRow ?> Star</span>
+                            <span class="h-2 overflow-hidden rounded-full bg-slate-200">
+                                <span class="block h-full rounded-full bg-amber-500" style="width: <?= $ratingPercent ?>%"></span>
+                            </span>
+                            <span class="text-slate-900"><?= $ratingCount ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="flex min-h-[40vh] flex-col items-center justify-center py-12 text-center">
+                <div class="flex justify-center gap-1 text-2xl text-slate-300">
+                    <?php for ($star = 1; $star <= 5; $star++): ?>
+                        <i class="fa-solid fa-star"></i>
+                    <?php endfor; ?>
+                </div>
+                <p class="mt-3 font-serif text-2xl text-slate-950">There are no reviews yet.</p>
+                <button type="button" class="open-review-modal inline-block mt-8 border border-black px-8 py-3 text-sm tracking-widest uppercase hover:bg-black hover:text-white transition">
+                    Write a review
+                </button>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($approvedReviews): ?>
+            <div class="mt-12 grid gap-6 grid-cols-3 sm:grid-cols-5 lg:grid-cols-6">
+
+                <?php foreach ($approvedReviews as $review): ?>
+                    <?php $reviewImages = getReviewImages($review['image'] ?? ''); ?>
+
+                    <article class="overflow-hidden">
+
+                        <!-- Review Image -->
+                        <?php if ($reviewImages): ?>
+                            <img
+                                src="<?= sanitize(resolveAssetUrl($reviewImages[0])) ?>"
+                                alt="<?= sanitize($review['name']) ?> review image"
+                                class="w-full aspect-[4/5] object-cover">
+                        <?php else: ?>
+                            <div class="aspect-[4/5] flex items-center justify-center bg-slate-50 text-slate-400">
+                                <i class="fa-regular fa-image text-4xl"></i>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Content -->
+                        <div class="py-4 px-2">
+
+                            <!-- Rating -->
+                            <div class="flex gap-1 text-[#f4a300] text-sm md:text-lg mb-2">
+                                <?php for ($star = 1; $star <= 5; $star++): ?>
+                                    <i class="<?= $star <= (int)$review['rating'] ? 'fa-solid' : 'fa-regular' ?> fa-star"></i>
+                                <?php endfor; ?>
+                            </div>
+
+                            <!-- Name -->
+                            <h3 class="mt-2 text-base font-serif text-black">
+                                <?= sanitize($review['name']) ?>
+                            </h3>
+
+                            <!-- Verified Purchase -->
+                            <?php if (!empty($review['is_verified_purchase'])): ?>
+                                <div class="mt-1 flex items-center gap-1.5 text-xs text-slate-600">
+                                    <i class="fa-solid fa-circle-check text-[11px]"></i>
+                                    <span>Verified purchase</span>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Review Text -->
+                            <p class="mt-1 text-sm leading-6 font-serif text-slate-700 line-clamp-3">
+                                <?= nl2br(sanitize($review['comment'])) ?>
+                            </p>
+
+                            <!-- Date -->
+                            <p class="mt-1 text-xs text-slate-400 font-serif">
+                                <?= date('d M Y', strtotime($review['created_at'])) ?>
+                            </p>
+
+                        </div>
+
+                    </article>
+
+                <?php endforeach; ?>
+
+            </div>
+        <?php endif; ?>
+    </section>
+
+    <div id="review-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/50 px-4 py-6">
+        <div class="relative max-h-[84vh] w-full max-w-lg overflow-y-auto bg-white p-6 rounded shadow-2xl md:p-8">
+            <button type="button" class="close-review-modal absolute right-4 top-4 text-slate-500 hover:text-slate-950" aria-label="Close review form">
+                <i data-lucide="x" class="h-6 w-6 stroke-[1]"></i>
+            </button>
+
+            <h2 class="pr-10 font-serif text-3xl text-slate-950">Write a review</h2>
+            <form method="post" enctype="multipart/form-data" class="review-form mt-6 space-y-5">
+                <input type="hidden" name="action" value="submit_review">
+                <input type="hidden" name="csrf_token" value="<?= sanitize($csrfToken) ?>">
+                <input type="hidden" name="rating" value="" class="review-rating-input">
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <label class="block text-sm font-medium text-slate-700">
+                        Name
+                        <input name="review_name" value="<?= sanitize($reviewUser['name'] ?? '') ?>" required class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none focus:border-slate-900">
+                    </label>
+                    <label class="block text-sm font-medium text-slate-700">
+                        Email
+                        <input type="email" name="review_email" value="<?= sanitize($reviewUser['email'] ?? '') ?>" class="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none focus:border-slate-900">
+                    </label>
+                </div>
+
+                <fieldset>
+                    <legend class="text-base font-serif text-slate-900">Rating</legend>
+                    <div class="review-star-picker mt-3 flex gap-1" aria-label="Select rating">
+                        <?php for ($ratingOption = 1; $ratingOption <= 5; $ratingOption++): ?>
+                            <button type="button" class="review-star text-3xl leading-none text-amber-500 transition hover:scale-105" data-rating="<?= $ratingOption ?>" aria-label="<?= $ratingOption ?> star rating">
+                                <i data-lucide="star" class="h-6 w-6 stroke-[1]"></i>
+                            </button>
+                        <?php endfor; ?>
+                    </div>
+                </fieldset>
+
+                <label class="block text-base font-serif text-slate-900">
+                    Review
+                    <span class="relative mt-3 block">
+                        <textarea name="comment" rows="4" maxlength="2000" required class="review-comment w-full resize-none rounded-none border-0 border-b border-slate-200 bg-white text-base text-slate-900 outline-none placeholder:text-slate-400 focus:border-slate-900" placeholder="Share your feedback with us now"></textarea>
+                        <span class="review-character-count pointer-events-none absolute bottom-4 right-3 text-sm text-slate-400">0/2000</span>
+                    </span>
+                </label>
+
+                <div>
+                    <label class="inline-flex cursor-pointer flex-col items-center gap-2 text-slate-900">
+                        <span class="flex h-14 w-14 items-center justify-center text-4xl font-light leading-none">
+                            <i data-lucide="plus" class="h-6 w-6 stroke-[1]"></i>
+                        </span>
+                        <span class="font-serif text-base">Add photo</span>
+                        <span class="review-photo-count text-sm text-slate-600">0/3</span>
+                        <input type="file" name="review_images[]" accept="image/png,image/jpeg,image/webp" multiple class="review-photo-input sr-only">
+                    </label>
+                    <div class="review-photo-names mt-3 grid grid-cols-3 gap-2 text-xs text-slate-500"></div>
+                </div>
+
+                <button class="inline-flex h-12 w-full items-center justify-center rounded-xl bg-slate-950 px-5 text-sm uppercase tracking-wide text-white hover:bg-slate-800">Submit</button>
+                <p class="text-xs text-slate-500">Reviews are published after admin approval.</p>
+            </form>
+        </div>
+    </div>
+
     <div class="pt-10 md:pt-20 md:pb-14">
         <!-- HEADING -->
         <div class="mb-10 md:mb-14">
@@ -579,6 +809,130 @@ $isWished = isProductInWishlist($product['id']);
             radios.forEach((radio) => radio.addEventListener('change', renderTotals));
             select?.addEventListener('change', renderTotals);
             renderTotals();
+
+            const reviewModal = document.getElementById('review-modal');
+            const openReviewButtons = document.querySelectorAll('.open-review-modal');
+            const closeReviewButtons = document.querySelectorAll('.close-review-modal');
+
+            function openReviewModal() {
+                if (!reviewModal) return;
+                reviewModal.classList.remove('hidden');
+                reviewModal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+            }
+
+            function closeReviewModal() {
+                if (!reviewModal) return;
+                reviewModal.classList.add('hidden');
+                reviewModal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            openReviewButtons.forEach((button) => button.addEventListener('click', openReviewModal));
+            closeReviewButtons.forEach((button) => button.addEventListener('click', closeReviewModal));
+            reviewModal?.addEventListener('click', (event) => {
+                if (event.target === reviewModal) closeReviewModal();
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') closeReviewModal();
+            });
+
+            document.querySelectorAll('.review-form').forEach((reviewForm) => {
+                const ratingInput = reviewForm.querySelector('.review-rating-input');
+                const stars = Array.from(reviewForm.querySelectorAll('.review-star'));
+                const comment = reviewForm.querySelector('.review-comment');
+                const characterCount = reviewForm.querySelector('.review-character-count');
+                const photoInput = reviewForm.querySelector('.review-photo-input');
+                const photoCount = reviewForm.querySelector('.review-photo-count');
+                const photoNames = reviewForm.querySelector('.review-photo-names');
+                let selectedReviewFiles = [];
+
+                function paintStars(value) {
+                    stars.forEach((star) => {
+                        const active = Number(star.dataset.rating || 0) <= value;
+                        star.classList.toggle('text-amber-500', active);
+                        star.classList.toggle('text-slate-300', !active);
+                        star.classList.toggle('[&>svg]:fill-current', active);
+                    });
+                }
+
+                stars.forEach((star) => {
+                    star.classList.remove('text-amber-500');
+                    star.classList.add('text-slate-300');
+                    star.addEventListener('click', () => {
+                        const value = Number(star.dataset.rating || 0);
+                        ratingInput.value = value;
+                        paintStars(value);
+                    });
+                    star.addEventListener('mouseenter', () => {
+                        paintStars(Number(star.dataset.rating || 0));
+                    });
+                });
+
+                reviewForm.querySelector('.review-star-picker')?.addEventListener('mouseleave', () => {
+                    paintStars(Number(ratingInput.value || 0));
+                });
+
+                comment?.addEventListener('input', () => {
+                    characterCount.textContent = `${comment.value.length}/2000`;
+                });
+
+                function syncReviewPhotoInput() {
+                    if (!photoInput) return;
+                    const transfer = new DataTransfer();
+                    selectedReviewFiles.forEach((file) => transfer.items.add(file));
+                    photoInput.files = transfer.files;
+                }
+
+                function renderReviewPhotoPreviews() {
+                    photoCount.textContent = `${selectedReviewFiles.length}/3`;
+                    photoNames.innerHTML = '';
+
+                    selectedReviewFiles.forEach((file, index) => {
+                        const preview = document.createElement('div');
+                        preview.className = 'relative overflow-hidden rounded-lg border border-slate-200 bg-slate-50';
+
+                        const image = document.createElement('img');
+                        image.className = 'aspect-square w-full object-cover';
+                        image.alt = file.name;
+                        image.src = URL.createObjectURL(file);
+                        image.addEventListener('load', () => URL.revokeObjectURL(image.src), {
+                            once: true
+                        });
+
+                        const remove = document.createElement('button');
+                        remove.type = 'button';
+                        remove.className = 'absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs text-white';
+                        remove.setAttribute('aria-label', 'Remove photo');
+                        remove.textContent = 'x';
+                        remove.addEventListener('click', () => {
+                            selectedReviewFiles.splice(index, 1);
+                            syncReviewPhotoInput();
+                            renderReviewPhotoPreviews();
+                        });
+
+                        preview.appendChild(image);
+                        preview.appendChild(remove);
+                        photoNames.appendChild(preview);
+                    });
+                }
+
+                photoInput?.addEventListener('change', () => {
+                    const files = Array.from(photoInput.files || []);
+                    const existingKeys = new Set(selectedReviewFiles.map((file) => `${file.name}-${file.size}-${file.lastModified}`));
+                    const newFiles = files.filter((file) => !existingKeys.has(`${file.name}-${file.size}-${file.lastModified}`));
+
+                    if (selectedReviewFiles.length + newFiles.length > 3) {
+                        alert('You can upload up to 3 photos.');
+                        selectedReviewFiles = selectedReviewFiles.concat(newFiles).slice(0, 3);
+                    } else {
+                        selectedReviewFiles = selectedReviewFiles.concat(newFiles);
+                    }
+
+                    syncReviewPhotoInput();
+                    renderReviewPhotoPreviews();
+                });
+            });
         });
     </script>
     <?php include __DIR__ . '/includes/footer.php'; ?>

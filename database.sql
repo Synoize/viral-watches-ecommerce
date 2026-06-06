@@ -71,6 +71,26 @@ CREATE TABLE IF NOT EXISTS wishlists (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- PRODUCT REVIEWS
+CREATE TABLE IF NOT EXISTS product_reviews (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    user_id INT DEFAULT NULL,
+    name VARCHAR(120) NOT NULL,
+    email VARCHAR(150) DEFAULT NULL,
+    rating TINYINT UNSIGNED NOT NULL,
+    comment TEXT NOT NULL,
+    image LONGTEXT DEFAULT NULL,
+    status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+    is_verified_purchase TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_product_reviews_product_status (product_id, status),
+    KEY idx_product_reviews_status (status),
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- BOX OPTIONS
 CREATE TABLE IF NOT EXISTS box_options (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

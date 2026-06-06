@@ -13,6 +13,7 @@ $adminNavItems = [
     ['slides.php', 'Slides', 'fa-solid fa-images'],
     ['categories.php', 'Categories', 'fa-solid fa-tags'],
     ['orders.php', 'Orders', 'fa-solid fa-receipt'],
+    ['reviews.php', 'Reviews', 'fa-solid fa-star'],
     ['users.php', 'Users', 'fa-solid fa-user-group'],
     ['coupons.php', 'Coupons', 'fa-solid fa-ticket'],
     ['box-options.php', 'Box Options', 'fa-solid fa-gift'],
@@ -51,7 +52,7 @@ $adminNavItems = [
 <body class="min-h-screen bg-[#f7f8fb] text-slate-900 font-body">
     <div class="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
         <aside class="border-r border-slate-100 bg-white lg:sticky lg:top-0 lg:h-screen">
-            <div class="flex h-full flex-col p-6">
+            <div class="flex h-full flex-col p-4">
                 <a href="<?= BASE_URL ?>/admin/dashboard.php" class="flex items-center gap-3">
                     <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
                         <i class="fa-solid fa-store"></i>

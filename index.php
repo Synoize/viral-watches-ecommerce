@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/functions.php';
 ensureProductBestSellerColumn();
 ensureProductVideosTableExists();
+ensureProductReviewsTableExists();
 $featuredCategories = getCategories();
 $heroSlides = getActiveHeroSlides();
 $makeSlug = function ($value) {
@@ -26,6 +27,14 @@ $stmt = $pdo->query(
      LIMIT 12"
 );
 $watchBuyProducts = $stmt->fetchAll();
+$stmt = $pdo->query(
+    'SELECT r.*, p.id AS product_id, p.name AS product_name, p.images AS product_image
+     FROM product_reviews r
+     INNER JOIN products p ON p.id = r.product_id
+     WHERE r.status = "approved"
+     ORDER BY r.created_at DESC, r.id DESC'
+);
+$approvedHomeReviews = $stmt->fetchAll();
 $categoryProductSections = [];
 if ($featuredCategories) {
     $categoryIds = array_map('intval', array_column($featuredCategories, 'id'));
@@ -62,8 +71,12 @@ if ($wishlistLookupIds) {
 }
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
-<?php if ($message = flash('success')): ?><div class="mx-auto max-w-[1920px] px-4 pt-4 md:px-10"><div class="rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($message) ?></div></div><?php endif; ?>
-<?php if ($message = flash('error')): ?><div class="mx-auto max-w-[1920px] px-4 pt-4 md:px-10"><div class="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($message) ?></div></div><?php endif; ?>
+<?php if ($message = flash('success')): ?><div class="mx-auto max-w-[1920px] px-4 pt-4 md:px-10">
+        <div class="rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($message) ?></div>
+    </div><?php endif; ?>
+<?php if ($message = flash('error')): ?><div class="mx-auto max-w-[1920px] px-4 pt-4 md:px-10">
+        <div class="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($message) ?></div>
+    </div><?php endif; ?>
 
 <!-- HERO SECTION -->
 <section class="relative w-full overflow-hidden">
@@ -533,121 +546,71 @@ if ($wishlistLookupIds) {
 <!-- CUSTOMER REVIEWS -->
 <section class="w-full bg-[#f5f5f3] py-10 md:py-14 overflow-hidden">
     <div class="max-w-[1400px] mx-auto px-4">
-
-        <!-- HEADING -->
         <div class="text-center mb-10 md:mb-14">
             <h2 class="text-[32px] md:text-[42px] font-serif text-black">
                 Customer Reviews
             </h2>
         </div>
 
-        <!-- REVIEWS -->
-        <div id="reviewSlider"
-            class="flex gap-5 md:gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <?php if ($approvedHomeReviews): ?>
+            <div id="reviewSlider"
+                class="flex gap-5 md:gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
-            <!-- REVIEW CARD -->
-            <div
-                class="bg-white rounded-[16px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
+                <?php foreach ($approvedHomeReviews as $review): ?>
+                    <?php
+                    $reviewImages = getReviewImages($review['image'] ?? '');
+                    $reviewImage = $reviewImages[0] ?? ($review['product_image'] ?? '');
+                    $reviewImageUrl = resolveAssetUrl($reviewImage);
+                    $initial = strtoupper(substr(trim($review['name'] ?? 'R'), 0, 1));
+                    ?>
+                    <article class="bg-white rounded-[16px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
+                        <h3 class="text-[20px] text-[#222] mb-2 font-serif">
+                            <?= sanitize($review['name']) ?>
+                        </h3>
 
-                <h3 class="text-[20px] text-[#222]">
-                    Nirav
-                </h3>
+                        <div class="flex justify-center gap-1 text-[#f4a300] text-[20px] mb-4">
+                            <?php for ($star = 1; $star <= 5; $star++): ?>
+                                <i class="<?= $star <= (int)$review['rating'] ? 'fa-solid' : 'fa-regular' ?> fa-star"></i>
+                            <?php endfor; ?>
+                        </div>
 
-                <div class="flex justify-center gap-1 text-[#f4c400] text-[20px] mb-4">
-                    ★ ★ ★ ★ ★
-                </div>
+                        <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$review['product_id'] ?>" class="flex justify-center mb-4">
+                            <?php if ($reviewImageUrl): ?>
+                                <img
+                                    src="<?= sanitize($reviewImageUrl) ?>"
+                                    alt="<?= sanitize($review['product_name']) ?>"
+                                    class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
+                            <?php else: ?>
+                                <span class="flex w-[120px] h-[120px] md:w-[180px] md:h-[180px] items-center justify-center rounded-full bg-slate-100 text-4xl font-serif text-slate-400">
+                                    <?= sanitize($initial) ?>
+                                </span>
+                            <?php endif; ?>
+                        </a>
 
-                <div class="flex justify-center mb-4">
-                    <img
-                        src="https://i.ibb.co/yD4bp6k/Gemini-Generated-Image-2nnke92nnke92nnk-400x400.png"
-                        alt="Nirav"
-                        class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
-                </div>
+                        <p class="text-[14px] text-[#333] line-clamp-2">
+                            <?= sanitize($review['comment']) ?>
+                        </p>
 
-                <p class="text-[14px] text-[#333] line-clamp-2">
-                    Got gifted this by my girl, loved it! Checked out the website and
-                    ordered the Apex kada as well and my god this is superb! Thanks!
-                </p>
+                        <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$review['product_id'] ?>"
+                            class="mt-4 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-black transition-colors">
+                            <span class="truncate max-w-[220px]">
+                                <?= sanitize($review['product_name']) ?>
+                            </span>
+                        </a>
+                    </article>
+                <?php endforeach; ?>
             </div>
-
-            <!-- REVIEW CARD -->
-            <div
-                class="bg-white rounded-[16px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
-
-                <h3 class="text-[20px] text-[#222]">
-                    Mihir
-                </h3>
-
-                <div class="flex justify-center gap-1 text-[#f4c400] text-[20px] mb-4">
-                    ★ ★ ★ ★ ★
+        <?php else: ?>
+            <div class="flex min-h-[40vh] flex-col items-center justify-center py-12 text-center">
+                <div class="flex justify-center gap-1 text-2xl text-slate-300">
+                    <?php for ($star = 1; $star <= 5; $star++): ?>
+                        <i class="fa-solid fa-star"></i>
+                    <?php endfor; ?>
                 </div>
-
-                <div class="flex justify-center mb-4">
-                    <img
-                        src="https://i.ibb.co/yD4bp6k/Gemini-Generated-Image-2nnke92nnke92nnk-400x400.png"
-                        alt="Mihir"
-                        class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
-                </div>
-
-                <p class="text-[14px] text-[#333] line-clamp-2">
-                    Even though I have a real gold chain, I prefer wearing this daily.
-                    Stylish, lightweight, and comfortable for everyday use.
-                </p>
+                <p class="mt-3 font-serif text-2xl text-slate-950">There are no reviews yet.</p>
             </div>
-
-            <!-- REVIEW CARD -->
-            <div
-                class="bg-white rounded-[16px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
-
-                <h3 class="text-[20px] text-[#222]">
-                    Mihir
-                </h3>
-
-                <div class="flex justify-center gap-1 text-[#f4c400] text-[20px] mb-4">
-                    ★ ★ ★ ★ ★
-                </div>
-
-                <div class="flex justify-center mb-4">
-                    <img
-                        src="https://i.ibb.co/yD4bp6k/Gemini-Generated-Image-2nnke92nnke92nnk-400x400.png"
-                        alt="Mihir"
-                        class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
-                </div>
-
-                <p class="text-[14px] text-[#333] line-clamp-2">
-                    Even though I have a real gold chain, I prefer wearing this daily.
-                    Stylish, lightweight, and comfortable for everyday use.
-                </p>
-            </div>
-
-            <!-- REVIEW CARD -->
-            <div
-                class="bg-white rounded-[16px] p-6 md:p-8 flex-shrink-0 w-[320px] md:w-[380px] snap-start text-center shadow-sm">
-
-                <h3 class="text-[20px] text-[#222]">
-                    Priti
-                </h3>
-
-                <div class="flex justify-center gap-1 text-[#f4c400] text-[20px] mb-4">
-                    ★ ★ ★ ★ ★
-                </div>
-
-                <div class="flex justify-center mb-4">
-                    <img
-                        src="https://i.ibb.co/yD4bp6k/Gemini-Generated-Image-2nnke92nnke92nnk-400x400.png"
-                        alt="Priti"
-                        class="w-[120px] h-[120px] md:w-[180px] md:h-[180px] rounded-full object-cover" />
-                </div>
-
-                <p class="text-[14px] text-[#333] line-clamp-2">
-                    Beautiful craftsmanship and premium finish. The quality exceeded
-                    my expectations and delivery was very quick.
-                </p>
-            </div>
-
-        </div>
+        <?php endif; ?>
     </div>
 </section>
-
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
