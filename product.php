@@ -161,6 +161,7 @@ $reviewTotal = (int)$reviewSummary['total'];
 $reviewAverage = (float)$reviewSummary['average'];
 $reviewDistribution = $reviewSummary['distribution'];
 $reviewUser = getCurrentUser();
+$productShareUrl = BASE_URL . '/product.php?id=' . (int)$product['id'];
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 <div class="mx-auto max-w-[1400px] px-4 py-10 md:px-10">
@@ -203,7 +204,7 @@ $reviewUser = getCurrentUser();
                         <?= sanitize($product['name']) ?>
                     </h1>
 
-                    <div class="flex items-center gap-3 mt-4">
+                    <div class="flex flex-wrap items-center gap-3 mt-4">
 
                         <div class="flex gap-1 text-amber-500">
                             <?php for ($star = 1; $star <= 5; $star++): ?>
@@ -471,40 +472,40 @@ $reviewUser = getCurrentUser();
 
                 </div>
 
+                <script>
+                    function formatDate(date) {
+                        return date.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: '2-digit'
+                        });
+                    }
+
+                    const today = new Date();
+
+                    const readyDate = new Date(today);
+                    readyDate.setDate(today.getDate() + 1);
+
+                    const deliveryStart = new Date(today);
+                    deliveryStart.setDate(today.getDate() + 3);
+
+                    const deliveryEnd = new Date(today);
+                    deliveryEnd.setDate(today.getDate() + 4);
+
+                    document.getElementById('ordered-date').textContent =
+                        formatDate(today);
+
+                    document.getElementById('ready-date').textContent =
+                        formatDate(readyDate);
+
+                    document.getElementById('delivery-date').textContent =
+                        formatDate(deliveryStart) + ' - ' + formatDate(deliveryEnd);
+
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                </script>
+
             </div>
-
-            <script>
-                function formatDate(date) {
-                    return date.toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: '2-digit'
-                    });
-                }
-
-                const today = new Date();
-
-                const readyDate = new Date(today);
-                readyDate.setDate(today.getDate() + 1);
-
-                const deliveryStart = new Date(today);
-                deliveryStart.setDate(today.getDate() + 3);
-
-                const deliveryEnd = new Date(today);
-                deliveryEnd.setDate(today.getDate() + 4);
-
-                document.getElementById('ordered-date').textContent =
-                    formatDate(today);
-
-                document.getElementById('ready-date').textContent =
-                    formatDate(readyDate);
-
-                document.getElementById('delivery-date').textContent =
-                    formatDate(deliveryStart) + ' - ' + formatDate(deliveryEnd);
-
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
-            </script>
 
             <div class="space-y-3 rounded-xl border border bg-white p-6">
                 <details open class="group border-b pb-4">
@@ -549,6 +550,17 @@ $reviewUser = getCurrentUser();
                     </div>
                 </details>
             </div>
+
+
+            <button
+                type="button"
+                class="product-share-button inline-flex items-center gap-2 rounded-full border border-slate-900 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-900 hover:text-white"
+                data-share-title="<?= sanitize($product['name']) ?>"
+                data-share-text="<?= sanitize('Check out ' . $product['name']) ?>"
+                data-share-url="<?= sanitize($productShareUrl) ?>">
+                <i data-lucide="share-2" class="h-4 w-4 stroke-[1.5]"></i>
+                Share
+            </button>
         </div>
     </div>
 
@@ -976,6 +988,51 @@ $reviewUser = getCurrentUser();
             radios.forEach((radio) => radio.addEventListener('change', renderTotals));
             select?.addEventListener('change', renderTotals);
             renderTotals();
+
+            document.querySelectorAll('.product-share-button').forEach((button) => {
+                const originalLabel = button.innerHTML;
+                button.addEventListener('click', async () => {
+                    const shareData = {
+                        title: button.dataset.shareTitle || document.title,
+                        text: button.dataset.shareText || '',
+                        url: button.dataset.shareUrl || window.location.href,
+                    };
+
+                    try {
+                        if (navigator.share) {
+                            await navigator.share(shareData);
+                            return;
+                        }
+
+                        if (navigator.clipboard?.writeText) {
+                            await navigator.clipboard.writeText(shareData.url);
+                        } else {
+                            const tempInput = document.createElement('input');
+                            tempInput.value = shareData.url;
+                            document.body.appendChild(tempInput);
+                            tempInput.select();
+                            document.execCommand('copy');
+                            tempInput.remove();
+                        }
+
+                        button.innerHTML = '<i data-lucide="check" class="h-4 w-4 stroke-[1.5]"></i> Copied';
+                        if (window.lucide) lucide.createIcons();
+                        setTimeout(() => {
+                            button.innerHTML = originalLabel;
+                            if (window.lucide) lucide.createIcons();
+                        }, 1800);
+                    } catch (error) {
+                        if (error?.name !== 'AbortError') {
+                            button.innerHTML = '<i data-lucide="copy-x" class="h-4 w-4 stroke-[1.5]"></i> Copy failed';
+                            if (window.lucide) lucide.createIcons();
+                            setTimeout(() => {
+                                button.innerHTML = originalLabel;
+                                if (window.lucide) lucide.createIcons();
+                            }, 1800);
+                        }
+                    }
+                });
+            });
 
             const reviewModal = document.getElementById('review-modal');
             const openReviewButtons = document.querySelectorAll('.open-review-modal');
