@@ -40,8 +40,19 @@ $items = getCartItems();
 $subtotal = calculateCartTotal();
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
-<div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-    <h1 class="text-3xl font-semibold text-slate-900">Shopping Cart</h1>
+<div class="mx-auto max-w-[1920px] px-4 py-10 md:px-10">
+    <div class="flex gap-4 items-center justify-between">
+        <div class="flex items-center justify-between">
+            <h2 class="text-[32px] md:text-[42px] font-serif text-black">
+                Shopping Cart
+            </h2>
+        </div>
+
+        <a href="<?= BASE_URL ?>/collection"
+            class="inline-flex items-center justify-center rounded-full border border-black hover:bg-black px-7 py-3 text-xs md:text-sm hover:text-white transition-all duration-300">
+            Browse Products
+        </a>
+    </div>
     <?php if ($message = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($message) ?></div><?php endif; ?>
     <?php if ($items): ?>
         <form method="post" class="mt-8 space-y-6">
@@ -98,7 +109,24 @@ $subtotal = calculateCartTotal();
             </div>
         </form>
     <?php else: ?>
-        <div class="mt-8 rounded-[2rem] border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">Your cart is empty. <a href="<?= BASE_URL ?>/collection" class="font-semibold text-brand hover:text-brand/80">Browse products</a> to add items.</div>
+        <div class="col-span-full text-center h-[68vh] md:h-[56vh] flex flex-col items-center justify-center">
+
+            <i class="fa-solid fa-shopping-cart text-5xl text-slate-300"></i>
+
+            <h3 class="mt-6 text-2xl font-serif text-[#222]">
+                Your cart is empty.
+            </h3>
+
+            <p class="mt-3 text-slate-500">
+                Save products you want to buy later.
+            </p>
+
+            <a href="<?= BASE_URL ?>/collection"
+                class="inline-block mt-8 border border-black px-8 py-3 text-sm tracking-widest uppercase hover:bg-black hover:text-white transition">
+                Browse products
+            </a>
+
+        </div>
     <?php endif; ?>
 </div>
 <?php include __DIR__ . '/includes/footer.php'; ?>

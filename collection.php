@@ -764,7 +764,7 @@ if ($activeCategoryName) {
 
                 <?php else: ?>
 
-                    <div class="col-span-full text-center h-[58vh] md:h-[40vh] flex flex-col items-center justify-center">
+                    <div class="col-span-full text-center h-[58vh] md:h-[46vh] flex flex-col items-center justify-center">
 
                         <i class="fa-regular fa-gem text-5xl text-slate-300"></i>
 
