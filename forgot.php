@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
 if (isLoggedIn()) {
-    redirect('/index.php');
+    redirect('/');
 }
 $error = null;
 $success = null;
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<?php include __DIR__ . '/includes/header.php'; ?>
+<?php include __DIR__ . '/includes/head.php'; ?>
 <div class="mx-auto flex min-h-[calc(100vh-6rem)] items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
     <div class="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm">
         <h3 class="text-3xl font-semibold text-slate-900">Forgot Password</h3>
@@ -38,4 +38,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="mt-6 text-center text-sm text-slate-600">Remembered your password? <a href="<?= BASE_URL ?>/login.php" class="font-medium text-slate-900 underline">Login</a></p>
     </div>
 </div>
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/foot.php'; ?>

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
 if (isLoggedIn()) {
-    redirect('/index.php');
+    redirect('/');
 }
 $error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<?php include __DIR__ . '/includes/header.php'; ?>
+<?php include __DIR__ . '/includes/head.php'; ?>
 <div class="mx-auto flex min-h-[calc(100vh-6rem)] items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
     <div class="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm">
         <h3 class="text-3xl font-semibold text-slate-900">Login</h3>
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Login</button>
         </form>
         <p class="mt-4 text-center text-sm text-slate-600"><a href="<?= BASE_URL ?>/forgot.php" class="font-medium text-brand underline">Forgot password?</a></p>
-        <p class="mt-6 text-center text-sm text-slate-600">Don't have an account? <a href="<?= BASE_URL ?>/register.php" class="font-medium text-slate-900 underline">Register</a></p>
+        <p class="mt-6 text-center text-sm text-slate-600">Don't have an account? <a href="<?= BASE_URL ?>/register" class="font-medium text-slate-900 underline">Register</a></p>
     </div>
 </div>
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/foot.php'; ?>

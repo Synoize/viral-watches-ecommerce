@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
 if (isLoggedIn()) {
-    redirect('/index.php');
+    redirect('/');
 }
 $error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<?php include __DIR__ . '/includes/header.php'; ?>
+<?php include __DIR__ . '/includes/head.php'; ?>
 <div class="mx-auto flex min-h-[calc(100vh-6rem)] items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
     <div class="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm">
         <h3 class="text-3xl font-semibold text-slate-900">Register</h3>
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div><label class="block text-sm font-medium text-slate-700">Confirm Password</label><input type="password" name="confirm_password" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
             <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Register</button>
         </form>
-        <p class="mt-6 text-center text-sm text-slate-600">Already have an account? <a href="<?= BASE_URL ?>/login.php" class="font-medium text-slate-900 underline">Login</a></p>
+        <p class="mt-6 text-center text-sm text-slate-600">Already have an account? <a href="<?= BASE_URL ?>/login" class="font-medium text-slate-900 underline">Login</a></p>
     </div>
 </div>
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/foot.php'; ?>
