@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
 
-function wishlistRedirectPath($value, $fallback = '/wishlist.php')
+function wishlistRedirectPath($value, $fallback = '/wishlist')
 {
     $value = trim((string)$value);
     if ($value === '') return $fallback;
@@ -19,7 +19,7 @@ function wishlistRedirectPath($value, $fallback = '/wishlist.php')
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $redirectTo = wishlistRedirectPath($_POST['redirect_to'] ?? '/wishlist.php');
+    $redirectTo = wishlistRedirectPath($_POST['redirect_to'] ?? '/wishlist');
 
     if (!isLoggedIn()) {
         $_SESSION['redirect_after_login'] = $redirectTo;
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if (!isLoggedIn()) {
-    $_SESSION['redirect_after_login'] = '/wishlist.php';
+    $_SESSION['redirect_after_login'] = '/wishlist';
     flash('error', 'Please login to view your wishlist.');
     redirect('/login.php');
 }
@@ -95,7 +95,7 @@ $wishedProductIds = array_map('intval', array_column($items, 'id'));
                 }
                 ?>
                 <article class="relative group">
-                    <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="block">
+                    <a href="<?= publicUrl('/product?id=' . (int)$product['id']) ?>" class="block">
                         <div class="relative bg-white rounded-md overflow-hidden">
                             <?php if ($mainImage): ?>
                                 <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
@@ -126,7 +126,7 @@ $wishedProductIds = array_map('intval', array_column($items, 'id'));
                     </a>
                     <?= renderWishlistButton($product['id'], true, 'absolute right-3 top-3 z-20') ?>
                     <?php if ((int)$product['stock'] > 0): ?>
-                        <a href="<?= BASE_URL ?>/cart.php?action=add&id=<?= (int)$product['id'] ?>" class="mt-4 inline-flex w-full items-center justify-center bg-slate-900 px-4 py-3 text-sm font-semibold uppercase text-white hover:bg-slate-800">Add to Cart</a>
+                        <a href="<?= publicUrl('/cart?action=add&id=' . (int)$product['id']) ?>" class="mt-4 inline-flex w-full items-center justify-center bg-slate-900 px-4 py-3 text-sm font-semibold uppercase text-white hover:bg-slate-800">Add to Cart</a>
                     <?php endif; ?>
                 </article>
             <?php endforeach; ?>

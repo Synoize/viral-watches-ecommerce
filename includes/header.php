@@ -338,7 +338,7 @@ function is_active($match)
 
                                 <!-- Logout -->
                                 <div class="border-t border-slate-100">
-                                    <a href="<?= BASE_URL ?>/logout.php"
+                                    <a href="<?= publicUrl('/logout') ?>"
                                         class="flex items-center gap-3 px-5 py-3 text-sm text-red-500 hover:bg-red-50 transition">
                                         <i data-lucide="log-out" class="w-4 h-4 stroke-[1.5]"></i>
                                         Logout
@@ -501,7 +501,7 @@ function is_active($match)
                         Wishlist
                     </a>
 
-                    <a href="<?= BASE_URL ?>/logout.php"
+                    <a href="<?= publicUrl('/logout') ?>"
                         class="flex items-center gap-3 px-6 py-3 mt-2 text-sm text-red-500 hover:bg-red-50 transition">
                         <i data-lucide="log-out" class="w-4 h-4 stroke-[1]"></i>
                         Logout

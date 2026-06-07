@@ -80,7 +80,7 @@ require_once __DIR__ . '/_header.php';
         <div class="grid grid-cols-2 gap-2 sm:flex">
             <?php foreach ($allowedStatuses as $status): ?>
                 <?php $isActive = $activeStatus === $status; ?>
-                <a href="<?= BASE_URL ?>/admin/reviews.php<?= $status === 'all' ? '' : '?status=' . $status ?>" class="rounded-2xl px-4 py-2 text-sm font-bold <?= $isActive ? 'bg-slate-950 text-white' : 'bg-white text-slate-600 shadow-sm hover:text-slate-950' ?>">
+                <a href="<?= publicUrl('/admin/reviews' . ($status === 'all' ? '' : '?status=' . $status)) ?>" class="rounded-2xl px-4 py-2 text-sm font-bold <?= $isActive ? 'bg-slate-950 text-white' : 'bg-white text-slate-600 shadow-sm hover:text-slate-950' ?>">
                     <?= ucfirst($status) ?> (<?= (int)$reviewCounts[$status] ?>)
                 </a>
             <?php endforeach; ?>

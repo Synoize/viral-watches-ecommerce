@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
 if (!isLoggedIn()) {
+    $_SESSION['redirect_after_login'] = '/checkout.php';
     flash('success', 'Please log in to complete checkout.');
     redirect('/login.php');
 }

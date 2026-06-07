@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_role'] = $user['role'];
-            $redirectAfterLogin = $_SESSION['redirect_after_login'] ?? '/index.php';
+            $redirectAfterLogin = $_SESSION['redirect_after_login'] ?? '/';
             $pendingWishlistAction = $_SESSION['pending_wishlist_action'] ?? null;
             unset($_SESSION['redirect_after_login']);
             unset($_SESSION['pending_wishlist_action']);
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div><label class="block text-sm font-medium text-slate-700">Password</label><input type="password" name="password" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
             <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Login</button>
         </form>
-        <p class="mt-4 text-center text-sm text-slate-600"><a href="<?= BASE_URL ?>/forgot.php" class="font-medium text-brand underline">Forgot password?</a></p>
+        <p class="mt-4 text-center text-sm text-slate-600"><a href="<?= publicUrl('/forgot') ?>" class="font-medium text-brand underline">Forgot password?</a></p>
         <p class="mt-6 text-center text-sm text-slate-600">Don't have an account? <a href="<?= BASE_URL ?>/register" class="font-medium text-slate-900 underline">Register</a></p>
     </div>
 </div>

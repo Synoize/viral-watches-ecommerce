@@ -210,7 +210,7 @@ if ($activeCategoryName) {
                         ?>
                         <!-- CARD -->
                         <article class="relative group flex-shrink-0 w-auto snap-start">
-                            <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="block">
+                            <a href="<?= publicUrl('/product?id=' . (int)$product['id']) ?>" class="block">
                                 <div class="relative bg-white rounded-md overflow-hidden">
                                     <?php if ($mainImage): ?>
                                         <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
@@ -719,7 +719,7 @@ if ($activeCategoryName) {
 
                         <!-- CARD -->
                         <article class="relative group flex-shrink-0 w-auto snap-start">
-                            <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="block">
+                            <a href="<?= publicUrl('/product?id=' . (int)$product['id']) ?>" class="block">
                                 <div class="relative bg-white rounded-md overflow-hidden">
                                     <?php if ($mainImage): ?>
                                         <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"

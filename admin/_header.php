@@ -53,7 +53,7 @@ $adminNavItems = [
     <div class="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
         <aside class="border-r border-slate-100 bg-white lg:sticky lg:top-0 lg:h-screen">
             <div class="flex h-full flex-col p-4">
-                <a href="<?= BASE_URL ?>/admin/dashboard.php" class="flex items-center gap-3">
+                <a href="<?= publicUrl('/admin/dashboard') ?>" class="flex items-center gap-3">
                     <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
                         <i class="fa-solid fa-store"></i>
                     </span>
@@ -66,7 +66,7 @@ $adminNavItems = [
                 <nav class="flex-1 overflow-y-auto mt-8 grid gap-1 text-sm font-semibold text-slate-500">
                     <?php foreach ($adminNavItems as $item): ?>
                         <?php $isActiveAdminItem = $currentAdminPage === $item[0]; ?>
-                        <a href="<?= BASE_URL ?>/admin/<?= $item[0] ?>" class="flex items-center gap-3 rounded-2xl px-4 py-3 transition <?= $isActiveAdminItem ? 'bg-emerald-50 text-emerald-700' : 'hover:bg-slate-50 hover:text-slate-900' ?>">
+                        <a href="<?= publicUrl('/admin/' . preg_replace('/\.php$/', '', $item[0])) ?>" class="flex items-center gap-3 rounded-2xl px-4 py-3 transition <?= $isActiveAdminItem ? 'bg-emerald-50 text-emerald-700' : 'hover:bg-slate-50 hover:text-slate-900' ?>">
                             <i class="<?= $item[2] ?> w-5 text-center text-sm"></i>
                             <span><?= sanitize($item[1]) ?></span>
                         </a>
@@ -79,7 +79,7 @@ $adminNavItems = [
                         </div>
                         <div class="hidden sm:block">
                             <p class="text-sm font-bold text-slate-900"><?= $adminName ?></p>
-                            <a href="<?= BASE_URL ?>/admin/logout.php" class="text-xs font-semibold text-slate-400 hover:text-rose-500">Logout</a>
+                            <a href="<?= publicUrl('/admin/logout') ?>" class="text-xs font-semibold text-slate-400 hover:text-rose-500">Logout</a>
                         </div>
                     </div>
 

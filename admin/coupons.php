@@ -115,7 +115,7 @@ require_once __DIR__ . '/_header.php';
                             </td>
                             <td class="px-6 py-4"><?= $item['status'] ? 'Active' : 'Disabled' ?></td>
                             <td class="px-6 py-4 space-x-2 flex ">
-                                <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= BASE_URL ?>/admin/coupons.php?edit=<?= $item['id'] ?>">Edit</a>
+                                <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= publicUrl('/admin/coupons?edit=' . $item['id']) ?>">Edit</a>
                                 <form class="inline" method="post" onsubmit="return confirm('Delete coupon?');"><input type="hidden" name="delete_id" value="<?= $item['id'] ?>"><button class="inline-flex rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">Delete</button></form>
                             </td>
                         </tr>
@@ -150,7 +150,7 @@ require_once __DIR__ . '/_header.php';
             <label class="flex items-center gap-3 text-sm font-medium text-slate-700"><input type="checkbox" name="status" class="h-5 w-5 rounded border-slate-300 text-brand focus:ring-brand" <?= !isset($coupon['status']) || $coupon['status'] ? 'checked' : '' ?> /> Active</label>
             <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Save Coupon</button>
             <?php if ($coupon): ?>
-                <a href="<?= BASE_URL ?>/admin/coupons.php" class="inline-flex w-full items-center justify-center rounded-3xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Cancel Edit</a>
+                <a href="<?= publicUrl('/admin/coupons') ?>" class="inline-flex w-full items-center justify-center rounded-3xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Cancel Edit</a>
             <?php endif; ?>
         </form>
     </aside>

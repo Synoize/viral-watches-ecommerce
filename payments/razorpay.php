@@ -41,7 +41,7 @@ if (empty($razorpayOrder['id']) || !empty($razorpayOrder['error'])) {
                 <p class="mt-4 text-sm font-medium text-slate-700">Amount</p>
                 <p class="mt-2 text-2xl font-semibold text-brand">₹<?= number_format($order['total_amount'], 2) ?></p>
             </div>
-            <form id="razorpay-payment-form" action="payment-success.php" method="POST">
+            <form id="razorpay-payment-form" action="<?= publicUrl('/payments/payment-success') ?>" method="POST">
                 <input type="hidden" name="razorpay_order_id" value="<?= sanitize($razorpayOrder['id']) ?>" />
                 <input type="hidden" name="razorpay_payment_id" value="" />
                 <input type="hidden" name="razorpay_signature" value="" />

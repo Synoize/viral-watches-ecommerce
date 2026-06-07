@@ -119,7 +119,7 @@ require_once __DIR__ . '/_header.php';
     <div>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 class="text-2xl font-semibold text-slate-900">Box Options</h2>
-            <a href="<?= BASE_URL ?>/product.php?id=1" target="_blank" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50">Preview Product Page</a>
+            <a href="<?= publicUrl('/product?id=1') ?>" target="_blank" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50">Preview Product Page</a>
         </div>
         <?php if ($msg = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($msg) ?></div><?php endif; ?>
         <div class="mt-6 overflow-hidden rounded-[2rem] border border-slate-200">
@@ -159,7 +159,7 @@ require_once __DIR__ . '/_header.php';
                             </td>
                             <td class="px-6 py-4 text-slate-600"><?= date('j M Y', strtotime($item['created_at'])) ?></td>
                             <td class="px-6 py-4 space-x-2 flex">
-                                <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= BASE_URL ?>/admin/box-options.php?edit=<?= $item['id'] ?>">Edit</a>
+                                <a class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-900 hover:bg-slate-50" href="<?= publicUrl('/admin/box-options?edit=' . $item['id']) ?>">Edit</a>
                                 <form class="inline" method="post" onsubmit="return confirm('Delete this box option?');">
                                     <input type="hidden" name="delete_id" value="<?= $item['id'] ?>">
                                     <button class="inline-flex rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">Delete</button>
@@ -192,7 +192,7 @@ require_once __DIR__ . '/_header.php';
             <label class="flex items-center gap-3 text-sm font-medium text-slate-700"><input type="checkbox" name="is_active" class="h-5 w-5 rounded border-slate-300 text-brand focus:ring-brand" <?= !isset($box['is_active']) || $box['is_active'] ? 'checked' : '' ?> /> Active</label>
             <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Save Box</button>
             <?php if ($box): ?>
-                <a href="<?= BASE_URL ?>/admin/box-options.php" class="inline-flex w-full items-center justify-center rounded-3xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Cancel Edit</a>
+                <a href="<?= publicUrl('/admin/box-options') ?>" class="inline-flex w-full items-center justify-center rounded-3xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50">Cancel Edit</a>
             <?php endif; ?>
         </form>
     </aside>

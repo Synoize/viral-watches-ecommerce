@@ -70,7 +70,7 @@ $subtotal = calculateCartTotal();
                             <div class="flex items-start gap-4">
                                 <img src="<?= sanitize(resolveAssetUrl(json_decode($item['gallery'], true)[0] ?? $item['images'])) ?>" alt="<?= sanitize($item['name']) ?>" class="h-20 w-20 rounded-3xl object-cover" />
                                 <div>
-                                    <a href="<?= BASE_URL ?>/product.php?id=<?= $item['id'] ?>" class="font-semibold text-slate-900 hover:text-brand"><?= sanitize($item['name']) ?></a>
+                                    <a href="<?= publicUrl('/product?id=' . $item['id']) ?>" class="font-semibold text-slate-900 hover:text-brand"><?= sanitize($item['name']) ?></a>
                                     <p class="mt-2 text-sm text-slate-500">Stock: <?= (int)$item['stock'] ?></p>
                                     <?php if (!empty($item['box_id'])): ?>
                                         <div class="mt-3 flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
@@ -104,7 +104,7 @@ $subtotal = calculateCartTotal();
                 <div class="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 text-right">
                     <p class="text-sm text-slate-600">Subtotal</p>
                     <p class="mt-2 text-3xl font-semibold text-slate-900">&#8377;<?= number_format($subtotal, 2) ?></p>
-                    <a href="<?= BASE_URL ?>/checkout.php" class="mt-4 inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800 lg:w-auto">Proceed to Checkout</a>
+                    <a href="<?= publicUrl('/checkout') ?>" class="mt-4 inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800 lg:w-auto">Proceed to Checkout</a>
                 </div>
             </div>
         </form>

@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token && $validToken) {
                 <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Reset Password</button>
             </form>
         <?php endif; ?>
-        <p class="mt-6 text-center text-sm text-slate-600">Remembered your password? <a href="<?= BASE_URL ?>/login.php" class="font-medium text-slate-900 underline">Login</a></p>
+        <p class="mt-6 text-center text-sm text-slate-600">Remembered your password? <a href="<?= publicUrl('/login') ?>" class="font-medium text-slate-900 underline">Login</a></p>
     </div>
 </div>
 <?php include __DIR__ . '/includes/foot.php'; ?>

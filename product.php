@@ -161,7 +161,7 @@ $reviewTotal = (int)$reviewSummary['total'];
 $reviewAverage = (float)$reviewSummary['average'];
 $reviewDistribution = $reviewSummary['distribution'];
 $reviewUser = getCurrentUser();
-$productShareUrl = BASE_URL . '/product.php?id=' . (int)$product['id'];
+$productShareUrl = publicUrl('/product?id=' . (int)$product['id']);
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 <div class="mx-auto max-w-[1400px] px-4 py-10 md:px-10">
@@ -830,7 +830,7 @@ $productShareUrl = BASE_URL . '/product.php?id=' . (int)$product['id'];
 
                     <article class="relative group flex-shrink-0 w-[145px] md:flex-1 snap-start">
 
-                        <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$item['id'] ?>" class="block">
+                        <a href="<?= publicUrl('/product?id=' . (int)$item['id']) ?>" class="block">
 
                             <div class="relative bg-white rounded-md overflow-hidden">
 

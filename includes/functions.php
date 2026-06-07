@@ -271,8 +271,39 @@ function getPageMeta($path = null, $overrides = []) {
     ];
 }
 
+function publicPath($path) {
+    $path = trim((string)$path);
+    if ($path === '') return '/';
+    if (preg_match('/^(https?:)?\/\//i', $path)) return $path;
+
+    $parts = parse_url($path);
+    $pathPart = $parts['path'] ?? '/';
+    $basePrefix = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
+    if ($basePrefix !== '' && strpos($pathPart, $basePrefix) === 0) {
+        $pathPart = substr($pathPart, strlen($basePrefix));
+    }
+
+    $pathPart = '/' . ltrim($pathPart, '/');
+    if ($pathPart === '/index.php' || $pathPart === '/index') {
+        $pathPart = '/';
+    } elseif (substr($pathPart, -4) === '.php') {
+        $pathPart = substr($pathPart, 0, -4);
+    }
+
+    $pathPart = rtrim($pathPart, '/') ?: '/';
+    $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+    $fragment = isset($parts['fragment']) ? '#' . $parts['fragment'] : '';
+
+    return $pathPart . $query . $fragment;
+}
+
+function publicUrl($path) {
+    if (preg_match('/^(https?:)?\/\//i', (string)$path)) return $path;
+    return rtrim(BASE_URL, '/') . publicPath($path);
+}
+
 function redirect($path) {
-    $url = BASE_URL . $path;
+    $url = publicUrl($path);
     if (!headers_sent()) {
         header('Location: ' . $url);
         exit;
@@ -625,7 +656,7 @@ function renderWishlistButton($productId, $isWished = false, $classes = '') {
     $stateClass = $isWished ? 'text-rose-600' : 'text-slate-700';
     $redirectTo = $_SERVER['REQUEST_URI'] ?? '/';
 
-    return '<form method="post" action="' . BASE_URL . '/wishlist.php" class="' . sanitize($classes) . '">' .
+    return '<form method="post" action="' . publicUrl('/wishlist') . '" class="' . sanitize($classes) . '">' .
         '<input type="hidden" name="action" value="' . $action . '">' .
         '<input type="hidden" name="product_id" value="' . $productId . '">' .
         '<input type="hidden" name="redirect_to" value="' . sanitize($redirectTo) . '">' .
@@ -1064,7 +1095,7 @@ function generatePasswordResetToken($email) {
     $expiresAt = date('Y-m-d H:i:s', time() + 3600);
     $stmt = $pdo->prepare('INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)');
     $stmt->execute([$user['id'], $token, $expiresAt]);
-    $resetUrl = BASE_URL . '/reset.php?token=' . urlencode($token);
+    $resetUrl = publicUrl('/reset?token=' . urlencode($token));
     $emailSent = sendPasswordResetEmail($email, $resetUrl);
     return ['token' => $token, 'reset_url' => $resetUrl, 'email_sent' => $emailSent];
 }

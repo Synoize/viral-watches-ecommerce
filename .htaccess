@@ -2,6 +2,13 @@
 RewriteEngine On
 RewriteBase /new/
 
+# Redirect direct .php requests to clean URLs
+RewriteCond %{THE_REQUEST} \s/+new/index\.php[?\s] [NC]
+RewriteRule ^index\.php$ ./ [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+new/(.+?)\.php[?\s] [NC]
+RewriteRule ^(.+?)\.php$ $1 [R=301,L,QSA]
+
 # If the requested resource is a real file or directory, serve it
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
@@ -25,6 +32,10 @@ RewriteRule ^collection/([^/]+)/?$ collection.php?category_slug=$1 [L,QSA]
 
 # User pages mapping (e.g. /user/profile -> /user/profile.php)
 RewriteRule ^user/([A-Za-z0-9_-]+)/?$ user/$1.php [L,QSA]
+
+# Extensionless PHP files anywhere in the site
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+?)/?$ $1.php [L,QSA]
 
 # Fallback to index
 RewriteRule ^$ index.php [L,QSA]

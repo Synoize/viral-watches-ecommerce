@@ -29,7 +29,7 @@ $recentOrders = $pdo->query('SELECT id, total_amount, status, payment_status, cr
             <h1 class="mt-2 text-3xl font-black tracking-tight text-slate-950">Dashboard</h1>
             <p class="mt-1 text-sm text-slate-500">Monitor store activity and manage daily ecommerce work.</p>
         </div>
-        <a href="<?= BASE_URL ?>/admin/orders.php" class="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm hover:text-slate-950">
+        <a href="<?= publicUrl('/admin/orders') ?>" class="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm hover:text-slate-950">
             <i class="fa-solid fa-filter text-emerald-500"></i>
             Filter Orders
         </a>
@@ -80,7 +80,7 @@ $recentOrders = $pdo->query('SELECT id, total_amount, status, payment_status, cr
                     <h2 class="text-lg font-black text-slate-950">Store Health</h2>
                     <p class="mt-1 text-sm text-slate-400">Live ratios from your current data.</p>
                 </div>
-                <a href="<?= BASE_URL ?>/admin/products.php" class="rounded-2xl border border-slate-100 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-950">Manage</a>
+                <a href="<?= publicUrl('/admin/products') ?>" class="rounded-2xl border border-slate-100 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-950">Manage</a>
             </div>
 
             <div class="mt-8 grid gap-5 sm:grid-cols-2">
@@ -109,7 +109,7 @@ $recentOrders = $pdo->query('SELECT id, total_amount, status, payment_status, cr
                     <h2 class="text-lg font-black text-slate-950">Order Overview</h2>
                     <p class="mt-1 text-sm text-slate-400">A compact visual summary for scanning.</p>
                 </div>
-                <a href="<?= BASE_URL ?>/admin/orders.php" class="rounded-2xl border border-slate-100 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-950">See orders</a>
+                <a href="<?= publicUrl('/admin/orders') ?>" class="rounded-2xl border border-slate-100 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-950">See orders</a>
             </div>
             <div class="mt-8 h-64">
                 <svg viewBox="0 0 640 240" class="h-full w-full">
@@ -133,7 +133,7 @@ $recentOrders = $pdo->query('SELECT id, total_amount, status, payment_status, cr
         <section class="rounded-3xl bg-white p-6 shadow-soft">
             <div class="flex items-center justify-between">
                 <h2 class="text-lg font-black text-slate-950">Recent Orders</h2>
-                <a href="<?= BASE_URL ?>/admin/orders.php" class="text-sm font-bold text-emerald-600">View all</a>
+                <a href="<?= publicUrl('/admin/orders') ?>" class="text-sm font-bold text-emerald-600">View all</a>
             </div>
             <div class="mt-5 overflow-hidden rounded-2xl border border-slate-100">
                 <table class="w-full text-left text-sm">
@@ -165,10 +165,10 @@ $recentOrders = $pdo->query('SELECT id, total_amount, status, payment_status, cr
         <section class="rounded-3xl bg-white p-6 shadow-soft">
             <h2 class="text-lg font-black text-slate-950">Quick Actions</h2>
             <div class="mt-5 grid gap-3">
-                <a href="<?= BASE_URL ?>/admin/products.php" class="flex items-center justify-between rounded-2xl bg-slate-50 px-5 py-4 text-sm font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"><span>Manage Products</span><i class="fa-solid fa-arrow-right"></i></a>
-                <a href="<?= BASE_URL ?>/admin/slides.php" class="flex items-center justify-between rounded-2xl bg-slate-50 px-5 py-4 text-sm font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"><span>Hero Slides</span><i class="fa-solid fa-arrow-right"></i></a>
-                <a href="<?= BASE_URL ?>/admin/orders.php" class="flex items-center justify-between rounded-2xl bg-slate-50 px-5 py-4 text-sm font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"><span>Manage Orders</span><i class="fa-solid fa-arrow-right"></i></a>
-                <a href="<?= BASE_URL ?>/admin/coupons.php" class="flex items-center justify-between rounded-2xl bg-slate-50 px-5 py-4 text-sm font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"><span>Coupons</span><i class="fa-solid fa-arrow-right"></i></a>
+                <a href="<?= publicUrl('/admin/products') ?>" class="flex items-center justify-between rounded-2xl bg-slate-50 px-5 py-4 text-sm font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"><span>Manage Products</span><i class="fa-solid fa-arrow-right"></i></a>
+                <a href="<?= publicUrl('/admin/slides') ?>" class="flex items-center justify-between rounded-2xl bg-slate-50 px-5 py-4 text-sm font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"><span>Hero Slides</span><i class="fa-solid fa-arrow-right"></i></a>
+                <a href="<?= publicUrl('/admin/orders') ?>" class="flex items-center justify-between rounded-2xl bg-slate-50 px-5 py-4 text-sm font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"><span>Manage Orders</span><i class="fa-solid fa-arrow-right"></i></a>
+                <a href="<?= publicUrl('/admin/coupons') ?>" class="flex items-center justify-between rounded-2xl bg-slate-50 px-5 py-4 text-sm font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"><span>Coupons</span><i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <div class="mt-5 grid grid-cols-2 gap-3">
                 <div class="rounded-2xl bg-emerald-50 p-4">

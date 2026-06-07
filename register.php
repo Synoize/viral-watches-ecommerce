@@ -29,6 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $formattedPhone = $phoneValidation['formatted'];
                 $stmt = $pdo->prepare('INSERT INTO users (name, phone, email, password, role) VALUES (?, ?, ?, ?, ? )');
                 $stmt->execute([$name, $formattedPhone, $email, $hash, 'user']);
+                $redirectAfterLogin = $_SESSION['redirect_after_login'] ?? null;
+                if ($redirectAfterLogin) {
+                    $_SESSION['user_id'] = $pdo->lastInsertId();
+                    $_SESSION['user_role'] = 'user';
+                    unset($_SESSION['redirect_after_login']);
+                    flash('success', 'Welcome, ' . sanitize($name) . '!');
+                    redirect($redirectAfterLogin);
+                }
                 flash('success', 'Registration successful. Please log in.');
                 redirect('/login.php');
             }

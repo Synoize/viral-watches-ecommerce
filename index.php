@@ -152,7 +152,7 @@ if ($wishlistLookupIds) {
                     ?>
                     <!-- CARD -->
                     <article class="relative group flex-shrink-0 w-[145px] md:flex-1 snap-start">
-                        <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="block">
+                        <a href="<?= publicUrl('/product?id=' . (int)$product['id']) ?>" class="block">
                             <div class="relative bg-white rounded-md overflow-hidden">
                                 <?php if ($mainImage): ?>
                                     <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
@@ -246,7 +246,7 @@ if ($wishlistLookupIds) {
                             ?>
                             <!-- CARD -->
                             <article class="relative group flex-shrink-0 w-[145px] md:flex-1 snap-start">
-                                <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$product['id'] ?>" class="block">
+                                <a href="<?= publicUrl('/product?id=' . (int)$product['id']) ?>" class="block">
                                     <div class="relative bg-white rounded-md overflow-hidden">
                                         <?php if ($mainImage): ?>
                                             <img src="<?= sanitize($mainImage) ?>" alt="<?= sanitize($product['name']) ?>"
@@ -337,7 +337,7 @@ if ($wishlistLookupIds) {
                     $displayPrice = $hasOffer ? (float)$product['offer_price'] : (float)$product['price'];
                     $oldPrice = $hasOffer ? 'Rs. ' . number_format((float)$product['price'], 2) : '';
                     $priceText = 'Rs. ' . number_format($displayPrice, 2);
-                    $productUrl = BASE_URL . '/product.php?id=' . (int)$product['id'];
+                    $productUrl = publicUrl('/product?id=' . (int)$product['id']);
                     $discount = $hasOffer ? max(1, round((1 - ($displayPrice / (float)$product['price'])) * 100)) : 0;
                     $isVideoWished = in_array((int)$product['id'], $wishlistProductIds, true);
                     ?>
@@ -432,7 +432,7 @@ if ($wishlistLookupIds) {
             <!-- Like & Share -->
             <div class="absolute bottom-[152px] right-3 flex flex-col items-center gap-2 text-white">
 
-                <form id="watchWishlistForm" method="post" action="<?= BASE_URL ?>/wishlist.php">
+                <form id="watchWishlistForm" method="post" action="<?= publicUrl('/wishlist') ?>">
                     <input type="hidden" name="action" id="watchWishlistAction" value="add">
                     <input type="hidden" name="product_id" id="watchWishlistProductId" value="">
                     <input type="hidden" name="redirect_to" value="<?= sanitize($_SERVER['REQUEST_URI'] ?? '/') ?>">
@@ -574,7 +574,7 @@ if ($wishlistLookupIds) {
                             <?php endfor; ?>
                         </div>
 
-                        <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$review['product_id'] ?>" class="flex justify-center mb-4">
+                        <a href="<?= publicUrl('/product?id=' . (int)$review['product_id']) ?>" class="flex justify-center mb-4">
                             <?php if ($reviewImageUrl): ?>
                                 <img
                                     src="<?= sanitize($reviewImageUrl) ?>"
@@ -591,7 +591,7 @@ if ($wishlistLookupIds) {
                             <?= sanitize($review['comment']) ?>
                         </p>
 
-                        <a href="<?= BASE_URL ?>/product.php?id=<?= (int)$review['product_id'] ?>"
+                        <a href="<?= publicUrl('/product?id=' . (int)$review['product_id']) ?>"
                             class="mt-4 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-black transition-colors">
                             <span class="truncate max-w-[220px]">
                                 <?= sanitize($review['product_name']) ?>
