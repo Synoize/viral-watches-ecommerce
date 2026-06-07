@@ -45,16 +45,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <?php include __DIR__ . '/includes/head.php'; ?>
-<div class="mx-auto flex min-h-[calc(100vh-6rem)] items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
-    <div class="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm">
+<div class="mx-auto flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md">
         <h3 class="text-3xl font-semibold text-slate-900">Register</h3>
-        <?php if ($error): ?><div class="mt-4 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
+        <?php if ($error): ?><div class="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
         <form method="post" class="mt-8 space-y-5">
-            <div><label class="block text-sm font-medium text-slate-700">Name</label><input name="name" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
-            <div><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" name="email" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
-            <div class="grid gap-4 sm:grid-cols-[0.6fr_1.4fr]">
+            <div><label class="block text-sm font-medium text-slate-700">Name</label><input name="name" required class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <div><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" name="email" required class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <div class="grid gap-2 sm:grid-cols-[100px_1fr]">
                 <label class="space-y-2 text-sm font-medium text-slate-700">Country Code
-                    <select name="country_code" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900">
+                    <select name="country_code" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-2 py-3 text-slate-900 outline-none focus:border-slate-900">
                         <?php $selected = isset($_POST['country_code']) ? $_POST['country_code'] : '91'; ?>
                         <?php foreach (getCountryCodes() as $code => $label): ?>
                             <option value="<?= $code ?>" <?= $selected == $code ? 'selected' : '' ?>><?= $label ?></option>
@@ -62,12 +62,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </select>
                 </label>
                 <label class="space-y-2 text-sm font-medium text-slate-700">Phone Number
-                    <input type="text" name="phone" required placeholder="e.g., 9876543210" value="<?= sanitize($_POST['phone'] ?? '') ?>" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" />
+                    <input type="text" name="phone" required placeholder="e.g., 9876543210" value="<?= sanitize($_POST['phone'] ?? '') ?>" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" />
                 </label>
             </div>
-            <div><label class="block text-sm font-medium text-slate-700">Password</label><input type="password" name="password" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
-            <div><label class="block text-sm font-medium text-slate-700">Confirm Password</label><input type="password" name="confirm_password" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
-            <button class="inline-flex w-full items-center justify-center rounded-3xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">Register</button>
+            <div><label class="block text-sm font-medium text-slate-700">Password</label><input type="password" name="password" required class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <div><label class="block text-sm font-medium text-slate-700">Confirm Password</label><input type="password" name="confirm_password" required class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
+            <button class="inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-6 py-4 text-sm font-semibold text-white hover:bg-slate-800">Register</button>
         </form>
         <p class="mt-6 text-center text-sm text-slate-600">Already have an account? <a href="<?= BASE_URL ?>/login" class="font-medium text-slate-900 underline">Login</a></p>
     </div>

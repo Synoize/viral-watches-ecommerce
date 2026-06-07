@@ -1162,15 +1162,8 @@ function validateInternationalPhone($countryCode, $phone) {
 
 function getCountryCodes() {
     return [
-        '91' => 'India (+91)',
+        '91' => 'IN (+91)',
         '1' => 'USA (+1)',
         '44' => 'UK (+44)',
-        '61' => 'Australia (+61)',
-        '81' => 'Japan (+81)',
-        '86' => 'China (+86)',
-        '33' => 'France (+33)',
-        '49' => 'Germany (+49)',
-        '39' => 'Italy (+39)',
-        '34' => 'Spain (+34)',
     ];
 }
