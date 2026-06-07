@@ -55,16 +55,15 @@ if (!empty($success)) {
                 data-toast
                 class="relative flex items-start gap-3 overflow-hidden rounded-2xl border <?= $style['border'] ?> bg-white px-5 py-4 shadow-2xl transition duration-300"
                 style="animation: toast-in 220ms ease-out both; animation-delay: <?= (int)$index * 80 ?>ms;">
-                <span class="absolute left-0 top-0 h-full w-1 <?= $style['bar'] ?>"></span>
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full <?= $style['iconBg'] ?>">
-                    <i data-lucide="<?= sanitize($style['icon']) ?>" class="h-5 w-5 <?= $style['iconText'] ?> stroke-[2]"></i>
+                    <i data-lucide="<?= sanitize($style['icon']) ?>" class="h-5 w-5 <?= $style['iconText'] ?> stroke-[1]"></i>
                 </div>
                 <div class="min-w-0 flex-1 pr-2">
                     <p class="text-sm font-semibold text-slate-900"><?= sanitize($style['title']) ?></p>
                     <p class="mt-0.5 break-words text-sm leading-5 text-slate-600"><?= sanitize($toast['message']) ?></p>
                 </div>
                 <button type="button" data-toast-close class="shrink-0 text-slate-400 transition hover:text-slate-700" aria-label="Close notification">
-                    <i data-lucide="x" class="h-4 w-4 stroke-[2]"></i>
+                    <i data-lucide="x" class="h-4 w-4 stroke-[1]"></i>
                 </button>
             </div>
         <?php endforeach; ?>
