@@ -53,7 +53,6 @@ $subtotal = calculateCartTotal();
             Browse Products
         </a>
     </div>
-    <?php if ($message = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($message) ?></div><?php endif; ?>
     <?php if ($items): ?>
         <form method="post" class="mt-8 space-y-6">
             <div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">

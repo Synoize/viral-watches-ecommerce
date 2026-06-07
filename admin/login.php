@@ -35,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="flex min-h-screen items-center justify-center bg-slate-100 text-slate-900 font-body px-4">
     <div class="w-full max-w-md rounded-[2rem] bg-white p-8 shadow-xl">
         <h1 class="text-3xl font-semibold text-slate-900">Admin Login</h1>
-        <?php if ($error): ?><div class="mt-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
         <form method="post" class="mt-8 space-y-5">
             <div><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" name="email" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
             <div><label class="block text-sm font-medium text-slate-700">Password</label><input type="password" name="password" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>

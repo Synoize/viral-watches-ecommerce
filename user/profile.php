@@ -69,8 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
     <div class="rounded-[2rem] bg-white p-8 shadow-sm">
         <h1 class="text-3xl font-semibold text-slate-900">My Profile</h1>
-        <?php if ($success): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($success) ?></div><?php endif; ?>
-        <?php if ($error): ?><div class="mt-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
         <form method="post" class="mt-8 grid gap-6">
             <div class="grid gap-6 sm:grid-cols-2">
                 <label class="space-y-2 text-sm font-medium text-slate-700">Email<input name="email_display" readonly value="<?= sanitize($user['email']) ?>" class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none" /></label>

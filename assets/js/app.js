@@ -1,3 +1,32 @@
+// Toast message
+document.addEventListener("DOMContentLoaded", () => {
+  const toast = document.getElementById("toast");
+
+  if (!toast) return;
+
+  toast.style.transform = "translateX(120%)";
+  toast.style.opacity = "0";
+
+  setTimeout(() => {
+    toast.style.transform = "translateX(0)";
+    toast.style.opacity = "1";
+  }, 100);
+
+  setTimeout(closeToast, 3500);
+});
+
+function closeToast() {
+  const toast = document.getElementById("toast");
+
+  if (!toast) return;
+
+  toast.style.transform = "translateX(120%)";
+  toast.style.opacity = "0";
+
+  setTimeout(() => toast.remove(), 500);
+}
+
+
 /* SEARCH OVERLAY */
 document.addEventListener("DOMContentLoaded", () => {
 

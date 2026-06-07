@@ -48,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="mx-auto flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
     <div class="w-full max-w-md">
         <h3 class="text-3xl font-semibold text-slate-900">Register</h3>
-        <?php if ($error): ?><div class="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
         <form method="post" class="mt-8 space-y-5">
             <div><label class="block text-sm font-medium text-slate-700">Name</label><input name="name" required class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
             <div><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" name="email" required class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>

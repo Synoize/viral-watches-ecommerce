@@ -69,8 +69,6 @@ $wishedProductIds = array_map('intval', array_column($items, 'id'));
         </a>
     </div>
 
-    <?php if ($message = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($message) ?></div><?php endif; ?>
-    <?php if ($message = flash('error')): ?><div class="mt-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($message) ?></div><?php endif; ?>
 
     <?php if ($items): ?>
         <div class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-6 lg:grid-cols-4">

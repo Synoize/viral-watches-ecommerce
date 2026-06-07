@@ -16,7 +16,6 @@ require_once __DIR__ . '/_header.php';
 ?>
 <div>
     <h2 class="text-2xl font-semibold text-slate-900">Orders</h2>
-    <?php if ($msg = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($msg) ?></div><?php endif; ?>
     <div class="mt-6 overflow-hidden rounded-[2rem] border border-slate-200">
         <table class="w-full border-separate border-spacing-0 text-left text-sm">
             <thead class="bg-slate-100 text-slate-600">

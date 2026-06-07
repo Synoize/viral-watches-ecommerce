@@ -165,8 +165,6 @@ $productShareUrl = publicUrl('/product?id=' . (int)$product['id']);
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 <div class="mx-auto max-w-[1400px] px-4 py-10 md:px-10">
-    <?php if ($message = flash('success')): ?><div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($message) ?></div><?php endif; ?>
-    <?php if ($message = flash('error')): ?><div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($message) ?></div><?php endif; ?>
 
     <div class="mt-8 grid gap-10 lg:grid-cols-[520px_1fr] lg:items-start">
         <div class="space-y-6 lg:sticky lg:top-40">

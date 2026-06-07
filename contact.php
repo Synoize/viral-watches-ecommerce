@@ -22,8 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="rounded-3xl bg-white p-8 shadow-sm">
             <h2 class="text-3xl font-semibold text-slate-900">Contact Support</h2>
             <p class="mt-3 text-slate-600">Send us a message and we will respond within 24 hours.</p>
-            <?php if ($success): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-700"><?= sanitize($success) ?></div><?php endif; ?>
-            <?php if ($error): ?><div class="mt-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
             <form method="post" class="mt-8 space-y-4">
                 <div><label class="block text-sm font-medium text-slate-700">Name</label><input type="text" name="name" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>
                 <div><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" name="email" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></div>

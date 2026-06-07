@@ -87,10 +87,6 @@ require_once __DIR__ . '/_header.php';
         </div>
     </div>
 
-    <?php if ($msg = flash('success')): ?>
-        <div class="rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($msg) ?></div>
-    <?php endif; ?>
-
     <div class="grid gap-5">
         <?php foreach ($reviews as $review): ?>
             <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">

@@ -71,13 +71,6 @@ if ($wishlistLookupIds) {
 }
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
-<?php if ($message = flash('success')): ?><div class="mx-auto max-w-[1920px] px-4 pt-4 md:px-10">
-        <div class="rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($message) ?></div>
-    </div><?php endif; ?>
-<?php if ($message = flash('error')): ?><div class="mx-auto max-w-[1920px] px-4 pt-4 md:px-10">
-        <div class="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($message) ?></div>
-    </div><?php endif; ?>
-
 <!-- HERO SECTION -->
 <section class="relative w-full overflow-hidden">
     <!-- SLIDER -->

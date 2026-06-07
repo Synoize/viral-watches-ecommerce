@@ -119,7 +119,6 @@ require_once __DIR__ . '/_header.php';
 <div class="grid gap-6 xl:grid-cols-[68%_30%]">
     <div>
         <h2 class="text-2xl font-semibold text-slate-900">Products</h2>
-        <?php if ($msg = flash('success')): ?><div class="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($msg) ?></div><?php endif; ?>
         <div class="mt-6 overflow-hidden rounded-[2rem] border border-slate-200">
             <table class="w-full border-separate border-spacing-0 text-left text-sm">
                 <thead class="bg-slate-100 text-slate-600">
@@ -177,7 +176,6 @@ require_once __DIR__ . '/_header.php';
     </div>
     <aside class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
         <h2 class="text-2xl font-semibold text-slate-900"><?= $product ? 'Edit Product' : 'Add Product' ?></h2>
-        <?php if (!empty($error)): ?><div class="mt-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
         <form method="post" enctype="multipart/form-data" class="mt-6 space-y-4">
             <input type="hidden" name="product_id" value="<?= sanitize($product['id'] ?? '') ?>">
             <label class="block text-sm font-medium text-slate-700">Name<input name="name" value="<?= sanitize($product['name'] ?? '') ?>" required class="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none focus:border-slate-900" /></label>

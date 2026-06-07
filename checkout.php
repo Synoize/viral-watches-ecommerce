@@ -57,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
         <section class="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
             <h1 class="text-3xl font-semibold text-slate-900">Checkout</h1>
-            <?php if ($error = flash('error')): ?><div class="mt-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
             <form method="post" class="mt-8 space-y-6">
                 <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                 <div class="grid gap-6 sm:grid-cols-2">

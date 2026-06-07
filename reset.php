@@ -31,8 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token && $validToken) {
 <div class="mx-auto flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
     <div class="w-full max-w-md">
         <h3 class="text-3xl font-semibold text-slate-900">Reset Password</h3>
-        <?php if ($error): ?><div class="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"><?= sanitize($error) ?></div><?php endif; ?>
-        <?php if ($success): ?><div class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><?= sanitize($success) ?></div><?php endif; ?>
         <?php if (!$success): ?>
             <form method="post" class="mt-8 space-y-5">
                 <input type="hidden" name="token" value="<?= sanitize($token) ?>" />
