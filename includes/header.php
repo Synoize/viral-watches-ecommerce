@@ -280,6 +280,38 @@ function is_active($match)
 
                     </div>
 
+                    <!-- WISHLIST -->
+                    <a href="<?= BASE_URL ?>/wishlist"
+                        class="relative text-slate-700 hover:opacity-70 transition <?= is_active('/wishlist') ?>">
+
+                        <i data-lucide="heart"
+                            class="w-6 h-6 stroke-[1]"></i>
+
+                        <?php if ($wishlistCount > 0): ?>
+                            <span
+                                class="absolute -right-2 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-[10px] font-semibold text-white">
+                                <?= $wishlistCount ?>
+                            </span>
+                        <?php endif; ?>
+
+                    </a>
+
+                    <!-- CART -->
+                    <a href="<?= BASE_URL ?>/cart"
+                        class="relative text-slate-700 hover:opacity-70 transition <?= is_active('/cart') ?>">
+
+                        <i data-lucide="shopping-bag"
+                            class="w-6 h-6 stroke-[1]"></i>
+
+                        <?php if ($cartCount > 0): ?>
+                            <span
+                                class="absolute -right-2 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full bg-black text-[10px] font-semibold text-white">
+                                <?= $cartCount ?>
+                            </span>
+                        <?php endif; ?>
+
+                    </a>
+
                     <!-- User -->
                     <?php if ($user): ?>
                         <details class="relative hidden lg:block" id="profileMenu">
@@ -359,38 +391,6 @@ function is_active($match)
                         </a>
 
                     <?php endif; ?>
-
-                    <!-- WISHLIST -->
-                    <a href="<?= BASE_URL ?>/wishlist"
-                        class="relative text-slate-700 hover:opacity-70 transition <?= is_active('/wishlist') ?>">
-
-                        <i data-lucide="heart"
-                            class="w-6 h-6 stroke-[1]"></i>
-
-                        <?php if ($wishlistCount > 0): ?>
-                            <span
-                                class="absolute -right-2 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-[10px] font-semibold text-white">
-                                <?= $wishlistCount ?>
-                            </span>
-                        <?php endif; ?>
-
-                    </a>
-
-                    <!-- CART -->
-                    <a href="<?= BASE_URL ?>/cart"
-                        class="relative text-slate-700 hover:opacity-70 transition <?= is_active('/cart') ?>">
-
-                        <i data-lucide="shopping-bag"
-                            class="w-6 h-6 stroke-[1]"></i>
-
-                        <?php if ($cartCount > 0): ?>
-                            <span
-                                class="absolute -right-2 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full bg-black text-[10px] font-semibold text-white">
-                                <?= $cartCount ?>
-                            </span>
-                        <?php endif; ?>
-
-                    </a>
 
                 </div>
             </div>

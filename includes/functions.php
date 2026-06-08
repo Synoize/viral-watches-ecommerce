@@ -768,7 +768,11 @@ function getCartItems() {
         $product['box_price'] = $box ? (float)$box['price'] : 0;
         $product['box_quantity'] = $box ? max(1, min(10, (int)($entry['box_quantity'] ?? 1))) : 0;
         $product['box_total'] = $product['box_price'] * $product['box_quantity'];
-        $product['line_total'] = ($product['price'] * $product['quantity']) + $product['box_total'];
+        $regularPrice = (float)$product['price'];
+        $offerPrice = (float)($product['offer_price'] ?? 0);
+        $product['has_offer'] = $offerPrice > 0 && $offerPrice < $regularPrice;
+        $product['effective_price'] = $product['has_offer'] ? $offerPrice : $regularPrice;
+        $product['line_total'] = ($product['effective_price'] * $product['quantity']) + $product['box_total'];
     }
     return $products;
 }
@@ -978,10 +982,10 @@ function createOrder($userId, $address, $billing, $paymentMethod, $paymentStatus
     foreach ($cartItems as $item) {
         if ($supportsBoxColumns) {
             $stmtItem = $pdo->prepare('INSERT INTO order_items (order_id, product_id, quantity, price, box_option_id, box_quantity, box_price) VALUES (?, ?, ?, ?, ?, ?, ?)');
-            $stmtItem->execute([$orderId, $item['id'], $item['quantity'], $item['price'], $item['box_id'], $item['box_quantity'], $item['box_price']]);
+            $stmtItem->execute([$orderId, $item['id'], $item['quantity'], $item['effective_price'], $item['box_id'], $item['box_quantity'], $item['box_price']]);
         } else {
             $stmtItem = $pdo->prepare('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)');
-            $stmtItem->execute([$orderId, $item['id'], $item['quantity'], $item['price']]);
+            $stmtItem->execute([$orderId, $item['id'], $item['quantity'], $item['effective_price']]);
         }
         $updateStock = $pdo->prepare('UPDATE products SET stock = GREATEST(stock - ?, 0) WHERE id = ?');
         $updateStock->execute([$item['quantity'], $item['id']]);

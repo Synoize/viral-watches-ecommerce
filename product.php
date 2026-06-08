@@ -198,7 +198,7 @@ $productShareUrl = publicUrl('/product?id=' . (int)$product['id']);
                         <?= sanitize($product['category_name'] ?? 'General') ?>
                     </span>
 
-                    <h1 class="mt-4 text-3xl md:text-4xl font-medium leading-tight text-slate-900">
+                    <h1 class="mt-4 text-3xl md:text-4xl leading-tight text-slate-900">
                         <?= sanitize($product['name']) ?>
                     </h1>
 

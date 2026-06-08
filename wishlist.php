@@ -56,19 +56,11 @@ $wishedProductIds = array_map('intval', array_column($items, 'id'));
 ?>
 <?php include __DIR__ . '/includes/header.php'; ?>
 <div class="mx-auto max-w-[1920px] px-4 py-10 md:px-10">
-    <div class="flex  gap-4 items-center justify-between">
-        <div class="flex items-center justify-between">
-            <h2 class="text-[32px] md:text-[42px] font-serif text-black">
-                My Wishlist
-            </h2>
-        </div>
-
-        <a href="<?= BASE_URL ?>/collection"
-            class="inline-flex items-center justify-center rounded-full border border-black hover:bg-black px-7 py-3 text-xs md:text-sm hover:text-white transition-all duration-300">
-            Browse Products
-        </a>
+    <div class="flex items-center justify-between">
+        <h2 class="text-[32px] md:text-[42px] font-serif text-black">
+            My Wishlist
+        </h2>
     </div>
-
 
     <?php if ($items): ?>
         <div class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
