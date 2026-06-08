@@ -247,6 +247,8 @@ $productShareUrl = publicUrl('/product?id=' . (int)$product['id']);
                     <?php endif; ?>
 
                 </div>
+                
+                <?php include __DIR__ . '/includes/summer-sale.php'; ?>
 
                 <!-- Availability -->
                 <div>

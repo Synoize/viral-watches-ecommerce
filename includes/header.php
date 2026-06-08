@@ -55,7 +55,7 @@ function is_active($match)
 <body class="font-body bg-gray-50">
     <!-- SUMMER SALE BAR -->
     <section class="relative w-full bg-cover bg-center" style="
-        background-image: url(&quot;https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1920&quot;);
+        background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1920');
       ">
         <div class="bg-[#ead8c7]/80">
             <div class="max-w-[1920px] mx-auto px-2 py-[4px]">
@@ -159,6 +159,52 @@ function is_active($match)
             </div>
         </div>
     </section>
+
+    <script>
+        /* SUMMER SALE COUNTDOWN TIMER */
+        function updateCountdown() {
+            const now = new Date();
+
+            // Next Midnight
+            const tomorrow = new Date();
+            tomorrow.setDate(now.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+
+            const diff = tomorrow - now;
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const hh = String(hours).padStart(2, "0");
+            const mm = String(minutes).padStart(2, "0");
+            const ss = String(seconds).padStart(2, "0");
+
+            const h1 = document.getElementById("h1");
+            const h2 = document.getElementById("h2");
+            const m1 = document.getElementById("m1");
+            const m2 = document.getElementById("m2");
+            const s1 = document.getElementById("s1");
+            const s2 = document.getElementById("s2");
+            if (!h1 || !h2 || !m1 || !m2 || !s1 || !s2) return;
+
+            // Hours
+            h1.innerText = hh[0];
+            h2.innerText = hh[1];
+
+            // Minutes
+            m1.innerText = mm[0];
+            m2.innerText = mm[1];
+
+            // Seconds
+            s1.innerText = ss[0];
+            s2.innerText = ss[1];
+        }
+
+        // Start Countdown
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
 
     <!-- TOP BAR -->
     <div class="bg-black text-white relative">
